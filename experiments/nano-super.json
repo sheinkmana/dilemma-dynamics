@@ -1,0 +1,31 @@
+{
+  "game": "dots-boxes",
+  "rows": 2,
+  "cols": 2,
+  "scenario": "empty",
+  "seed": 42,
+  "maxUsd": 0.25,
+  "repairAttempts": 1,
+  "format": "text",
+  "explanation": true,
+  "players": [
+    {
+      "kind": "nebius",
+      "name": "Nemotron 3 Nano",
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "knowledge": "rules",
+      "reasoning": "default",
+      "maxTokens": 2048,
+      "temperature": 0
+    },
+    {
+      "kind": "nebius",
+      "name": "Nemotron 3 Super",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "knowledge": "rules",
+      "reasoning": "default",
+      "maxTokens": 2048,
+      "temperature": 0
+    }
+  ]
+}

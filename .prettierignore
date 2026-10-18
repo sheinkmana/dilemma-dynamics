@@ -1,0 +1,6 @@
+node_modules
+dist
+data
+research
+package-lock.json
+IMPLEMENTATION_PLAN.md

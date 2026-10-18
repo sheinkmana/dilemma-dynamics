@@ -1,0 +1,17 @@
+{
+  "kind": "paired",
+  "pairs": 3,
+  "maxUsd": 1,
+  "match": {
+    "game": "dots-boxes",
+    "rows": 2,
+    "cols": 2,
+    "seed": 42,
+    "moveDelayMs": 0,
+    "openingMoves": 2,
+    "players": [
+      { "kind": "heuristic", "name": "Greedy baseline" },
+      { "kind": "random", "name": "Random baseline" }
+    ]
+  }
+}
