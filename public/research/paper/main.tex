@@ -1,0 +1,142 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+
+\title{Bounded drafting in repeated games}
+\author{}
+\date{22 October 2026}
+
+\begin{document}
+\maketitle
+
+\section{Design}
+
+We compared direct action with a bounded draft-then-action procedure in two
+Nemotron models: Nano (30B-A3B) and Super (120B-A12B).\footnote{Hosted IDs:
+\texttt{nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B} and
+\texttt{nvidia/nemotron-3-super-120b-a12b}.}
+Players maximised expected own cumulative points in a repeated Prisoner's
+Dilemma: \(CC=(3,3)\), \(CD=(0,5)\), \(DC=(5,0)\), \(DD=(1,1)\).
+Choices were private until both players had acted.
+
+Direct used one thinking-off action request (128-token cap). Draft used a
+thinking-on draft (1,024-token cap), then a separate thinking-off action
+request (128-token cap). Both received full completed history and used
+temperature 1 and top-\(p=1\). Only the current draft was added to the action request.
+
+All 1,776 scheduled episodes completed in 24 balanced blocks:
+\begin{itemize}
+\item Track A: 1,536 episodes against disclosed AllC, AllD, Tit-for-Tat (TFT)
+or Grim policies. The 16 conditions covered continuation probabilities
+\(\delta=0.4,0.6,0.9\), one-round AllC/AllD, and ten-round TFT/Grim.
+\item Track B: 240 autonomous dyads covering all ten unordered pairings of
+the four model--procedure configurations, including self-play, at \(\delta=0.9\).
+\end{itemize}
+Four label/seat strata had six blocks each. Arms shared environment draws and
+stopping lengths within blocks; provider sampling randomness was not matched.
+
+\section{Scoring}
+
+Track A loss measures expected payoff forgone against a committed opponent.
+The gap for action \(a_t\) at state \(s_t\) is
+\(g_t=V^*(s_t)-Q^*(s_t,a_t)\), where continuation after that action is optimal.
+Episode loss is
+\[
+L_{\mathrm{geometric}}=(1-\delta)\sum_t g_t,
+\qquad
+L_{\mathrm{fixed}}=\frac{1}{H}\sum_{t=1}^{H}g_t.
+\]
+Geometric gaps are not discounted again: continuation is in \(Q^*\), and
+termination supplies survival weighting. Lower loss is better; it measures
+neither action accuracy nor cooperation.
+
+The primary contrast is draft minus direct mean loss within each model.
+The 16 conditions and four strata receive equal weight. Approximate 95\%
+intervals use 20,000 stratified whole-block bootstrap draws.
+
+\section{Results}
+
+Each procedure has 384 Track A episodes. Drafting reduced average loss for both
+models (Table~\ref{tab:primary}), but the benefit varied by opponent
+(Table~\ref{tab:opponent}). The opponent breakdown is exploratory.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\hline
+Model & Direct & Draft & Difference & Approx.\ 95\% interval \\
+\hline
+Nano  & 0.6889 & 0.4942 & $-0.1947$ & $[-0.3077,-0.0983]$ \\
+Super & 0.6150 & 0.3779 & $-0.2371$ & $[-0.3095,-0.1735]$ \\
+\hline
+\end{tabular}
+\caption{Mean normalised oracle loss. Negative differences favour drafting.}
+\label{tab:primary}
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\hline
+Opponent & Nano difference & Super difference \\
+\hline
+AllC & $-0.7562$ & $-0.5146$ \\
+AllD & $-0.2135$ & $-0.3708$ \\
+Grim & $-0.1575$ & $-0.2542$ \\
+TFT  & $+0.3485$ & $+0.1913$ \\
+\hline
+\end{tabular}
+\caption{Draft minus direct loss, averaging four conditions per opponent.}
+\label{tab:opponent}
+\end{table}
+
+Drafting worsened average performance against TFT. Against AllC and AllD,
+improvement means better selection of defection under the own-payoff objective,
+not more cooperation.
+
+In Track B, mutual cooperation occurred in 189/2,060 rounds (9.2\%);
+both defected in 1,042 rounds, and 829 were asymmetric. First-round mutual
+cooperation occurred in 26/240 dyads (10.8\%). Rounds within a dyad are dependent;
+these counts do not supply 2,060 independent observations or a general ranking.
+
+\section{Interpretation and limitations}
+
+A best response to a commitment differs from an equilibrium \cite{rasmusen}.
+Grim's initial cooperation threshold is \(\delta=1/2\); TFT's is \(\delta=2/3\).
+With ten announced rounds, either committed policy is best answered by nine
+cooperations then defection (32 own points). Finite-game backward induction
+for two strategic players does not imply immediate defection against these
+commitments. Geometric termination was hidden when choosing.
+
+An earlier run stopped at 339/592 episodes after HTTP 502. Its outcomes were
+inspected before this successor, which retained the original 24-block schedule
+and excluded predecessor and engineering observations. These results are
+descriptive, not a new confirmatory preregistration.
+
+Drafting changes compute, request count, thinking settings and conditioning
+together. Six blocks per stratum, one schedule, four policies and one provider
+window limit generalisation. Interval coverage and power are not established.
+There is no general model ranking or identified autonomous-play equilibrium;
+draft text does not verify internal beliefs.
+
+\section{Execution and reproduction}
+
+The run used 17,124 successful requests, with no retries or protocol failures,
+in approximately 3 hours 8 minutes. Estimated final inference cost was \$4.9278,
+not a provider invoice.
+
+Data and offline verification instructions are in
+\texttt{public/research/README.md}. Scores and intervals reproduce from revealed
+actions without inference. Raw responses, drafts and receipts remain private;
+public records cannot authenticate provider identity, raw transport or billing.
+
+\begin{thebibliography}{1}
+\bibitem{rasmusen}
+Eric Rasmusen.
+\emph{Games and Information: An Introduction to Game Theory}.
+Supplied fourth-edition draft, chapter headers dated 2005.
+Sections 1.2, 4.1, 5.1--5.2 and 6.5.
+\end{thebibliography}
+
+\end{document}

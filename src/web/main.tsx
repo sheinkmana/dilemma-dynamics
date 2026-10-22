@@ -13,6 +13,8 @@ import { defaultConfig, isActionOnly, simpleMatchConfig } from '../shared/config
 import { geometry } from '../games/dots-boxes.js';
 import { gameFor } from '../games/registry.js';
 import './style.css';
+import { DilemmaPage } from './Dilemma.js';
+import { StudyResults } from './StudyResults.js';
 
 let token = '';
 async function api<T>(url: string, body?: unknown): Promise<T> {
@@ -67,7 +69,7 @@ function initialTheme(): 'light' | 'dark' {
     const saved = localStorage.getItem('game-field-theme');
     if (saved === 'light' || saved === 'dark') return saved;
   } catch {}
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'dark';
 }
 
 function Mark() {
@@ -214,8 +216,15 @@ function Board({
   );
 }
 
-function App() {
-  const [theme, setTheme] = useState(initialTheme);
+function Recreation({
+  navigation,
+  theme,
+  setTheme,
+}: {
+  navigation: React.ReactNode;
+  theme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark') => void;
+}) {
   const [health, setHealth] = useState<Health | null>(null);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [history, setHistory] = useState<SavedGame[]>([]);
@@ -241,17 +250,6 @@ function App() {
   const freeGame = (
     match?.config.players ?? selections.map((id) => players.find((p) => playerId(p) === id))
   ).every((p) => p && p.kind !== 'nebius');
-
-  useLayoutEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document.documentElement.style.colorScheme = theme;
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#10272d' : '#fffaf0');
-    try {
-      localStorage.setItem('game-field-theme', theme);
-    } catch {}
-  }, [theme]);
 
   const refresh = async () => {
     const [h, games] = await Promise.all([api<Health>('/health'), api<SavedGame[]>('/matches')]);
@@ -445,6 +443,7 @@ function App() {
             Game Field<span className="brand-period">.</span>
           </span>
         </a>
+        {navigation}
         <div className="header-actions">
           <div className="theme-toggle" role="group" aria-label="Color mode">
             <button
@@ -833,6 +832,70 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+function App() {
+  const [theme, setTheme] = useState(initialTheme);
+  const [page, setPage] = useState<'dilemma' | 'analysis' | 'results' | 'recreational'>(
+    window.location.hash === '#results' ? 'results' : 'dilemma',
+  );
+  const [visitedRecreation, setVisitedRecreation] = useState(false);
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.style.colorScheme = theme;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'dark' ? '#0c1225' : '#e9eaf0');
+    try {
+      localStorage.setItem('game-field-theme', theme);
+    } catch {}
+  }, [theme]);
+  const navigation = (
+    <nav className="domain-nav" aria-label="Project sections">
+      {(['dilemma', 'analysis', 'results', 'recreational'] as const).map((p) => (
+        <button
+          key={p}
+          aria-pressed={page === p}
+          onClick={() => {
+            setPage(p);
+            window.history.replaceState(
+              null,
+              '',
+              p === 'results' ? '#results' : window.location.pathname + window.location.search,
+            );
+            if (p === 'recreational') setVisitedRecreation(true);
+          }}
+        >
+          {p === 'dilemma'
+            ? 'Dilemma'
+            : p === 'analysis'
+              ? 'Analysis'
+              : p === 'results'
+                ? 'Results'
+                : 'Recreational'}
+        </button>
+      ))}
+    </nav>
+  );
+  return (
+    <>
+      <div hidden={page === 'recreational' || page === 'results'}>
+        <DilemmaPage
+          navigation={navigation}
+          analysisOnly={page === 'analysis'}
+          theme={theme}
+          setTheme={setTheme}
+        />
+      </div>
+      {page === 'results' && (
+        <StudyResults navigation={navigation} theme={theme} setTheme={setTheme} />
+      )}
+      {visitedRecreation && (
+        <div hidden={page !== 'recreational'}>
+          <Recreation navigation={navigation} theme={theme} setTheme={setTheme} />
+        </div>
+      )}
+    </>
   );
 }
 createRoot(document.getElementById('root')!).render(<App />);

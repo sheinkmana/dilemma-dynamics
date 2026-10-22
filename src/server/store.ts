@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import type { PendingRound, StoredSession } from '../dilemma/types.js';
 import type {
   AttemptRecord,
   MatchRecord,
@@ -19,7 +20,9 @@ export class Store {
       CREATE TABLE IF NOT EXISTS attempts(id TEXT PRIMARY KEY, match_id TEXT, body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY AUTOINCREMENT, match_id TEXT, body TEXT NOT NULL);
       CREATE TABLE IF NOT EXISTS settings(id TEXT PRIMARY KEY, body TEXT NOT NULL);
-      CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, body TEXT NOT NULL);`);
+      CREATE TABLE IF NOT EXISTS experiments(id TEXT PRIMARY KEY, body TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS dilemma_sessions(id TEXT PRIMARY KEY, body TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS dilemma_pending(id TEXT PRIMARY KEY, body TEXT NOT NULL);`);
     try {
       this.transaction(() => {
         const owner = this.getSetting<{ pid: number; token: string }>('__owner');
@@ -144,6 +147,69 @@ export class Store {
       }
     });
   }
+  getDilemma(id: string): StoredSession {
+    const row = this.db.prepare('SELECT body FROM dilemma_sessions WHERE id=?').get(id);
+    if (!row) throw new Error('Dilemma session not found.');
+    return JSON.parse(String(row.body));
+  }
+  dilemmas(): StoredSession[] {
+    return this.db
+      .prepare('SELECT body FROM dilemma_sessions ORDER BY rowid DESC')
+      .all()
+      .map((r) => JSON.parse(String(r.body)) as StoredSession);
+  }
+  saveDilemma(session: StoredSession) {
+    session.updatedAt = new Date().toISOString();
+    session.version++;
+    this.db
+      .prepare('INSERT OR REPLACE INTO dilemma_sessions VALUES (?,?)')
+      .run(session.id, JSON.stringify(session));
+  }
+  pendingDilemma(id: string): PendingRound | null {
+    const row = this.db.prepare('SELECT body FROM dilemma_pending WHERE id=?').get(id);
+    return row ? JSON.parse(String(row.body)) : null;
+  }
+  savePendingDilemma(id: string, pending: PendingRound) {
+    this.db
+      .prepare('INSERT OR REPLACE INTO dilemma_pending VALUES (?,?)')
+      .run(id, JSON.stringify(pending));
+  }
+  clearPendingDilemma(id: string) {
+    this.db.prepare('DELETE FROM dilemma_pending WHERE id=?').run(id);
+  }
+  dilemmaAttempts(id: string): AttemptRecord[] {
+    return this.attempts().filter((a) => a.dilemmaId === id);
+  }
+  reserveDilemma(attempts: AttemptRecord[], id: string, cap: number) {
+    this.transaction(() => {
+      const extra = attempts.reduce((sum, a) => sum + a.reservedUsd, 0),
+        l = this.ledger();
+      if (l.spent + l.reserved + extra > l.cap + 1e-10)
+        throw new Error('Global budget cannot reserve both decisions. No new request was started.');
+      const owned = this.dilemmaAttempts(id).reduce(
+        (sum, a) => sum + (a.outcome === 'pending' ? a.reservedUsd : a.costUsd),
+        0,
+      );
+      if (owned + extra > cap + 1e-10)
+        throw new Error(
+          'Session budget cannot reserve both decisions. No new request was started.',
+        );
+      for (const a of attempts) this.saveAttempt(a);
+      const s = this.getDilemma(id);
+      this.refreshDilemmaCosts(s);
+      this.saveDilemma(s);
+    });
+  }
+  refreshDilemmaCosts(s: StoredSession) {
+    const attempts = this.dilemmaAttempts(s.id);
+    s.spentUsd = attempts.reduce((sum, a) => sum + (a.outcome === 'pending' ? 0 : a.costUsd), 0);
+    s.reservedUsd = attempts.reduce(
+      (sum, a) => sum + (a.outcome === 'pending' ? a.reservedUsd : 0),
+      0,
+    );
+    s.attempts = attempts.length;
+    s.invalidAttempts = attempts.filter((a) => a.outcome === 'invalid').length;
+  }
   capabilities(endpoint: string, model: string): Capabilities | undefined {
     return this.getSetting(`cap:${endpoint}:${model}`);
   }
@@ -192,6 +258,20 @@ export class Store {
           e.message = 'Paused after server restart.';
           this.saveExperiment(e);
         }
+      for (const s of this.dilemmas()) {
+        if (s.status === 'running') {
+          const invalid = this.dilemmaAttempts(s.id).some(
+            (a) => a.moveIndex === s.rounds.length && a.outcome === 'invalid',
+          );
+          s.status = invalid ? 'invalid' : 'interrupted';
+          s.endReason = invalid ? 'protocol' : 'restart';
+          s.message = invalid
+            ? 'A recorded invalid decision ended this interaction; no joint payoff was applied.'
+            : 'Server restarted. Resume explicitly; any persisted choices remain sealed.';
+        }
+        this.refreshDilemmaCosts(s);
+        this.saveDilemma(s);
+      }
     });
   }
   close() {

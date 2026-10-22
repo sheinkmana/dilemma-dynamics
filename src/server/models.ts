@@ -23,6 +23,6 @@ export function estimateReservation(body: Record<string, unknown>, model: ModelI
   const input = Buffer.byteLength(JSON.stringify(body.messages), 'utf8') + 2048;
   return (input * model.inputRate + Number(body.max_tokens) * model.outputRate) / 1e6;
 }
-export function usageCost(usage: Usage, model: ModelInfo) {
+export function usageCost(usage: Usage, model: Pick<ModelInfo, 'inputRate' | 'outputRate'>) {
   return (usage.promptTokens * model.inputRate! + usage.completionTokens * model.outputRate!) / 1e6;
 }

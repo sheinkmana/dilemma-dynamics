@@ -8,6 +8,9 @@ export interface Completion {
   finishReason: string | null;
   providerRequestId: string | null;
   resolvedModel: string | null;
+  streamBytes: number;
+  generatedBytes: number;
+  streamComplete: boolean;
 }
 export class ProviderError extends Error {
   constructor(
@@ -41,6 +44,7 @@ export class Nebius {
     public baseUrl: string,
     private key: string,
     private fetcher: typeof fetch = fetch,
+    public requestTimeoutMs = 90000,
   ) {}
   get configured() {
     return Boolean(this.key);
@@ -74,6 +78,9 @@ export class Nebius {
       finishReason: null,
       providerRequestId: null,
       resolvedModel: null,
+      streamBytes: 0,
+      generatedBytes: 0,
+      streamComplete: false,
     };
     if (!this.key)
       throw new ProviderError('NEBIUS_API_KEY is not configured on the server.', result);
@@ -83,7 +90,7 @@ export class Nebius {
         method: 'POST',
         headers: { Authorization: `Bearer ${this.key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...body, stream: true, stream_options: { include_usage: true } }),
-        signal: AbortSignal.any([signal, AbortSignal.timeout(90000)]),
+        signal: AbortSignal.any([signal, AbortSignal.timeout(this.requestTimeoutMs)]),
       });
       result.providerRequestId = response.headers.get('x-request-id');
       if (!response.ok)
@@ -97,8 +104,7 @@ export class Nebius {
       reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '',
-        done = false,
-        bytes = 0;
+        done = false;
       const consume = (event: string) => {
         const data = event
           .split('\n')
@@ -129,6 +135,9 @@ export class Nebius {
           ['reasoning', delta.reasoning_content ?? delta.reasoning],
         ] as const) {
           if (typeof value !== 'string' || !value) continue;
+          result.generatedBytes += new TextEncoder().encode(value).byteLength;
+          if (result.generatedBytes > 2_000_000)
+            throw new Error('Response exceeded the 2 MB generated-content limit.');
           if (result.firstTokenMs === null) result.firstTokenMs = performance.now() - start;
           if (kind === 'content') result.raw += value;
           else result.reasoning += value;
@@ -138,8 +147,12 @@ export class Nebius {
       while (true) {
         const chunk = await reader.read();
         if (chunk.done) break;
-        bytes += chunk.value.byteLength;
-        if (bytes > 2_000_000) throw new Error('Response exceeded the 2 MB safety limit.');
+        // SSE metadata can be hundreds of bytes per generated token. Keep a
+        // separate wire limit so the content guard does not censor ordinary
+        // long reasoning streams merely because they contain many events.
+        result.streamBytes += chunk.value.byteLength;
+        if (result.streamBytes > 16_000_000)
+          throw new Error('Response exceeded the 16 MB transport limit.');
         buffer += decoder.decode(chunk.value, { stream: true }).replace(/\r\n/g, '\n');
         // Normalize again so CRLF split across byte chunks is handled.
         buffer = buffer.replace(/\r\n/g, '\n');
@@ -153,6 +166,7 @@ export class Nebius {
       if (buffer.trim()) consume(buffer.replace(/\r\n/g, '\n'));
       if (!done && !result.finishReason)
         throw new Error('Stream ended without a completion marker.');
+      result.streamComplete = done && result.finishReason !== null;
       result.latencyMs = performance.now() - start;
       return result;
     } catch (error) {

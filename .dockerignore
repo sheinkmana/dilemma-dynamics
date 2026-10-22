@@ -1,0 +1,10 @@
+**
+!pyproject.toml
+!uv.lock
+!python/
+!python/**
+!fixtures/
+!fixtures/**
+!deploy/
+!deploy/**
+**/__pycache__/

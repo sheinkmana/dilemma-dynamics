@@ -1,70 +1,75 @@
+/* Local system fonts keep the interface readable without a font service. */
 :root {
-  font-family:
-    'Avenir Next',
-    Avenir,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
-  font-weight: 500;
+  --font-body: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-display: 'Arial Black', 'Avenir Next', 'Segoe UI', sans-serif;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
   font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   color-scheme: light;
   color: var(--text);
   background: var(--background);
-  --background: #fffaf0;
-  --paper: #ffffff;
-  --panel: #f0f6eb;
-  --player-panel: #f6faf1;
-  --text: #183e42;
-  --green: #007e75;
-  --green-hover: #00695f;
-  --orange: #ce5732;
-  --muted: #526b65;
-  --line: #bed3c8;
-  --input-line: #a9c4b7;
-  --hover: #e0efe1;
+  --background: #e9eaf0;
+  --paper: #f7f8fc;
+  --panel: #e2e3ee;
+  --player-panel: #eef0f7;
+  --text: #171d37;
+  --green: #316313;
+  --green-hover: #264f0c;
+  --orange: #145b7c;
+  --muted: #525973;
+  --line: #a6adc4;
+  --input-line: #7c859f;
+  --hover: #d9dcec;
   --primary-text: #ffffff;
-  --mint: #d8f2d7;
-  --peach: #ffe5ce;
-  --board-empty: #77998c;
-  --dot: #245351;
-  --coordinate: #536f63;
-  --highlight: #ffcd5b;
-  --code-bg: #e5eedc;
-  --warning-bg: #fff0db;
-  --warning-line: #e5b77b;
-  --warning-text: #885022;
-  --shadow: 0 10px 32px #356e4210;
-  --overlay: #132f357a;
+  --mint: #d8f5bc;
+  --peach: #cdeefa;
+  --board-empty: #707d9e;
+  --dot: #292b50;
+  --coordinate: #525973;
+  --highlight: #6744b2;
+  --code-bg: #e3e3f2;
+  --warning-bg: #f3edf9;
+  --warning-line: #8870a7;
+  --warning-text: #593b7a;
+  --shadow: 5px 5px 0 #171d371c;
+  --overlay: #0b1026b8;
+  --neon-green: #c0f99a;
+  --neon-blue: #9be5ff;
+  --title-shadow: #a9b6d0;
+  --grid: #656e9d12;
 }
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --background: #10272d;
-  --paper: #19343a;
-  --panel: #203f42;
-  --player-panel: #1e3b3e;
-  --text: #eef8e9;
-  --green: #6be2bd;
-  --green-hover: #8aefd0;
-  --orange: #ffaf80;
-  --muted: #b2cdc1;
-  --line: #426660;
-  --input-line: #5c8276;
-  --hover: #2b4f4b;
-  --primary-text: #123b35;
-  --mint: #294f43;
-  --peach: #5a4035;
-  --board-empty: #648c80;
-  --dot: #d9efcb;
-  --coordinate: #acc8b8;
-  --highlight: #f9d46d;
-  --code-bg: #2d5048;
-  --warning-bg: #49382c;
-  --warning-line: #916e47;
-  --warning-text: #ffd9ac;
-  --shadow: 0 14px 36px #00000020;
-  --overlay: #061416b5;
+  --background: #0c1225;
+  --paper: #151c34;
+  --panel: #241e3b;
+  --player-panel: #1c233e;
+  --text: #edf0f7;
+  --green: #c0f99a;
+  --green-hover: #d4ffb7;
+  --orange: #9be5ff;
+  --muted: #b2bbd2;
+  --line: #434b6b;
+  --input-line: #647094;
+  --hover: #303350;
+  --primary-text: #101b24;
+  --mint: #2a3e34;
+  --peach: #203d53;
+  --board-empty: #697797;
+  --dot: #d6dcf0;
+  --coordinate: #a7b5d0;
+  --highlight: #b6a0f4;
+  --code-bg: #2b2746;
+  --warning-bg: #30223e;
+  --warning-line: #8a70a8;
+  --warning-text: #e4cef8;
+  --shadow: 5px 5px 0 #060a17;
+  --overlay: #070b1cd9;
+  --title-shadow: #4b3a78;
+  --grid: #a3aee00a;
 }
 
 * {
@@ -72,6 +77,15 @@
 }
 body {
   margin: 0;
+  min-width: 320px;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+::selection {
+  background: var(--neon-blue);
+  color: #0c1225;
 }
 button,
 select,
@@ -108,15 +122,25 @@ h2,
 p {
   margin-top: 0;
 }
+h1,
+h2,
+h3,
+.brand,
+.pd-learning > summary strong {
+  font-family: var(--font-display);
+  font-weight: 900;
+  line-height: 1.2;
+}
 h1 {
-  font-size: clamp(30px, 4vw, 44px);
-  font-weight: 750;
-  letter-spacing: -1.5px;
-  margin-bottom: 8px;
+  font-size: clamp(36px, 5.5vw, 64px);
+  letter-spacing: -0.055em;
+  margin-bottom: 16px;
+  text-wrap: balance;
+  text-shadow: 3px 3px 0 var(--title-shadow);
 }
 h2 {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 900;
   margin-bottom: 0;
 }
 p,
@@ -134,9 +158,11 @@ code {
   border-radius: 4px;
 }
 .app-header {
-  max-width: 1000px;
+  max-width: 1280px;
   margin: auto;
-  padding: 24px 28px;
+  padding: 22px 28px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -148,9 +174,9 @@ code {
   gap: 14px;
   color: var(--text);
   text-decoration: none;
-  font-size: 24px;
-  font-weight: 750;
-  letter-spacing: -0.8px;
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: -1px;
   white-space: nowrap;
 }
 .brand-period {
@@ -169,7 +195,7 @@ code {
   width: 6px;
   height: 6px;
   background: var(--green);
-  border-radius: 50%;
+  border-radius: 0;
   position: absolute;
   transform: translate(-50%, -50%);
 }
@@ -193,7 +219,8 @@ code {
 .outline,
 .quiet {
   padding: 11px 16px;
-  border-radius: 6px;
+  border-radius: 3px;
+  min-height: 44px;
   font-size: 13px;
   font-weight: 650;
   line-height: 1.4;
@@ -201,6 +228,7 @@ code {
 .primary {
   background: var(--green);
   color: var(--primary-text);
+  box-shadow: 3px 3px 0 var(--title-shadow);
 }
 .primary:hover:not(:disabled) {
   background: var(--green-hover);
@@ -227,16 +255,16 @@ code {
   font-size: 12px;
 }
 .game-page {
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
-  padding: 24px 28px 20px;
+  padding: 44px 28px 28px;
 }
 .page-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 22px;
+  margin-bottom: 30px;
 }
 .page-heading p {
   color: var(--muted);
@@ -244,17 +272,26 @@ code {
   margin-bottom: 0;
 }
 .eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
-  letter-spacing: 2px;
-  color: var(--muted);
+  letter-spacing: 1.8px;
+  color: var(--green);
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+}
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 10px;
+  background: currentColor;
+  box-shadow: 4px -4px 0 var(--title-shadow);
 }
 .quick-setup {
   border: 1px solid var(--line);
   padding: 18px;
-  border-radius: 10px;
+  border-radius: 3px;
   margin-bottom: 20px;
   background: var(--panel);
 }
@@ -278,7 +315,7 @@ select {
   min-width: 0;
   padding: 10px 9px;
   border: 1px solid var(--input-line);
-  border-radius: 5px;
+  border-radius: 3px;
   background: var(--paper);
   font-size: 12px;
   color: var(--text);
@@ -291,7 +328,7 @@ select {
   margin-top: 13px;
 }
 .setup-caption small {
-  font-size: 11px;
+  font-size: 12px;
 }
 .quick-setup .muted {
   margin: 12px 0 0;
@@ -299,7 +336,7 @@ select {
 .game-card {
   background: var(--paper);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 3px;
   box-shadow: var(--shadow);
   overflow: hidden;
 }
@@ -342,7 +379,7 @@ select {
   margin: 0 0 4px;
 }
 .player-card small {
-  font-size: 11px;
+  font-size: 12px;
 }
 .player-card strong {
   font-size: 29px;
@@ -363,7 +400,7 @@ select {
   width: 25px;
   height: 25px;
   border-radius: 50%;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
   flex-shrink: 0;
 }
@@ -376,7 +413,9 @@ select {
   background: var(--peach);
 }
 .board-wrap {
-  padding: 20px 30px 10px;
+  padding: 24px 30px 16px;
+  background-image: radial-gradient(var(--grid) 1px, transparent 1px);
+  background-size: 12px 12px;
   display: flex;
   justify-content: center;
 }
@@ -512,7 +551,7 @@ select {
 }
 .game-controls small {
   flex-basis: 100%;
-  font-size: 11px;
+  font-size: 12px;
   margin-top: 3px;
   overflow-wrap: anywhere;
 }
@@ -551,13 +590,13 @@ summary {
   gap: 16px;
   margin-top: 24px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .error,
 .notice {
   border: 1px solid var(--warning-line);
   background: var(--warning-bg);
-  border-radius: 6px;
+  border-radius: 3px;
   padding: 12px 16px;
   color: var(--warning-text);
   font-size: 12px;
@@ -577,7 +616,7 @@ summary {
   background: var(--paper);
   border: 1px solid var(--line);
   box-shadow: 0 30px 100px #00000030;
-  border-radius: 12px;
+  border-radius: 3px;
   padding: 24px;
   max-height: calc(100vh - 40px);
   overflow: auto;
@@ -601,7 +640,7 @@ summary {
   gap: 15px;
   text-align: left;
   color: var(--text);
-  border-radius: 5px;
+  border-radius: 3px;
   background: var(--panel);
 }
 .history-list button:hover {
@@ -623,7 +662,7 @@ summary {
   margin-bottom: 4px;
 }
 .history-list small {
-  font-size: 11px;
+  font-size: 12px;
 }
 .shutdown-screen {
   max-width: 550px;
@@ -651,7 +690,7 @@ summary {
   }
   .header-actions button {
     padding: 8px;
-    font-size: 11px;
+    font-size: 12px;
   }
   .game-page {
     padding: 18px 20px;
@@ -706,7 +745,7 @@ summary {
   gap: 3px;
   padding: 4px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 3px;
   background: var(--paper);
   flex-shrink: 0;
 }
@@ -719,7 +758,7 @@ summary {
   padding: 5px 10px;
   color: var(--muted);
   background: transparent;
-  border-radius: 999px;
+  border-radius: 3px;
   font-size: 12px;
   font-weight: 650;
 }
@@ -734,8 +773,9 @@ summary {
   padding: 18px 22px 14px;
   margin-bottom: 18px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 3px;
   background: var(--panel);
+  box-shadow: var(--shadow);
 }
 .cost-item {
   min-width: 0;
@@ -743,7 +783,7 @@ summary {
 .cost-item > span {
   display: block;
   margin-bottom: 6px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 750;
   letter-spacing: 0.8px;
   text-transform: uppercase;
@@ -763,13 +803,13 @@ summary {
   color: var(--green);
 }
 .cost-item strong small {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 650;
   letter-spacing: 0;
 }
 .cost-item > small {
   display: block;
-  font-size: 11px;
+  font-size: 12px;
 }
 .cost-caption {
   grid-column: 1 / -1;
@@ -777,7 +817,7 @@ summary {
   padding-top: 10px;
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 11px;
+  font-size: 12px;
 }
 .how-it-works {
   margin-top: 14px;
@@ -792,7 +832,7 @@ summary {
   max-width: 650px;
   margin-top: 16px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.8;
 }
 .explanation-copy p {
@@ -803,7 +843,7 @@ summary {
   font-weight: 700;
 }
 .explanation-copy code {
-  font-size: 11px;
+  font-size: 12px;
   overflow-wrap: anywhere;
 }
 .game-details summary,
@@ -855,6 +895,54 @@ select {
     font-size: 28px;
   }
   .cost-item > span {
-    font-size: 10px;
+    font-size: 12px;
+  }
+}
+
+/* Shared interaction cues stay visible with a keyboard and without motion. */
+button,
+a,
+summary,
+input,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button:not(:disabled):active {
+  transform: translateY(1px);
+}
+.outline:hover:not(:disabled),
+.text-button:hover:not(:disabled) {
+  background: var(--hover);
+}
+summary:hover,
+a:hover {
+  color: var(--green);
+}
+.header-actions {
+  margin-left: auto;
+}
+.app-footer {
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+@media (max-width: 680px) {
+  h1 {
+    font-size: clamp(36px, 9vw, 52px);
+  }
+  .page-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  button:not(:disabled):active {
+    transform: none;
   }
 }

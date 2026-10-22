@@ -126,6 +126,7 @@ export interface MatchRecord {
 }
 export interface AttemptRecord {
   id: string;
+  dilemmaId?: string;
   matchId: string | null;
   moveIndex: number;
   player: Player | null;
@@ -150,6 +151,9 @@ export interface AttemptRecord {
   finishReason: string | null;
   providerRequestId: string | null;
   resolvedModel?: string | null;
+  streamBytes?: number;
+  generatedBytes?: number;
+  streamComplete?: boolean;
   pricing?: { inputRate: number | null; outputRate: number | null; date: string };
 }
 export interface ModelInfo {

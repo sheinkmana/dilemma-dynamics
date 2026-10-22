@@ -1,5 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": { "noEmit": false, "outDir": "dist", "rootDir": "src", "sourceMap": true },
-  "include": ["src/server", "src/engine", "src/games", "src/players", "src/shared", "src/cli"]
+  "include": [
+    "src/server",
+    "src/engine",
+    "src/games",
+    "src/players",
+    "src/shared",
+    "src/cli"
+  ]
 }

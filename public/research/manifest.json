@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "scope": "Public derived package; hashes do not authenticate privately retained provider evidence.",
+  "files": {
+    "README.md": "5a2c6b632452447ce6b4643a24efefb74dd7092ee3703d610db575dc7fae361f",
+    "block-contrasts.csv": "17a5da7a1388cbbe330231fda05a30f8314d0305a947b4ddaec993b55e4f6ab7",
+    "condition-losses.csv": "58077e0c56968a67c6560589e9bdb5be0206c13f763576b6ff9e1dd5c1ee2551",
+    "crossplay.csv": "acc70fe3fa637d62299604974863f69dcf2b7f4428776e066800b996d9889bea",
+    "episodes.json": "77995b4f2db578a778a851f82a2bb30fc29855c253f208b3406393718b38edd2",
+    "executed-source-index.json": "51faf65a0a602ceafa83ea8d1d6fa5e517cbc0e87a7e00549bea47e555e9a1d6",
+    "figures/condition-effects.png": "0d4cb90a6e4b6dff678660c94bb9c3f47fedf8ea49a556b43a2ffe00bfad7ce7",
+    "figures/condition-effects.svg": "c97b041fc887c1da6d646b1de80676ab0c9bd6140fcfd539fa9c84f0b2e69fc9",
+    "figures/primary-results.png": "5f9c89799b3e27474d852355bd13e9fb0beaaf7783b0f475a47cec3a09952a48",
+    "figures/primary-results.svg": "a144b14d94386be3e2e8a0db6e11fa3a71ba5b65f03515fbe19da234eff5c3a3",
+    "paper/main.tex": "9cd2e7dc36fd11bb2ccc5d531fc5bd401e8067d3332de921ac59fb83d4676dfb",
+    "paper/report.pdf": "4003d197948b5b37f7114dd21bed6b7a78259793ef01e828651b437becfd3cea",
+    "plan.json": "9db175f9a41e60fdbb7f61684caf35f1437f15a15f0c7a0a87be6a8f621188d4",
+    "policy-effects.csv": "8d57b46f0dae90a74cac984348c30dd81b654369525fa6c5b0c3be6a790584a7",
+    "protocol.md": "7ab9abca2fe0514a76dc826976c30a4de95e7a8330002c5300e9a9bc3685897b",
+    "summary.json": "c5c613230898a32c0a21b33a526483c8624d387060251279f359d7f97317eb31"
+  }
+}

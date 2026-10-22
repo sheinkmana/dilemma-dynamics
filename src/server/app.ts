@@ -9,6 +9,8 @@ import { Experiments } from './experiments.js';
 import { replayHtml } from './export.js';
 import { scenarios } from '../games/scenarios.js';
 import { evaluate } from '../games/evaluate.js';
+import { DilemmaRunner } from './dilemma-runner.js';
+import { registerDilemma } from './dilemma-routes.js';
 export async function createApp(
   runner: Runner,
   options: { port?: number; webRoot?: string; onShutdown?: () => Promise<void> } = {},
@@ -16,6 +18,7 @@ export async function createApp(
   const app = Fastify({ logger: false, bodyLimit: 64 * 1024 });
   const token = randomBytes(32).toString('hex'),
     experiments = new Experiments(runner),
+    dilemma = new DilemmaRunner(runner),
     port = options.port ?? 4317;
   let shuttingDown = false;
   app.addHook('onRequest', async (req, reply) => {
@@ -59,6 +62,7 @@ export async function createApp(
     };
   });
   app.get('/api/models', async () => runner.models());
+  registerDilemma(app, dilemma);
   app.post('/api/shutdown', async (_req, reply) => {
     if (!shuttingDown) {
       shuttingDown = true;
@@ -216,10 +220,12 @@ export async function createApp(
     );
   }
   app.addHook('preClose', async () => {
+    for (const s of runner.store.dilemmas()) if (s.status === 'running') dilemma.stop(s.id);
     for (const e of runner.store.experiments()) if (e.status === 'running') experiments.pause(e.id);
     for (const m of runner.store.matches()) if (m.status === 'running') runner.stop(m.id);
     await experiments.idle();
     await runner.idle();
+    await dilemma.idle();
     app.server.closeAllConnections();
   });
   return app;

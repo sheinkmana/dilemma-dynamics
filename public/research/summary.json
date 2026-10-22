@@ -1,0 +1,542 @@
+{
+  "schemaVersion": 1,
+  "studyDate": "2026-10-22",
+  "studyId": "recovery-successor-01-2026-10-22",
+  "interpretation": "Descriptive amended study; not a confirmatory preregistration.",
+  "publicEvidenceScope": "Completed plan and revealed episode actions. Raw provider responses, private drafts, receipts and operational records are retained privately; public data cannot independently verify provider identity, transport, billing or the original raw event chain.",
+  "sourceSha256": "0f2fe59b9218ea0f77d21f7dfd71207b9d030909256ec8d0813508b12aac6c2a",
+  "planSha256": "d28ab0aada5fd26d9822c4e3c9e85948fb9b7ff6a50bbc325518de87982fc5c4",
+  "evidenceHead": "9ae7cce67e2d1c150884560a8d5412dcaea635eaffba1d5b52c3d83916c9694f",
+  "completed": 1776,
+  "scheduled": 1776,
+  "requestCount": 17124,
+  "decisionCount": 11416,
+  "draftCount": 5708,
+  "roundCount": 9356,
+  "failures": 0,
+  "retries": 0,
+  "sessions": 1,
+  "unresolvedSuccessorUsd": "0",
+  "primary": [
+    {
+      "model": "nano",
+      "direction": "draft-minus-direct; negative favours draft",
+      "estimate": -0.19470610119047618,
+      "approximateInterval95": [
+        -0.3076987537202381,
+        -0.09830319940476194
+      ],
+      "eligibleBlocksByStratum": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "incompleteBlocks": [],
+      "scheduledOutcomeBounds": [
+        -0.19470610119047618,
+        -0.19470610119047618
+      ],
+      "inference": "conditional on complete within-model blocks; descriptive, not confirmatory",
+      "intervalStatus": "approximate",
+      "directMean": 0.688921130952381,
+      "draftMean": 0.4942150297619048,
+      "relativeReductionPercent": 28.26246611441717,
+      "stratumMeans": [
+        -0.2998363095238095,
+        -0.11184523809523811,
+        -0.2731845238095238,
+        -0.09395833333333332
+      ]
+    },
+    {
+      "model": "super",
+      "direction": "draft-minus-direct; negative favours draft",
+      "estimate": -0.23708333333333334,
+      "approximateInterval95": [
+        -0.30947191220238096,
+        -0.1734739583333334
+      ],
+      "eligibleBlocksByStratum": [
+        6,
+        6,
+        6,
+        6
+      ],
+      "incompleteBlocks": [],
+      "scheduledOutcomeBounds": [
+        -0.23708333333333334,
+        -0.23708333333333334
+      ],
+      "inference": "conditional on complete within-model blocks; descriptive, not confirmatory",
+      "intervalStatus": "approximate",
+      "directMean": 0.6149739583333333,
+      "draftMean": 0.37789062500000004,
+      "relativeReductionPercent": 38.551767944103325,
+      "stratumMeans": [
+        -0.25157738095238097,
+        -0.27979166666666666,
+        -0.15494047619047618,
+        -0.26202380952380955
+      ]
+    }
+  ],
+  "arms": {
+    "nano-direct": {
+      "episodes": 384,
+      "meanOracleLoss": 0.688921130952381,
+      "zeroLossEpisodes": 130
+    },
+    "nano-draft": {
+      "episodes": 384,
+      "meanOracleLoss": 0.4942150297619048,
+      "zeroLossEpisodes": 194
+    },
+    "super-direct": {
+      "episodes": 384,
+      "meanOracleLoss": 0.6149739583333333,
+      "zeroLossEpisodes": 126
+    },
+    "super-draft": {
+      "episodes": 384,
+      "meanOracleLoss": 0.37789062500000004,
+      "zeroLossEpisodes": 232
+    }
+  },
+  "policyEffects": [
+    {
+      "policy": "allc",
+      "nano": -0.75625,
+      "super": -0.5145833333333334
+    },
+    {
+      "policy": "alld",
+      "nano": -0.21354166666666666,
+      "super": -0.37083333333333335
+    },
+    {
+      "policy": "grim",
+      "nano": -0.15749999999999997,
+      "super": -0.25416666666666665
+    },
+    {
+      "policy": "tft",
+      "nano": 0.34846726190476196,
+      "super": 0.19125
+    }
+  ],
+  "crossplay": [
+    {
+      "cell": "B/nano-direct/nano-direct",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 5,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 3.8333333333333335,
+      "mutualCooperation": {
+        "count": 52,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 38,
+        "opportunities": 45
+      },
+      "recovery": {
+        "count": 40,
+        "opportunities": 137
+      }
+    },
+    {
+      "cell": "B/nano-direct/nano-draft",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 3,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 3.1125000000000003,
+      "mutualCooperation": {
+        "count": 14,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 13,
+        "opportunities": 13
+      },
+      "recovery": {
+        "count": 11,
+        "opportunities": 169
+      }
+    },
+    {
+      "cell": "B/nano-direct/super-direct",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 5,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 3.529166666666667,
+      "mutualCooperation": {
+        "count": 33,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 29,
+        "opportunities": 29
+      },
+      "recovery": {
+        "count": 28,
+        "opportunities": 153
+      }
+    },
+    {
+      "cell": "B/nano-direct/super-draft",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 0,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 2.841666666666667,
+      "mutualCooperation": {
+        "count": 6,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 6,
+        "opportunities": 6
+      },
+      "recovery": {
+        "count": 6,
+        "opportunities": 176
+      }
+    },
+    {
+      "cell": "B/nano-draft/nano-draft",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 2,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 2.745833333333333,
+      "mutualCooperation": {
+        "count": 10,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 9,
+        "opportunities": 9
+      },
+      "recovery": {
+        "count": 8,
+        "opportunities": 173
+      }
+    },
+    {
+      "cell": "B/nano-draft/super-direct",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 3,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 3.2708333333333335,
+      "mutualCooperation": {
+        "count": 19,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 15,
+        "opportunities": 18
+      },
+      "recovery": {
+        "count": 13,
+        "opportunities": 164
+      }
+    },
+    {
+      "cell": "B/nano-draft/super-draft",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 3,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 2.533333333333333,
+      "mutualCooperation": {
+        "count": 10,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 4,
+        "opportunities": 8
+      },
+      "recovery": {
+        "count": 3,
+        "opportunities": 174
+      }
+    },
+    {
+      "cell": "B/super-direct/super-direct",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 3,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 3.4791666666666665,
+      "mutualCooperation": {
+        "count": 33,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 23,
+        "opportunities": 29
+      },
+      "recovery": {
+        "count": 24,
+        "opportunities": 153
+      }
+    },
+    {
+      "cell": "B/super-direct/super-draft",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 1,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 3.0666666666666664,
+      "mutualCooperation": {
+        "count": 6,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 6,
+        "opportunities": 6
+      },
+      "recovery": {
+        "count": 5,
+        "opportunities": 176
+      }
+    },
+    {
+      "cell": "B/super-draft/super-draft",
+      "scheduled": 24,
+      "completed": 24,
+      "firstCC": {
+        "count": 1,
+        "opportunities": 24
+      },
+      "meanNormalisedJointReturn": 2.2666666666666666,
+      "mutualCooperation": {
+        "count": 6,
+        "opportunities": 206
+      },
+      "breakdown": {
+        "count": 5,
+        "opportunities": 5
+      },
+      "recovery": {
+        "count": 5,
+        "opportunities": 177
+      }
+    }
+  ],
+  "jointActionCounts": {
+    "DD": 1042,
+    "CC": 189,
+    "DC": 439,
+    "CD": 390
+  },
+  "firstRoundCC": 26,
+  "durationSecondsApprox": 11277.813758134842,
+  "durationBasis": "session timestamp to terminal ledger filesystem modification; terminal event has no timestamp",
+  "finalEstimatedUsd": "4.92776508",
+  "successorEngineeringEstimatedUsd": "0.09012780",
+  "successorTotalEstimatedUsd": "5.01789288",
+  "campaignExposureUsd": "6.32674422",
+  "campaignTechnicalExposureUsd": "0.18093318",
+  "campaignFinalExposureUsd": "6.14581104",
+  "otherChargesReserveUsd": "8",
+  "armUsage": {
+    "super-direct": {
+      "requests": 2854,
+      "promptTokens": 1068687,
+      "completionTokens": 19982,
+      "costUsd": "0.3385899",
+      "serialRequestSeconds": 1994.4581360814627
+    },
+    "nano-draft": {
+      "requests": 5708,
+      "promptTokens": 4462398,
+      "completionTokens": 2199849,
+      "costUsd": "0.79570764",
+      "serialRequestSeconds": 21219.125314065488
+    },
+    "nano-direct": {
+      "requests": 2854,
+      "promptTokens": 1068726,
+      "completionTokens": 17717,
+      "costUsd": "0.06837564",
+      "serialRequestSeconds": 1327.9841513957363
+    },
+    "super-draft": {
+      "requests": 5708,
+      "promptTokens": 4838592,
+      "completionTokens": 2526127,
+      "costUsd": "3.7250919",
+      "serialRequestSeconds": 25056.92271458055
+    }
+  },
+  "conditions": [
+    {
+      "condition": "allc-g0.4",
+      "nano-direct": 1.0,
+      "nano-draft": 0.15,
+      "super-direct": 0.5,
+      "super-draft": 0.0,
+      "nanoDifference": -0.85,
+      "superDifference": -0.5
+    },
+    {
+      "condition": "allc-g0.6",
+      "nano-direct": 1.0666666666666667,
+      "nano-draft": 0.23333333333333334,
+      "super-direct": 0.7333333333333334,
+      "super-draft": 0.0,
+      "nanoDifference": -0.8333333333333333,
+      "superDifference": -0.7333333333333334
+    },
+    {
+      "condition": "allc-g0.9",
+      "nano-direct": 0.825,
+      "nano-draft": 0.06666666666666667,
+      "super-direct": 0.4083333333333333,
+      "super-draft": 0.0,
+      "nanoDifference": -0.7583333333333333,
+      "superDifference": -0.4083333333333333
+    },
+    {
+      "condition": "allc-h1",
+      "nano-direct": 0.6666666666666666,
+      "nano-draft": 0.08333333333333333,
+      "super-direct": 0.4166666666666667,
+      "super-draft": 0.0,
+      "nanoDifference": -0.5833333333333333,
+      "superDifference": -0.4166666666666667
+    },
+    {
+      "condition": "alld-g0.4",
+      "nano-direct": 0.27499999999999997,
+      "nano-draft": 0.125,
+      "super-direct": 0.35,
+      "super-draft": 0.024999999999999998,
+      "nanoDifference": -0.14999999999999997,
+      "superDifference": -0.32499999999999996
+    },
+    {
+      "condition": "alld-g0.6",
+      "nano-direct": 0.5,
+      "nano-draft": 0.08333333333333334,
+      "super-direct": 0.5666666666666667,
+      "super-draft": 0.0,
+      "nanoDifference": -0.41666666666666663,
+      "superDifference": -0.5666666666666667
+    },
+    {
+      "condition": "alld-g0.9",
+      "nano-direct": 0.2916666666666667,
+      "nano-draft": 0.08750000000000001,
+      "super-direct": 0.38333333333333336,
+      "super-draft": 0.0,
+      "nanoDifference": -0.20416666666666666,
+      "superDifference": -0.38333333333333336
+    },
+    {
+      "condition": "alld-h1",
+      "nano-direct": 0.125,
+      "nano-draft": 0.041666666666666664,
+      "super-direct": 0.20833333333333334,
+      "super-draft": 0.0,
+      "nanoDifference": -0.08333333333333334,
+      "superDifference": -0.20833333333333334
+    },
+    {
+      "condition": "grim-g0.4",
+      "nano-direct": 0.22499999999999998,
+      "nano-draft": 0.12,
+      "super-direct": 0.24,
+      "super-draft": 0.09,
+      "nanoDifference": -0.10499999999999998,
+      "superDifference": -0.15
+    },
+    {
+      "condition": "grim-g0.6",
+      "nano-direct": 0.6333333333333333,
+      "nano-draft": 0.4166666666666667,
+      "super-direct": 0.7333333333333334,
+      "super-draft": 0.3666666666666667,
+      "nanoDifference": -0.21666666666666662,
+      "superDifference": -0.3666666666666667
+    },
+    {
+      "condition": "grim-g0.9",
+      "nano-direct": 1.6958333333333333,
+      "nano-draft": 1.6333333333333333,
+      "super-direct": 1.6,
+      "super-draft": 1.475,
+      "nanoDifference": -0.0625,
+      "superDifference": -0.125
+    },
+    {
+      "condition": "grim-h10",
+      "nano-direct": 1.975,
+      "nano-draft": 1.7291666666666667,
+      "super-direct": 1.9583333333333333,
+      "super-draft": 1.5833333333333333,
+      "nanoDifference": -0.24583333333333335,
+      "superDifference": -0.375
+    },
+    {
+      "condition": "tft-g0.4",
+      "nano-direct": 0.30357142857142855,
+      "nano-draft": 0.21785714285714286,
+      "super-direct": 0.225,
+      "super-draft": 0.22499999999999998,
+      "nanoDifference": -0.08571428571428569,
+      "superDifference": -2.7755575615628914e-17
+    },
+    {
+      "condition": "tft-g0.6",
+      "nano-direct": 0.30833333333333335,
+      "nano-draft": 0.5520833333333334,
+      "super-direct": 0.23333333333333334,
+      "super-draft": 0.32083333333333336,
+      "nanoDifference": 0.24375000000000002,
+      "superDifference": 0.08750000000000002
+    },
+    {
+      "condition": "tft-g0.9",
+      "nano-direct": 0.5275,
+      "nano-draft": 1.0758333333333334,
+      "super-direct": 0.5079166666666667,
+      "super-draft": 0.8895833333333334,
+      "nanoDifference": 0.5483333333333335,
+      "superDifference": 0.3816666666666667
+    },
+    {
+      "condition": "tft-h10",
+      "nano-direct": 0.6041666666666666,
+      "nano-draft": 1.2916666666666667,
+      "super-direct": 0.775,
+      "super-draft": 1.0708333333333333,
+      "nanoDifference": 0.6875000000000001,
+      "superDifference": 0.2958333333333333
+    }
+  ]
+}

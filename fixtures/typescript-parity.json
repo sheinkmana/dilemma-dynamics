@@ -1,0 +1,1701 @@
+{
+  "version": 1,
+  "refs": [
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/5"
+      },
+      "values": [
+        "25/3"
+      ],
+      "q": [
+        {
+          "C": "19/3",
+          "D": "25/3"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "1/2"
+      },
+      "values": [
+        "10"
+      ],
+      "q": [
+        {
+          "C": "8",
+          "D": "10"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "3/5"
+      },
+      "values": [
+        "25/2"
+      ],
+      "q": [
+        {
+          "C": "21/2",
+          "D": "25/2"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/3"
+      },
+      "values": [
+        "15"
+      ],
+      "q": [
+        {
+          "C": "13",
+          "D": "15"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "9/10"
+      },
+      "values": [
+        "50"
+      ],
+      "q": [
+        {
+          "C": "48",
+          "D": "50"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 1
+      },
+      "values": [
+        "5"
+      ],
+      "q": [
+        {
+          "C": "3",
+          "D": "5"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 10
+      },
+      "values": [
+        "50"
+      ],
+      "q": [
+        {
+          "C": "48",
+          "D": "50"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/5"
+      },
+      "values": [
+        "5/3"
+      ],
+      "q": [
+        {
+          "C": "2/3",
+          "D": "5/3"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "1/2"
+      },
+      "values": [
+        "2"
+      ],
+      "q": [
+        {
+          "C": "1",
+          "D": "2"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "3/5"
+      },
+      "values": [
+        "5/2"
+      ],
+      "q": [
+        {
+          "C": "3/2",
+          "D": "5/2"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/3"
+      },
+      "values": [
+        "3"
+      ],
+      "q": [
+        {
+          "C": "2",
+          "D": "3"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "9/10"
+      },
+      "values": [
+        "10"
+      ],
+      "q": [
+        {
+          "C": "9",
+          "D": "10"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 1
+      },
+      "values": [
+        "1"
+      ],
+      "q": [
+        {
+          "C": "0",
+          "D": "1"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 10
+      },
+      "values": [
+        "10"
+      ],
+      "q": [
+        {
+          "C": "9",
+          "D": "10"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/5"
+      },
+      "values": [
+        "125/21",
+        "50/21"
+      ],
+      "q": [
+        {
+          "C": "113/21",
+          "D": "125/21"
+        },
+        {
+          "C": "50/21",
+          "D": "41/21"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "1/2"
+      },
+      "values": [
+        "20/3",
+        "10/3"
+      ],
+      "q": [
+        {
+          "C": "19/3",
+          "D": "20/3"
+        },
+        {
+          "C": "10/3",
+          "D": "8/3"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "3/5"
+      },
+      "values": [
+        "125/16",
+        "75/16"
+      ],
+      "q": [
+        {
+          "C": "123/16",
+          "D": "125/16"
+        },
+        {
+          "C": "75/16",
+          "D": "61/16"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/3"
+      },
+      "values": [
+        "9",
+        "6"
+      ],
+      "q": [
+        {
+          "C": "9",
+          "D": "9"
+        },
+        {
+          "C": "6",
+          "D": "5"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "9/10"
+      },
+      "values": [
+        "30",
+        "27"
+      ],
+      "q": [
+        {
+          "C": "30",
+          "D": "293/10"
+        },
+        {
+          "C": "27",
+          "D": "253/10"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 1
+      },
+      "values": [
+        "5",
+        "1"
+      ],
+      "q": [
+        {
+          "C": "3",
+          "D": "5"
+        },
+        {
+          "C": "0",
+          "D": "1"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 10
+      },
+      "values": [
+        "32",
+        "29"
+      ],
+      "q": [
+        {
+          "C": "32",
+          "D": "31"
+        },
+        {
+          "C": "29",
+          "D": "27"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/5"
+      },
+      "values": [
+        "17/3",
+        "5/3"
+      ],
+      "q": [
+        {
+          "C": "79/15",
+          "D": "17/3"
+        },
+        {
+          "C": "2/3",
+          "D": "5/3"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "1/2"
+      },
+      "values": [
+        "6",
+        "2"
+      ],
+      "q": [
+        {
+          "C": "6",
+          "D": "6"
+        },
+        {
+          "C": "1",
+          "D": "2"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "3/5"
+      },
+      "values": [
+        "15/2",
+        "5/2"
+      ],
+      "q": [
+        {
+          "C": "15/2",
+          "D": "13/2"
+        },
+        {
+          "C": "3/2",
+          "D": "5/2"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "2/3"
+      },
+      "values": [
+        "9",
+        "3"
+      ],
+      "q": [
+        {
+          "C": "9",
+          "D": "7"
+        },
+        {
+          "C": "2",
+          "D": "3"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "geometric",
+        "delta": "9/10"
+      },
+      "values": [
+        "30",
+        "10"
+      ],
+      "q": [
+        {
+          "C": "30",
+          "D": "14"
+        },
+        {
+          "C": "9",
+          "D": "10"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 1
+      },
+      "values": [
+        "5",
+        "1"
+      ],
+      "q": [
+        {
+          "C": "3",
+          "D": "5"
+        },
+        {
+          "C": "0",
+          "D": "1"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "horizon": {
+        "kind": "fixed",
+        "rounds": 10
+      },
+      "values": [
+        "32",
+        "10"
+      ],
+      "q": [
+        {
+          "C": "32",
+          "D": "14"
+        },
+        {
+          "C": "9",
+          "D": "10"
+        }
+      ]
+    }
+  ],
+  "stopping": [
+    {
+      "seed": "alpha",
+      "delta": "2/5",
+      "draws": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": "alpha",
+      "delta": "3/5",
+      "draws": [
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": "alpha",
+      "delta": "9/10",
+      "draws": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "seed": "beta",
+      "delta": "2/5",
+      "draws": [
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false
+      ]
+    },
+    {
+      "seed": "beta",
+      "delta": "3/5",
+      "draws": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "seed": "beta",
+      "delta": "9/10",
+      "draws": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "seed": "retained-test-seed",
+      "delta": "2/5",
+      "draws": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "seed": "retained-test-seed",
+      "delta": "3/5",
+      "draws": [
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true
+      ]
+    },
+    {
+      "seed": "retained-test-seed",
+      "delta": "9/10",
+      "draws": [
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    }
+  ],
+  "prompts": [
+    {
+      "policy": "allc",
+      "mapping": "X=C",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses X every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "mapping": "X=C",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses X every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "mapping": "X=D",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses Y every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "allc",
+      "mapping": "X=D",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses Y every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "mapping": "X=C",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses Y every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "mapping": "X=C",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses Y every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "mapping": "X=D",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses X every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "alld",
+      "mapping": "X=D",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses X every round, regardless of history. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "mapping": "X=C",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: In round 1 it chooses X. In every later round it chooses the action you chose in the immediately preceding round. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "mapping": "X=C",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: In round 1 it chooses X. In every later round it chooses the action you chose in the immediately preceding round. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "mapping": "X=D",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: In round 1 it chooses Y. In every later round it chooses the action you chose in the immediately preceding round. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "tft",
+      "mapping": "X=D",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: In round 1 it chooses Y. In every later round it chooses the action you chose in the immediately preceding round. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "mapping": "X=C",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses X if no player has ever chosen Y in a completed round. Otherwise it chooses Y forever. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "mapping": "X=C",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses X if no player has ever chosen Y in a completed round. Otherwise it chooses Y forever. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[1,1]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"X\",\"opponent\":\"X\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "mapping": "X=D",
+      "seat": 0,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player A, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses Y if no player has ever chosen X in a completed round. Otherwise it chooses X forever. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":8,\"opponent\":3},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    },
+    {
+      "policy": "grim",
+      "mapping": "X=D",
+      "seat": 1,
+      "history": [
+        [
+          "C",
+          "C"
+        ],
+        [
+          "D",
+          "C"
+        ]
+      ],
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are Player B, one of two independent players. Maximise your own expected cumulative points until game-rule termination; the objective is not score difference. Choose X or Y privately. The opponent chooses simultaneously without seeing your current response. After both choose, both actions and payoffs are revealed. You have no tools or communication. The opponent is committed to this complete deterministic rule: It chooses Y if no player has ever chosen X in a completed round. Otherwise it chooses X forever. Exactly 10 rounds will be played. This is round 3; 7 rounds follow it.\nReturn exactly one line: ACTION: X or ACTION: Y. No other text."
+        },
+        {
+          "role": "user",
+          "content": "{\"round\":3,\"payoffTable\":[{\"own\":\"X\",\"opponent\":\"X\",\"points\":[1,1]},{\"own\":\"X\",\"opponent\":\"Y\",\"points\":[5,0]},{\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]},{\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]}],\"points\":{\"own\":3,\"opponent\":8},\"completedHistory\":[{\"round\":1,\"own\":\"Y\",\"opponent\":\"Y\",\"points\":[3,3]},{\"round\":2,\"own\":\"Y\",\"opponent\":\"X\",\"points\":[0,5]}],\"legalActions\":[\"X\",\"Y\"]}"
+        }
+      ]
+    }
+  ]
+}

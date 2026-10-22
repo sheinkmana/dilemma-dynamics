@@ -1,0 +1,14 @@
+{
+  "profile": null,
+  "projectId": null,
+  "platform": "cpu-d3",
+  "preset": "2vcpu-8gb",
+  "diskGiB": 20,
+  "restartPolicy": "never",
+  "timeout": "36h",
+  "image": null,
+  "subnetId": null,
+  "filesystemId": null,
+  "secretSelector": null,
+  "launchable": false
+}

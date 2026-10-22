@@ -7,3 +7,41 @@ data/
 .DS_Store
 *.log
 coverage/
+__pycache__/
+.venv/
+.pytest_cache/
+.hypothesis/
+.ruff_cache/
+*.egg-info/
+output/
+mlruns/
+
+# Local study operations and immutable private evidence (retain on disk).
+/AGENTS.md
+/archive/
+/docs/research/
+/docs/COOPERATION_FINAL_EVALUATION_PREPARATION.md
+/docs/COOPERATION_BOUNDED_RESPONSE_CHECK.md
+/tools/archive_research.py
+/tools/cleanup_research.py
+/tools/verify_deployment_handoff.py
+/tools/verify_successor_preparation.py
+/tools/verify_completed_successor.py
+/tools/audit_successor_results.py
+/tools/build_final_writeup.py
+/tools/launch-storage-probe.sh
+/tools/retry-storage-probe-short-tag.sh
+/tools/run-local-evaluation.sh
+/tools/run-successor-evaluation.sh
+
+# Reference works are cited, not redistributed.
+/*.pdf
+/research/paper-extracted.txt
+
+# LaTeX source and the reviewed PDF are public; build intermediates stay local.
+*.aux
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.out
+*.toc

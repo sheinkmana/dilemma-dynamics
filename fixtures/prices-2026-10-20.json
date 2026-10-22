@@ -1,0 +1,27 @@
+{
+  "source": "https://tokenfactory.nebius.com/api/public/models_info",
+  "checkedAt": "2026-10-20T05:36:44.187916+00:00",
+  "rawSha256": "8527a31e3d6b1bbd6b8f241c95cd0f96d841b26ecdaef9f9fec2c5604c52cb8e",
+  "prices": [
+    {
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "inputRate": "0.06",
+      "outputRate": "0.24",
+      "listedQuantization": "fp8",
+      "listedRegions": [
+        "eu-north1"
+      ]
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "inputRate": "0.3",
+      "outputRate": "0.9",
+      "listedQuantization": "fp4",
+      "listedRegions": [
+        "us-central1"
+      ]
+    }
+  ],
+  "inferenceRequests": 0,
+  "publicGetRequests": 1
+}
