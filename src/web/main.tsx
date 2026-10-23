@@ -1,3 +1,5 @@
+import { BrandText } from './BrandText.js';
+import { GameTypes } from './GameTypes.js';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import type {
@@ -441,7 +443,7 @@ function Recreation({
         <a className="brand" href="#" onClick={(e) => e.preventDefault()}>
           <Mark />
           <span>
-            Game Field<span className="brand-period">.</span>
+            <BrandText />
           </span>
         </a>
         {navigation}
@@ -477,9 +479,9 @@ function Recreation({
       <main className="game-page" aria-busy={busy || server === 'stopping'}>
         <div className="page-heading">
           <div>
-            <span className="eyebrow">WATCH THEM PLAY</span>
+            <span className="eyebrow">BOARD-GAME PLAYGROUND</span>
             <h1>{gameName(match?.config.game ?? game)}</h1>
-            <p>Short decisions. One move at a time.</p>
+            <p>Visible moves, tactics and search.</p>
           </div>
           {match && (
             <button
@@ -495,6 +497,7 @@ function Recreation({
             </button>
           )}
         </div>
+        <GameTypes recreational />
         {error && (
           <p className="error" role="alert">
             {error}
@@ -872,6 +875,8 @@ function App() {
       {(['dilemma', 'analysis', 'replay', 'results', 'recreational'] as const).map((p) => (
         <button
           key={p}
+          className={p === 'recreational' ? 'side-project-nav' : undefined}
+          aria-label={p === 'recreational' ? 'Board games · side project' : undefined}
           aria-pressed={page === p}
           onClick={() => {
             window.location.hash = p;
@@ -885,7 +890,7 @@ function App() {
                 ? 'Study replay'
                 : p === 'results'
                   ? 'Results'
-                  : 'Recreational'}
+                  : 'Board games · side project'}
         </button>
       ))}
     </nav>

@@ -1,3 +1,5 @@
+import { BrandText } from './BrandText.js';
+import { GameTypes } from './GameTypes.js';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { DilemmaConfig, DilemmaSession, Round } from '../dilemma/types.js';
 import type { Health, ModelInfo } from '../shared/types.js';
@@ -440,7 +442,7 @@ export function DilemmaPage({
     <div className="simple-app pd-app">
       <header className="app-header">
         <div className="brand">
-          Game Field<span className="brand-period">.</span>
+          <BrandText />
         </div>
         {navigation}
         <div className="header-actions">
@@ -468,7 +470,7 @@ export function DilemmaPage({
       <main className="game-page pd-page" aria-busy={busy}>
         <div className="page-heading">
           <div>
-            <span className="eyebrow">AUTONOMOUS DECISIONS</span>
+            <span className="eyebrow">MAIN PROJECT · COOPERATION &amp; INCENTIVES</span>
             <h1>{analysisOnly ? 'Decision analysis' : 'Trust & temptation'}</h1>
             <p>Repeated Prisoner’s Dilemma · maximise expected own points.</p>
           </div>
@@ -491,6 +493,11 @@ export function DilemmaPage({
               An interactive lab for students and AI builders: see how incentives shape Nemotron
               decisions, then examine what the evidence supports.
             </p>
+            <p>
+              Both players can earn more through mutual cooperation, while each has an immediate
+              incentive to defect. Repeated interaction lets us examine when future consequences
+              change that choice. Each player seeks its own expected total points.
+            </p>
             <div className="pd-entry-actions">
               <a className="entry-primary" href="#replay">
                 Explore a recorded Nemotron interaction →
@@ -509,6 +516,7 @@ export function DilemmaPage({
             </small>
           </section>
         )}
+        <GameTypes />
         <p
           className={`pd-connection ${connection !== 'connected' || (session && stream !== 'live') ? 'notice' : 'muted'}`}
           role="status"

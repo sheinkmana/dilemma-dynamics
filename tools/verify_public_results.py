@@ -15,7 +15,7 @@ from statistics import mean
 
 from gamefield_research.analysis import paired_interval
 from gamefield_research.core import metrics
-from gamefield_research.design import digest, validate_plan
+from gamefield_research.design_v1 import digest, validate_plan
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "public/research"
@@ -66,9 +66,7 @@ def verify():
             + Decimal(usage["completionTokens"]) * Decimal(price["outputRate"])
         ) / Decimal(1_000_000)
         require(calculated == Decimal(usage["costUsd"]), "Usage cost differs: " + arm)
-        decisions = sum(
-            len(row["history"]) * row["players"].count(arm) for row in rows
-        )
+        decisions = sum(len(row["history"]) * row["players"].count(arm) for row in rows)
         require(
             usage["requests"] == decisions * (2 if arm.endswith("-draft") else 1),
             "Request count differs from recorded actions: " + arm,
@@ -85,8 +83,11 @@ def verify():
         "python/gamefield_research/design.py",
         "uv.lock",
     ):
+        # The executed design is retained byte for byte as v1; the current
+        # entry point also supports separately identified temperature-zero plans.
+        current_name = name.replace("/design.py", "/design_v1.py")
         require(
-            hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == executed_source[name],
+            hashlib.sha256((ROOT / current_name).read_bytes()).hexdigest() == executed_source[name],
             "Scoring/design/dependency source differs from executed study: " + name,
         )
     validate_plan(plan)

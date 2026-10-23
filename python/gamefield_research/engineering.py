@@ -5,7 +5,7 @@ import time
 from decimal import Decimal as D
 
 from .artifacts import freeze_source
-from .design import ARMS, canonical, digest, write_json
+from .design import ARMS, canonical, digest, validate_plan, write_json
 from .gateway import Gateway, Ledger, fsync_directory, money
 from .runner import Coordinator
 
@@ -32,6 +32,8 @@ def check_manifest(plan, bank):
         "capUsd": "1",
         "scientificObservations": 0,
     }
+    if plan["procedure"]["temperature"] != 1:
+        body["sampling"] = {"temperature": plan["procedure"]["temperature"], "topP": 1}
     return {**body, "sha256": digest(body)}
 
 
@@ -84,6 +86,7 @@ async def check_provider(
 ):
     if not 0 < money(cap_usd) <= 1:
         raise ValueError("Engineering cap must be positive and at most $1")
+    validate_plan(plan)
     check = check_manifest(plan, bank)
     directory.mkdir(exist_ok=False)
     fsync_directory(directory.parent)
@@ -91,7 +94,14 @@ async def check_provider(
     provenance = freeze_source(root, directory, deployment)
     ledger = Ledger(directory / "events.jsonl", cap_usd)
     seconds = 6300 if wall_seconds is None else min(6300, wall_seconds)
-    gateway = Gateway(ledger, prices, time.monotonic() + seconds, transport, wall_deadline)
+    gateway = Gateway(
+        ledger,
+        prices,
+        time.monotonic() + seconds,
+        transport,
+        wall_deadline,
+        temperature=plan["procedure"]["temperature"],
+    )
     results, failure = [], None
     ledger.event(
         "run-started",
@@ -164,6 +174,10 @@ def summarise_check(check, bank, events, source_sha256):
         if message.get("reasoning_content") or message.get("reasoning"):
             reasoning[t["model"]] = True
     requests = {e["key"]: e["request"] for e in events if e["event"] == "request-sent"}
+    temperature = check.get("sampling", {}).get("temperature", 1)
+    sampling_matches = bool(requests) and all(
+        r.get("temperature") == temperature and r.get("top_p") == 1 for r in requests.values()
+    )
     telemetry = []
     for e in events:
         if e["event"] != "request-timing":
@@ -180,7 +194,7 @@ def summarise_check(check, bank, events, source_sha256):
                 "completionTokens": usage["completion_tokens"],
             }
         )
-    return {
+    report = {
         "schemaVersion": 1,
         "checkSha256": check["sha256"],
         "sourceSha256": source_sha256,
@@ -190,7 +204,8 @@ def summarise_check(check, bank, events, source_sha256):
         and failure is None
         and len(results) == 142
         and forced_passed
-        and all(reasoning.values()),
+        and all(reasoning.values())
+        and sampling_matches,
         "failure": failure,
         "bankCompleted": len(results),
         "forcedBudgetProbesPassed": forced_passed,
@@ -202,3 +217,6 @@ def summarise_check(check, bank, events, source_sha256):
         "requestSeconds": [e["seconds"] for e in events if e["event"] == "request-timing"],
         "promptTokens": [t["promptTokens"] for t in telemetry],
     }
+    if temperature != 1:
+        report["temperature"] = temperature
+    return report

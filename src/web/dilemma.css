@@ -22,6 +22,47 @@
   color: var(--text);
   background: var(--hover);
 }
+.domain-nav .side-project-nav {
+  border-style: dashed;
+  border-color: var(--line);
+}
+.game-types-context {
+  margin: 0 0 24px;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+.game-types-context h2 {
+  margin-bottom: 12px;
+}
+.game-types-context > a {
+  display: inline-block;
+  margin-bottom: 16px;
+}
+.game-types-context summary {
+  cursor: pointer;
+  line-height: 1.6;
+  font-weight: 700;
+}
+.game-types-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.game-types-grid h3 {
+  font-size: 17px;
+  line-height: 1.4;
+}
+.game-types-grid p,
+.game-types-scope {
+  font-size: 13px;
+}
+.game-types-scope {
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  margin-bottom: 0;
+}
 .pd-app .app-header {
   flex-wrap: wrap;
   gap: 12px 20px;

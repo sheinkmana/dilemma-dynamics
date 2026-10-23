@@ -1,12 +1,35 @@
 # Public repository preparation
 
+The public project name is **Dilemma Dynamics**, with the subtitle
+*Exploring AI strategies, incentives and cooperation.* Repository links and the
+standalone demo base use `dilemma-dynamics`. The 23 October branding revision
+changes presentation only: the active temperature-zero run's Python source,
+deployment templates, fixtures, dependency files, preparation and historical
+evidence retain their original names and bytes. Research commands and local
+app persistence/settings remain compatible. See the README's compatibility
+note before considering any internal package rename.
+
 Updated 23 October 2026. Publishing source and recorded results does not deploy
 the local app or authorise another paid evaluation. The project uses MIT; linked
 reference works and dependencies retain their own rights and licenses.
 
+The user has separately approved preparation of the full
+[temperature-zero extension](TEMPERATURE_ZERO_EVALUATION.md) within the existing
+$30 total. The user reports that local bundle is now running; the branding work
+does not launch or control it. Public results and
+their frozen package remain the temperature-one study. The original design is
+retained byte for byte in `python/gamefield_research/design_v1.py`, which the
+public verifier checks against the original executed-source hash; the current
+entry point adds validation for a separately identified temperature-zero plan.
+
 ## Included
 
-The application has Dilemma, Analysis, Study replay, Results and Recreational sections. Results
+The application has Dilemma, Analysis, Study replay, Results and a separately
+labelled **Board games · side project** section. The main project studies
+cooperation and incentives in the repeated Prisoner's Dilemma; the recreational
+games explore competitive tactics and search with visible moves. The
+[game-type guide](GAME_TYPES.md) explains their different information and reward
+structures. Results
 uses a bundled, static snapshot of the completed study. Its filters and downloads
 make no inference calls. The live educational protocol differs from the study.
 
@@ -41,6 +64,17 @@ authenticate provider identity, raw request history or billing. Raw responses,
 private drafts and receipts are intentionally absent from public downloads.
 
 ## Validation before committing
+
+The game-type clarification adds a shared app comparison, a distinct
+**Board games · side project** navigation label, and a guide to the different
+reward and information structures. The README, teaching/method notes and website
+post state which evidence belongs to each project. Existing app tests (54), both
+builds, offline public-result reproduction and publication checks passed.
+The main and recreational views were inspected in the browser, including a
+320-pixel layout with no horizontal page overflow. The website's Jekyll build,
+PurgeCSS step and 22-file demo/link/checksum verifier passed. No research
+execution files, runtime, prepared run, claims or evidence were edited by this
+presentation work.
 
 The 23 October presentation update passed 54 app tests (including replay score
 and invalid-record checks), TypeScript and the production build, publication

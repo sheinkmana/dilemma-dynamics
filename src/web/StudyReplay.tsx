@@ -1,3 +1,6 @@
+import { BrandText } from './BrandText.js';
+import { GameTypes } from './GameTypes.js';
+import { publicAsset } from './assets.js';
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   parseRecordedEpisodes,
@@ -28,7 +31,7 @@ export function StudyReplay({
   useEffect(() => {
     const controller = new AbortController();
     setError('');
-    void fetch('/research/episodes.json', { signal: controller.signal })
+    void fetch(publicAsset('research/episodes.json'), { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error('The recorded study could not be loaded.');
         const data = parseRecordedEpisodes(await response.json());
@@ -53,7 +56,7 @@ export function StudyReplay({
     <div className="simple-app pd-app">
       <header className="app-header">
         <div className="brand">
-          Game Field<span aria-hidden="true">.</span>
+          <BrandText />
         </div>
         {navigation}
         <div className="header-actions">
@@ -68,7 +71,9 @@ export function StudyReplay({
       </header>
       <main className="game-page results-page">
         <div className="results-intro">
-          <p className="results-eyebrow">Recorded Nemotron study · 22 October 2026</p>
+          <p className="results-eyebrow">
+            Repeated Prisoner’s Dilemma · recorded study · 22 October 2026
+          </p>
           <h1>Replay the decisions.</h1>
           <p>
             Step through published actions from all 1,776 completed episodes. No key or inference is
@@ -79,6 +84,7 @@ export function StudyReplay({
             <a href="#results">See aggregate results →</a>
           </p>
         </div>
+        <GameTypes />
         {error ? (
           <p role="alert">
             {error} <button onClick={() => setAttempt((n) => n + 1)}>Retry loading</button>
@@ -247,7 +253,7 @@ export function StudyReplay({
                     the action-label mapping and player seat; each has six study blocks.
                   </p>
                   <p>
-                    <a href="/research/episodes.json" download>
+                    <a href={publicAsset('/research/episodes.json')} download>
                       Download all published actions
                     </a>{' '}
                     · <a href="#results">Methods and findings</a>. Public actions reproduce scores,

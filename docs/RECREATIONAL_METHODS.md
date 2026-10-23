@@ -4,6 +4,15 @@ Consolidated 19 October 2026 from the original board-game plan. Dots & Boxes and
 
 ## Rules and exact evaluator
 
+These games form a **recreational side project** focused on competitive play
+on a fully visible board. Dots & Boxes divides a fixed number of boxes at
+completion; Tic-tac-toe uses opposing win/draw/loss objectives. The main
+Prisoner's Dilemma study instead has private simultaneous choices each round
+and rewards that can improve for both players through mutual cooperation.
+A tactical sacrifice in a board game and cooperation in the dilemma answer
+different strategic questions. See [game types and study scope](GAME_TYPES.md)
+for the comparison and the evidence covered by each project.
+
 One move draws one unused orthogonal edge. Completing a box awards it to the mover and retains the turn; an edge can capture two boxes. Declining an available capture is legal and can implement a double-cross. The engine never automatically collects a chain. A board with r by c boxes has `(r+1)c + r(c+1)` edges.
 
 Buzzard and Ciere's [Playing simple loony dots and boxes endgames optimally](https://arxiv.org/abs/1305.2156v2), especially sections 4–5, treats disconnected long chains and even loops, not arbitrary openings or middle games. The source paper and extracted text are not redistributed.

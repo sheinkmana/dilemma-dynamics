@@ -12,9 +12,9 @@ export function dilemmaHtml(session: DilemmaSession) {
     .replace(/</g, '\\u003c')
     .replace(/\u2028/g, '\\u2028')
     .replace(/\u2029/g, '\\u2029');
-  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Game Field · Dilemma replay</title>
+  return `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dilemma Dynamics · Dilemma replay</title>
 <style>:root{color-scheme:light dark}body{font:16px/1.5 system-ui;max-width:900px;margin:32px auto;padding:20px;background:light-dark(#fffaf0,#10272d);color:light-dark(#183e42,#eef8e9)}h1,h2{font-weight:500}.players{display:grid;grid-template-columns:1fr 1fr;gap:20px}table{width:100%;border-collapse:collapse}th,td{padding:10px;text-align:left;border-bottom:1px solid light-dark(#bed3c8,#426660)}input{width:100%}pre{white-space:pre-wrap;overflow-wrap:anywhere}button{padding:8px 14px}small{opacity:.8}@media(max-width:500px){.players{grid-template-columns:1fr}}</style>
-<h1>Game Field / Dilemma</h1><p id="rules"></p><p id="status"></p><div class="players"><section><h2 id="a"></h2><p id="sa"></p></section><section><h2 id="b"></h2><p id="sb"></p></section></div>
+<h1>Dilemma Dynamics / Dilemma</h1><p id="rules"></p><p id="status"></p><div class="players"><section><h2 id="a"></h2><p id="sa"></p></section><section><h2 id="b"></h2><p id="sb"></p></section></div>
 <table aria-label="Payoffs to A and B"><tr><th>A / B</th><th>C</th><th>D</th></tr>${ACTIONS.map((a) => `<tr><th>${a}</th>${ACTIONS.map((b) => `<td>${payoff(a, b).join(' / ')}</td>`).join('')}</tr>`).join('')}</table>
 <p id="round"></p><label>Replay round <input id="seek" type="range" min="0" value="0"></label><button id="previous">Previous</button> <button id="next">Next</button><pre id="context"></pre><pre id="analysis"></pre><pre id="following"></pre>
 <small>Offline replay. No API calls. Reported expectations are not verified internal beliefs. Game points and estimated API costs are separate.</small>

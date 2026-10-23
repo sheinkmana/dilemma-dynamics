@@ -9,7 +9,7 @@ import { replayHtml } from '../server/export.js';
 import { defaultConfig } from '../shared/config.js';
 const [command, file, output] = process.argv.slice(2);
 if (!command || command === 'help') {
-  console.log(`Game Field CLI
+  console.log(`Dilemma Dynamics CLI
   npm run cli -- match [config.json]          Play a match; default is free local baselines
   npm run cli -- tournament experiment.json  Run a prepared comparison
   npm run cli -- list                        List saved matches
@@ -87,15 +87,13 @@ try {
   } else if (command === 'list') {
     console.log(
       JSON.stringify(
-        store
-          .matches()
-          .map((m) => ({
-            id: m.id,
-            status: m.status,
-            players: m.config.players.map((p) => p.name),
-            score: m.state.scores,
-            estimatedUsd: m.spentUsd,
-          })),
+        store.matches().map((m) => ({
+          id: m.id,
+          status: m.status,
+          players: m.config.players.map((p) => p.name),
+          score: m.state.scores,
+          estimatedUsd: m.spentUsd,
+        })),
         null,
         2,
       ),

@@ -119,6 +119,7 @@ def verify_deployment(plan, deployment, root, purpose="final"):
                 evidence["execution"] == "tokenfactory"
                 and evidence["passed"]
                 and evidence["sourceSha256"] == digest(files)
+                and evidence.get("temperature", 1) == plan["procedure"]["temperature"]
                 and money(evidence["spentUsd"]) + money(evidence["reservedUsd"]) <= 1
             ):
                 raise ValueError()

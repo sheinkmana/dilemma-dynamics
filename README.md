@@ -1,11 +1,13 @@
-# Game Field
+# Dilemma Dynamics
+
+*Exploring AI strategies, incentives and cooperation.*
 
 An interactive lab by **Alisa Sheinkman** for students and AI builders to explore
 how **NVIDIA Nemotron agents respond to incentives**. Watch simultaneous decisions,
 inspect their consequences, and explore a reproducible study of when bounded
 drafting helps—and hurts—decision quality.
 
-![Game Field recorded study replay](docs/study-replay.png)
+![Dilemma Dynamics recorded study replay](docs/dilemma-dynamics-replay.png)
 
 **Start here:** [two-minute judge walkthrough](docs/JUDGE_WALKTHROUGH.md) ·
 [study report](public/research/paper/report.pdf) · [methods and data](public/research/README.md).
@@ -15,6 +17,29 @@ test build below provides free access to recorded Nemotron play, lessons, and re
 The intended audience is learners examining strategic incentives and builders
 inspecting agent decisions. This is a controlled game laboratory; real-world
 negotiation performance and educational outcomes have not been validated.
+
+## Main project and recreational side project
+
+The main project studies **cooperation and incentives in the repeated Prisoner's
+Dilemma**. Both players choose privately each round. They can gain together
+through mutual cooperation, even though each has an immediate incentive to
+defect. Future responses can change the value of that choice.
+
+The full local app also includes a separate **board-game side project**:
+Dots & Boxes and Tic-tac-toe. These are competitive games on a fully visible
+board, useful for exploring tactics, search and decision inspection.
+
+| Game | Strategic structure | What good play seeks |
+| --- | --- | --- |
+| Repeated Prisoner's Dilemma | Non-zero-sum; private simultaneous choices each round; both can benefit from cooperation. | Maximise own expected cumulative points, accounting for future responses. |
+| Dots & Boxes | Visible sequential moves, with extra turns for captures; a fixed total of boxes at completion. | Win more boxes through captures and control of the endgame. |
+| Tic-tac-toe | Visible alternating moves; zero-sum under standard win/draw/loss utility. | Force a win when possible and avoid a loss; perfect play draws. |
+
+Giving away a box can be a tactic for winning more later; it does not enlarge
+the total reward available to both players. The published **1,776-episode study
+covers the dilemma**, while board-game matches and solver checks belong to the
+recreational side project. The public website demo includes the dilemma study's
+recordings and results only. Read [why these are different kinds of games](docs/GAME_TYPES.md).
 
 ## Study results
 
@@ -58,6 +83,13 @@ To preview only the built static interface, run `npm run preview` and open
 These entry points need no API server. Live play and local-policy sessions require
 `npm start`; static preview is not a hosted deployment.
 
+For the standalone Jekyll demo at `/dilemma-dynamics/`, run `npm run build:public`.
+This produces `dist/web/` with a separate browser entry that opens Study replay
+and includes only replay and Results. It makes no API or inference requests.
+Copy that directory's contents into the website's `dilemma-dynamics/` directory, along
+with `LICENSE` as `LICENSE.txt`. See [Jekyll demo preparation](docs/JEKYLL_DEMO.md)
+for build, export, and verification instructions.
+
 ## NVIDIA and Nebius integration
 
 Nebius Token Factory executes the model requests; the app and evaluation
@@ -87,7 +119,8 @@ Results and Study replay pages read the curated public package.
 - **Study replay:** inspect any recorded study episode, reveal rounds, and switch
   between matched Direct/Draft configurations. It makes no inference requests.
 - **Results:** read the completed study and download its report and data.
-- **Recreational:** play or replay Dots & Boxes and Tic-tac-toe.
+- **Board games · side project:** play or replay Dots & Boxes and Tic-tac-toe,
+  with an explanation of their competitive incentives and visible-move structure.
 
 Dilemma payoffs are CC = 3/3, CD = 0/5, DC = 5/0 and DD = 1/1. Players maximise
 expected own points. With 90% continuation, ten rounds is the expected length,
@@ -97,6 +130,11 @@ not an announced final round. The fixed ten-round option announces its end.
 expectations before reveal. Forecasts are not verified internal beliefs. The
 live app uses temperature zero and reasoning requested off; the scientific
 study uses temperature one and a separate capped draft-then-action procedure.
+
+A separate [temperature-zero extension](docs/TEMPERATURE_ZERO_EVALUATION.md) is
+currently running through the research runner. It has not yet produced published evaluation results;
+the published results remain the completed temperature-one study.
+
 Study replay shows saved actions from that study; its private draft text is not
 reconstructed. See the [game contract](docs/DILEMMA_PROTOCOL.md)
 and [analysis methods](docs/AUTONOMOUS_DILEMMA_ANALYSIS.md).
@@ -104,6 +142,20 @@ and [analysis methods](docs/AUTONOMOUS_DILEMMA_ANALYSIS.md).
 Pause waits for a joint-round boundary. Stop cancels pending work without
 awarding partial-round points. Saved interactions support replay and offline
 HTML, JSON and JSONL export. Restarting never resumes paid activity automatically.
+
+## Project name and compatibility
+
+The project is now **Dilemma Dynamics**, formerly Game Field. The repository is
+[sheinkmana/dilemma-dynamics](https://github.com/sheinkmana/dilemma-dynamics), and
+the standalone demo builds for `/dilemma-dynamics/`.
+
+The research package `gamefield_research`, `gamefield-study` command, Python
+dependency metadata, study identifiers, and frozen evidence retain their
+original names. The active temperature-zero evaluation verifies those files
+against its prepared source hashes. The local app also retains its existing
+`GAMEFIELD_*` settings, SQLite filename, request header and saved preferences
+for compatibility with existing sessions. These identifiers are independent
+of the display name. The local checkout directory can remain `game`.
 
 ## Storage, cost and security
 

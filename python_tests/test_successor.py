@@ -30,7 +30,7 @@ from test_gateway import mock_response
 
 
 @pytest.fixture
-async def successor(tmp_path, monkeypatch):
+async def successor(tmp_path, monkeypatch, request):
     from gamefield_research.design import make_plan
 
     root = tmp_path / "checkout"
@@ -40,7 +40,8 @@ async def successor(tmp_path, monkeypatch):
     for name in ("pyproject.toml", "uv.lock"):
         shutil.copyfile(Path.cwd() / name, root / name)
     write_json(tmp_path / "parent.json", make_plan("successor-parent", 24))
-    write_json(tmp_path / "engineering.json", make_plan("successor-engineering", 4, "engineering"))
+    engineering_seed = getattr(request, "param", "successor-engineering")
+    write_json(tmp_path / "engineering.json", make_plan(engineering_seed, 4, "engineering"))
     old = tmp_path / "old"
     prepare_local(
         old,

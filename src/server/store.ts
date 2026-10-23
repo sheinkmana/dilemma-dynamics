@@ -35,7 +35,7 @@ export class Store {
           }
           if (alive)
             throw new Error(
-              'This database is already open by a Game Field process. Stop that process or choose another GAMEFIELD_DATA_DIR.',
+              'This database is already open by a Dilemma Dynamics process. Stop that process or choose another GAMEFIELD_DATA_DIR.',
             );
         }
         this.setSetting('__owner', { pid: process.pid, token: this.owner });

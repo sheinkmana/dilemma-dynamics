@@ -1,4 +1,4 @@
-# Game Field: judge walkthrough
+# Dilemma Dynamics: judge walkthrough
 
 Author: Alisa Sheinkman. Suggested track: Best Apps and Agents.
 
@@ -30,8 +30,12 @@ uses labelled simple policies. Neither starts hosted inference.
    history. The simple policies supply no model forecasts; “Not elicited” is intentional.
 
 For a longer look, choose **Learn the game**, explore alternative study conditions
-and blocks, or download the report/data. Dots & Boxes and Tic-tac-toe are secondary
-recreational examples.
+and blocks, or download the report/data. **Board games · side project** opens
+Dots & Boxes and Tic-tac-toe as a separate recreational playground. Their moves
+are visible and their objectives competitive: divide a fixed set of boxes or
+win a game that perfect play draws. The main dilemma study instead examines
+private simultaneous choices and when both players can benefit from cooperation.
+Its published findings concern the dilemma only. See [the game-type comparison](GAME_TYPES.md).
 
 ## Static viewing option
 
@@ -56,7 +60,7 @@ to the README and Devpost only after the video is publicly available.
 
 | Time | Show | Suggested narration |
 | --- | --- | --- |
-| 0:00–0:20 | Dilemma welcome | “Game Field is a lab for students and AI builders to examine how agents respond to incentives. We separate what a model chose, what it reported, and what the evidence can establish.” |
+| 0:00–0:20 | Dilemma welcome | “Dilemma Dynamics is a lab for students and AI builders to examine how agents respond to incentives. We separate what a model chose, what it reported, and what the evidence can establish.” |
 | 0:20–0:55 | Recorded Nano episode; reveal rounds | “These are saved NVIDIA Nemotron actions from our completed Token Factory study. Both choices were private until joint reveal. Replay requires no API key.” |
 | 0:55–1:20 | Switch to matched Draft episode; procedure details | “Direct uses one action request. Draft adds a capped thinking request before a separate action. A single replay illustrates the protocol; it does not establish the average effect.” |
 | 1:20–1:55 | Results and opponent table | “Across 1,776 completed episodes, drafting reduced mean benchmark loss for both models, but worsened average loss against Tit-for-Tat. These are descriptive findings from an amended run.” |

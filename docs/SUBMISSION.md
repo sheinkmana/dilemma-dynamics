@@ -3,19 +3,19 @@
 Prepared 23 October 2026. Author: **Alisa Sheinkman**.
 Suggested category: **Best Apps and Agents**.
 
-Repository: [Game Field](https://github.com/sheinkmana/game-field).
+Repository: [Dilemma Dynamics](https://github.com/sheinkmana/dilemma-dynamics).
 Public visibility and the final remote revision must be checked before submission.
 Hosted demo: **not yet published**. Public YouTube video: **not yet published**.
 The [local test build and judge walkthrough](JUDGE_WALKTHROUGH.md) are ready for use.
 
-The author confirmed that Game Field began after 26 August 2026, the start of
+The author confirmed that Dilemma Dynamics began after 26 August 2026, the start of
 the submission period. No pre-period project work is claimed.
 
 ## Description draft
 
 ### Inspiration and audience
 
-An agent can earn more points while cooperating less. Game Field makes that
+An agent can earn more points while cooperating less. Dilemma Dynamics makes that
 distinction visible for students learning strategic incentives and AI builders
 examining agent decisions. It is an interactive laboratory, with explicit limits
 on what one observed interaction can tell us about a model's strategy or beliefs.
@@ -27,7 +27,14 @@ Watch simultaneous Prisoner's Dilemma decisions, inspect payoffs and reported
 forecasts, replay any of 1,776 published study episodes, and explore results with
 opponent-level breakdowns and procedure costs. An introductory ten-round local
 demo and lessons work without a key. Live Nemotron play uses a server-side key
-and explicit estimated spending limits. Recreational games are secondary examples.
+and explicit estimated spending limits.
+
+A separate recreational side project offers Dots & Boxes and Tic-tac-toe for
+exploring competitive tactics and search. Those games have visible sequential
+moves and opposing objectives: a fixed set of boxes to divide, or a win/loss/draw.
+The dilemma instead uses private simultaneous choices each round and permits
+mutual gains from cooperation. The published 1,776-episode study concerns the
+dilemma; board-game sessions are outside that evaluation.
 
 ### How it works
 
@@ -89,7 +96,7 @@ and broaden environments; it is not part of the completed study's claims.
   and how NVIDIA models and Nebius were used. Follow the [script](JUDGE_WALKTHROUGH.md).
 - Add the real demo/test-build and video URLs to the README and submission.
 - Include the technology feedback above after author review.
-- Include the author-confirmed development timing: Game Field began after
+- Include the author-confirmed development timing: Dilemma Dynamics began after
   26 August 2026. The project includes the initial game app, autonomous Dilemma,
   the completed evaluation, and subsequent presentation improvements.
 - Review screenshots and video for private material. Do not include private raw

@@ -1,4 +1,15 @@
-# Completed cooperation evaluation
+# Dilemma Dynamics: completed cooperation evaluation
+
+*Exploring AI strategies, incentives and cooperation.*
+
+Project repository: [Dilemma Dynamics](https://github.com/sheinkmana/dilemma-dynamics).
+
+This package covers the **repeated Prisoner's Dilemma study**. The local app's
+Dots & Boxes and Tic-tac-toe playground is a separate recreational side project.
+Those games explore competitive tactics on a visible board: a fixed set of
+boxes to divide, or opposing win/draw/loss objectives. The dilemma instead uses
+private simultaneous choices each round and allows mutual gains from cooperation.
+The study results below concern the dilemma only.
 
 All 1,776 episodes completed on 22 October 2026. Drafting reduced average
 benchmark loss for both models, but worsened average performance against

@@ -1,5 +1,11 @@
 # Dilemma teaching guide
 
+This guide concerns the main cooperation-and-incentives project. The separate
+Dots & Boxes and Tic-tac-toe side project explores competitive tactics and
+search with visible sequential moves. The dilemma uses private simultaneous
+choices each round and permits both players to gain through cooperation.
+See [the game-type comparison](GAME_TYPES.md) for the distinction and study scope.
+
 The guide supports three learning outcomes: explain one-round dominance, identify when contingent future responses can support cooperation, and distinguish an observed action history from a complete strategy or an equilibrium. It opens on a new setup and can be expanded while inspecting a saved interaction. Autonomous model play remains the main interaction.
 
 ## Content and assumptions

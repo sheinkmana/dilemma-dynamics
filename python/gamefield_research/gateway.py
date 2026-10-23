@@ -22,7 +22,7 @@ from inspect_ai.model import (
     modelapi,
 )
 
-from .design import JSON_INSTRUCTION, MODELS, canonical, digest
+from .design import JSON_INSTRUCTION, MODELS, canonical, digest, validate_temperature
 
 ENDPOINT = "https://api.tokenfactory.nebius.com/v1/chat/completions"
 CONTEXT = contextvars.ContextVar("gamefield_request")
@@ -158,7 +158,8 @@ def read_events(path):
     return rows
 
 
-def request_body(messages, arm, phase, draft=None, draft_tokens=1024):
+def request_body(messages, arm, phase, draft=None, draft_tokens=1024, *, temperature=1):
+    validate_temperature(temperature)
     messages = [dict(m) for m in messages]
     if phase == "draft":
         messages[0]["content"] = messages[0]["content"].replace(JSON_INSTRUCTION, DRAFT)
@@ -170,7 +171,7 @@ def request_body(messages, arm, phase, draft=None, draft_tokens=1024):
     body = {
         "model": arm["model"],
         "messages": messages,
-        "temperature": 1,
+        "temperature": temperature,
         "top_p": 1,
         "max_tokens": draft_tokens if phase == "draft" else 128,
         "stream": False,
@@ -257,7 +258,12 @@ class AuditedAPI(ModelAPI):
 
     async def generate(self, input, tools, tool_choice, config):
         key, body, deadline = CONTEXT.get()
-        if tools or body["model"] != self.model_name:
+        if (
+            tools
+            or body["model"] != self.model_name
+            or config.temperature != body["temperature"]
+            or body["temperature"] != self.gateway.temperature
+        ):
             raise GlobalStop("Unexpected Inspect request")
         raw = await self.gateway.transmit(key, body, deadline)
         # Keep malformed responses in the authoritative ledger; validation runs after settlement.
@@ -281,7 +287,10 @@ class AuditedAPI(ModelAPI):
 
 
 class Gateway:
-    def __init__(self, ledger, prices, deadline, transport=None, wall_deadline=None):
+    def __init__(
+        self, ledger, prices, deadline, transport=None, wall_deadline=None, *, temperature=1
+    ):
+        self.temperature = validate_temperature(temperature)
         if len(prices) != 2 or {p["model"] for p in prices} != set(MODELS):
             raise ValueError("Require both exact model price records")
         self.ledger, self.prices, self.deadline = ledger, {p["model"]: p for p in prices}, deadline
@@ -296,7 +305,7 @@ class Gateway:
                     max_connections=8,
                     adaptive_connections=False,
                     cache=False,
-                    temperature=1,
+                    temperature=self.temperature,
                     top_p=1,
                 ),
             )
@@ -326,7 +335,14 @@ class Gateway:
                     (
                         key + "/draft",
                         reservation(
-                            request_body(messages, arm, "draft", draft_tokens=draft_tokens), price
+                            request_body(
+                                messages,
+                                arm,
+                                "draft",
+                                draft_tokens=draft_tokens,
+                                temperature=self.temperature,
+                            ),
+                            price,
                         ),
                     )
                 )
@@ -334,7 +350,7 @@ class Gateway:
                 (
                     key + "/action",
                     reservation(
-                        request_body(messages, arm, "action"),
+                        request_body(messages, arm, "action", temperature=self.temperature),
                         price,
                         # Maximum admitted draft is 32KiB, JSON escaping can expand it 6x.
                         6 * 32768 + 512 if arm["procedure"] == "draft" else 0,
@@ -413,7 +429,10 @@ class Gateway:
                 tools=[],
                 cache=False,
                 config=GenerateConfig(
-                    max_retries=0, max_tokens=body["max_tokens"], temperature=1, top_p=1
+                    max_retries=0,
+                    max_tokens=body["max_tokens"],
+                    temperature=self.temperature,
+                    top_p=1,
                 ),
             )
             return output.metadata["raw"]
@@ -424,9 +443,11 @@ class Gateway:
         deadline = min(self.deadline, time.monotonic() + 600)
         draft = None
         if arm["procedure"] == "draft":
-            body = request_body(messages, arm, "draft", draft_tokens=draft_tokens)
+            body = request_body(
+                messages, arm, "draft", draft_tokens=draft_tokens, temperature=self.temperature
+            )
             raw = await self.call(key + "/draft", body, deadline)
             draft = validate_response(raw, "draft", draft_tokens)
-        body = request_body(messages, arm, "action", draft)
+        body = request_body(messages, arm, "action", draft, temperature=self.temperature)
         raw = await self.call(key + "/action", body, deadline)
         return validate_response(raw, "action", 128)

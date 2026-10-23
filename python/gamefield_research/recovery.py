@@ -9,6 +9,7 @@ import fcntl
 import json
 import os
 import time
+from copy import deepcopy
 from decimal import Decimal as D
 
 import httpx
@@ -37,6 +38,20 @@ POLICY = {
     "retryExposureUsd": {"engineering": "0.05", "final": "0.50"},
 }
 
+# Prospective transport amendment. Historical ledgers retain POLICY verbatim.
+OVERLOAD_POLICY = {
+    **deepcopy(POLICY),
+    "version": "audited-recovery/2",
+    "retryHttpStatuses": [429, 500, 502, 503, 504, 529],
+    "backoffSeconds": [15, 45],
+}
+
+
+def validated_policy(policy):
+    if policy not in (POLICY, OVERLOAD_POLICY):
+        raise ValueError("Unsupported frozen recovery policy")
+    return policy
+
 
 class AttemptFailure(Exception):
     def __init__(self, reason, retryable):
@@ -47,7 +62,8 @@ class AttemptFailure(Exception):
 class RecoveryLedger(Ledger):
     """An append-only, locked ledger whose entire accounting state is replayable."""
 
-    def __init__(self, path, cap, retry_cap, resume=False):
+    def __init__(self, path, cap, retry_cap, resume=False, *, policy=None):
+        self.policy = validated_policy(POLICY if policy is None else policy)
         self.path, self.cap, self.retry_cap = path, money(cap), money(retry_cap)
         self.spent = self.reserved = self.retry_exposure = D(0)
         self.pending, self.sent = {}, set()
@@ -67,6 +83,11 @@ class RecoveryLedger(Ledger):
                         "Incomplete ledger tail; preserve it for explicit reconciliation"
                     )
                 rows = read_events(path)
+                if (
+                    rows[0]["event"] == "run-started"
+                    and rows[0].get("recoveryPolicy") != self.policy
+                ):
+                    raise ValueError("Resume cannot change the recorded recovery policy")
                 for row in rows:
                     self._apply(row)
                 self.rows = rows
@@ -140,7 +161,7 @@ class RecoveryLedger(Ledger):
         for logical, amount, deadline in entries:
             number = len(self.logical.get(logical, [])) + 1
             key = f"{logical}/attempt-{number}"
-            if key in amounts or number > POLICY["maximumAttempts"]:
+            if key in amounts or number > self.policy["maximumAttempts"]:
                 raise GlobalStop("Attempt limit exhausted")
             amount = money(amount)
             amounts[key] = str(amount)
@@ -207,6 +228,12 @@ class RecoveryLedger(Ledger):
 
 
 class RecoveryGateway(Gateway):
+    def __init__(self, *args, policy=None, **kwargs):
+        self.policy = validated_policy(POLICY if policy is None else policy)
+        super().__init__(*args, **kwargs)
+        if self.policy != self.ledger.policy:
+            raise ValueError("Gateway policy differs from its ledger")
+
     def check(self):
         super().check()
         if self.ledger.violation:
@@ -222,17 +249,19 @@ class RecoveryGateway(Gateway):
                 if logical in self.ledger.logical:
                     continue
                 amount = reservation(
-                    request_body(messages, arm, phase, draft_tokens=tokens),
+                    request_body(
+                        messages, arm, phase, draft_tokens=tokens, temperature=self.temperature
+                    ),
                     price,
                     6 * 32768 + 512 if phase == "action" and arm["procedure"] == "draft" else 0,
                 )
-                deadline = min(time.time() + POLICY["decisionSeconds"], self.wall_deadline)
+                deadline = min(time.time() + self.policy["decisionSeconds"], self.wall_deadline)
                 entries.append((logical, amount, deadline))
         return self.ledger.reserve_attempts(entries) if entries else []
 
     def _record_failure(self, key, reason, retryable):
         meta = self.ledger.attempts[key]
-        delay = POLICY["backoffSeconds"][min(meta["number"] - 1, 1)]
+        delay = self.policy["backoffSeconds"][min(meta["number"] - 1, 1)]
         self.ledger.event(
             "attempt-failed",
             key=key,
@@ -292,7 +321,7 @@ class RecoveryGateway(Gateway):
                         if response.status_code != 200:
                             raise AttemptFailure(
                                 f"HTTP {response.status_code}",
-                                response.status_code in POLICY["retryHttpStatuses"],
+                                response.status_code in self.policy["retryHttpStatuses"],
                             )
                         try:
                             raw = json.loads(data)
@@ -313,11 +342,13 @@ class RecoveryGateway(Gateway):
                         return raw
                     if key not in self.ledger.failures:
                         http = self.ledger.http.get(key)
-                        retryable = http is None or http["status"] in POLICY["retryHttpStatuses"]
+                        retryable = (
+                            http is None or http["status"] in self.policy["retryHttpStatuses"]
+                        )
                         self._record_failure(key, "Unresolved transmission recovered", retryable)
                 if key in self.ledger.failures:
                     failure = self.ledger.failures[key]
-                    if not failure["retryable"] or meta["number"] >= POLICY["maximumAttempts"]:
+                    if not failure["retryable"] or meta["number"] >= self.policy["maximumAttempts"]:
                         raise GlobalStop(
                             "Request attempt policy exhausted; preserve unresolved exposure"
                         )

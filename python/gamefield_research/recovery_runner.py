@@ -6,10 +6,16 @@ import time
 from .analysis import episode_rows
 from .artifacts import freeze_source
 from .core import script_action, transition
-from .design import ARMS, action, digest, observation, write_json
+from .design import ARMS, action, digest, observation, validate_plan, write_json
 from .engineering import OLD_CONCISE, check_manifest, summarise_check
 from .gateway import GlobalStop, ProtocolFailure, read_events
-from .recovery import POLICY, RecoveryGateway, RecoveryLedger, projected_engineering_events
+from .recovery import (
+    POLICY,
+    RecoveryGateway,
+    RecoveryLedger,
+    projected_engineering_events,
+    validated_policy,
+)
 
 
 class RecoveryCoordinator:
@@ -116,8 +122,14 @@ async def execute_recoverable(
     transport=None,
     resume=False,
     bank=None,
+    episode_workers=4,
+    recovery_policy=None,
 ):
     """A stage has one original deadline and cap, across every process session."""
+    validate_plan(plan)
+    policy = validated_policy(POLICY if recovery_policy is None else recovery_policy)
+    if type(episode_workers) is not int or episode_workers not in (2, 4):
+        raise ValueError("Require two or four episode workers")
     check = check_manifest(plan, bank) if purpose == "engineering" else plan
     if not resume:
         directory.mkdir(exist_ok=False)
@@ -136,7 +148,11 @@ async def execute_recoverable(
         ):
             raise ValueError("Resume provenance differs from the frozen stage")
     ledger = RecoveryLedger(
-        directory / "events.jsonl", cap, POLICY["retryExposureUsd"][purpose], resume=resume
+        directory / "events.jsonl",
+        cap,
+        policy["retryExposureUsd"][purpose],
+        resume=resume,
+        policy=policy,
     )
     execution = "synthetic" if transport is not None else "tokenfactory"
     failure = None
@@ -148,25 +164,39 @@ async def execute_recoverable(
                 planSha256=check["sha256"],
                 sourceSha256=provenance["sourceSha256"],
                 prices=prices,
-                recoveryPolicy=POLICY,
+                recoveryPolicy=policy,
                 deadlineUnix=deadline,
                 capUsd=str(cap),
-                evaluationId=deployment.get("scientificAmendment", {}).get("kind"),
+                evaluationId=deployment.get("evaluationId")
+                or deployment.get("scientificAmendment", {}).get("kind"),
                 scientificAmendment=deployment.get("scientificAmendment"),
+                **({"episodeWorkers": episode_workers} if episode_workers != 4 else {}),
+                **(
+                    {"executionAmendment": deployment["executionAmendment"]}
+                    if "executionAmendment" in deployment
+                    else {}
+                ),
             )
         first = ledger.rows[0]
         if (
             first["execution"] != execution
             or first["planSha256"] != check["sha256"]
             or first["prices"] != prices
-            or first["recoveryPolicy"] != POLICY
+            or first["recoveryPolicy"] != policy
             or first["deadlineUnix"] != deadline
             or first["capUsd"] != str(cap)
+            or first.get("episodeWorkers", 4) != episode_workers
         ):
             raise ValueError("Original stage identity, cap or deadline changed")
         ledger.event("session-started", resumed=resume, atUnix=time.time())
         gateway = RecoveryGateway(
-            ledger, prices, time.monotonic() + max(0, deadline - time.time()), transport, deadline
+            ledger,
+            prices,
+            time.monotonic() + max(0, deadline - time.time()),
+            transport,
+            deadline,
+            temperature=plan["procedure"]["temperature"],
+            policy=policy,
         )
         if purpose == "engineering":
             completed = {e["id"] for e in ledger.rows if e["event"] == "engineering-decision"}
@@ -199,7 +229,9 @@ async def execute_recoverable(
                 gateway.check()
                 await coordinator.episode(episode)
 
-        outcomes = await asyncio.gather(*(worker() for _ in range(4)), return_exceptions=True)
+        outcomes = await asyncio.gather(
+            *(worker() for _ in range(episode_workers)), return_exceptions=True
+        )
         for outcome in outcomes:
             if isinstance(outcome, BaseException):
                 raise outcome
@@ -233,7 +265,7 @@ async def execute_recoverable(
                 and len(terminals) == 26
                 and all(e["status"] == "completed" for e in terminals)
             )
-            report["recoveryPolicySha256"] = digest(POLICY)
+            report["recoveryPolicySha256"] = digest(policy)
         else:
             rows = episode_rows(plan, ledger.rows)
             report = {
@@ -267,5 +299,5 @@ def rebuild_engineering(directory, bank):
         and len(terminals) == 26
         and all(e["status"] == "completed" for e in terminals)
     )
-    report["recoveryPolicySha256"] = digest(POLICY)
+    report["recoveryPolicySha256"] = digest(validated_policy(rows[0]["recoveryPolicy"]))
     return report

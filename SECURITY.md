@@ -1,9 +1,15 @@
 # Security
 
-Game Field is a personal local app. It binds to `127.0.0.1`, checks Host and
+Dilemma Dynamics is a personal local app. It binds to `127.0.0.1`, checks Host and
 Origin, and requires a local token for mutations. It has no multi-user
 authentication. Publishing this repository does not deploy the app. Public
 proxy hosting requires a separate security design.
+
+The `npm run build:public` output is a separate static demo for `/dilemma-dynamics/`.
+It includes only recorded Study replay and Results and never imports the local
+server controls. This static output can be hosted by Jekyll without an API server
+or provider credentials. Publish only that build and the curated public research
+files; keep the live server bound to localhost.
 
 Keep API keys in an ignored `.env` file. Never place them in browser code,
 screenshots, exported replays, issues or commits. `data/`, `output/` and local

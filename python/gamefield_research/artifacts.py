@@ -58,10 +58,18 @@ def export_run(directory, output):
         f"Execution: **{report['execution']}**. Purpose: **{report['purpose']}**.",
         f"Completed {report['completed']} of {report['scheduled']} scheduled episodes.",
         f"Usage-priced cost: ${report['spentUsd']}; unresolved reservations: ${report['reservedUsd']}.",
+        f"Requested temperature: {plan['procedure']['temperature']}; top-p: 1.",
         "",
         "| Model | Draft minus direct loss | Approximate 95% interval |",
         "|---|---:|---|",
     ]
+    if "samplingAmendment" in plan:
+        text[6:6] = [
+            "",
+            "Separate temperature sensitivity evaluation, matched to temperature-one plan "
+            f"`{plan['samplingAmendment']['referencePlanSha256']}`. "
+            "Reference observations are excluded; interpretation is descriptive.",
+        ]
     if "planAmendment" in report:
         amendment = report["planAmendment"]
         text[5:5] = [

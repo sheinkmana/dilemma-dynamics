@@ -1,3 +1,6 @@
+import { BrandText } from './BrandText.js';
+import { GameTypes } from './GameTypes.js';
+import { publicAsset } from './assets.js';
 import React, { type ReactNode, useState } from 'react';
 import study from '../../public/research/summary.json' with { type: 'json' };
 import costs from '../../public/research/execution-costs.json' with { type: 'json' };
@@ -30,7 +33,7 @@ export function StudyResults({
     <div className="simple-app pd-app">
       <header className="app-header">
         <div className="brand">
-          Game Field<span aria-hidden="true">.</span>
+          <BrandText />
         </div>
         {navigation}
         <div className="header-actions">
@@ -45,7 +48,9 @@ export function StudyResults({
       </header>
       <main className="game-page results-page">
         <div className="results-intro">
-          <p className="results-eyebrow">Completed study · 22 October 2026</p>
+          <p className="results-eyebrow">
+            Repeated Prisoner’s Dilemma · completed study · 22 October 2026
+          </p>
           <h1>Drafting improved average benchmark decisions.</h1>
           <p className="results-lead">
             A capped draft followed by a separate action request reduced average decision loss for
@@ -58,17 +63,18 @@ export function StudyResults({
           </p>
           <div className="results-downloads">
             <a href="#replay">Replay recorded Nemotron decisions →</a>
-            <a href="/research/paper/report.pdf" download>
+            <a href={publicAsset('/research/paper/report.pdf')} download>
               Report (PDF) ↓
             </a>
-            <a href="/research/paper/main.tex" download>
+            <a href={publicAsset('/research/paper/main.tex')} download>
               LaTeX source ↓
             </a>
-            <a href="/research/protocol.md">Methods &amp; amendments</a>
-            <a href="/research/README.md">Data &amp; reproduction</a>
+            <a href={publicAsset('/research/protocol.md')}>Methods &amp; amendments</a>
+            <a href={publicAsset('/research/README.md')}>Data &amp; reproduction</a>
           </div>
         </div>
 
+        <GameTypes />
         <dl className="results-stats">
           <div>
             <dt>Completed episodes</dt>
@@ -391,7 +397,7 @@ export function StudyResults({
             Usage aggregates come from the retained audit, priced at the recorded 20 October rates.
             They are not provider invoices, and public action data cannot independently validate
             token usage.{' '}
-            <a href="/research/execution-costs.json" download>
+            <a href={publicAsset('/research/execution-costs.json')} download>
               Download cost aggregates
             </a>
             .
@@ -462,16 +468,16 @@ export function StudyResults({
             recorded as successful; the inference cost is an estimate.
           </p>
           <div className="results-downloads">
-            <a href="/research/episodes.json" download>
+            <a href={publicAsset('/research/episodes.json')} download>
               Episode actions (JSON) ↓
             </a>
-            <a href="/research/summary.json" download>
+            <a href={publicAsset('/research/summary.json')} download>
               Results summary (JSON) ↓
             </a>
-            <a href="/research/condition-losses.csv" download>
+            <a href={publicAsset('/research/condition-losses.csv')} download>
               Condition results (CSV) ↓
             </a>
-            <a href="/research/crossplay.csv" download>
+            <a href={publicAsset('/research/crossplay.csv')} download>
               Pairing results (CSV) ↓
             </a>
           </div>
@@ -491,7 +497,7 @@ export function StudyResults({
             <p>
               These identify the preserved study; the public application can evolve independently.
             </p>
-            <a href="/research/manifest.json">Public file checksums</a>
+            <a href={publicAsset('/research/manifest.json')}>Public file checksums</a>
           </details>
           <p className="results-reference">
             Theory reference: Eric Rasmusen, <cite>Games and Information</cite>, supplied

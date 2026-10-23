@@ -13,36 +13,38 @@ from .local_supervisor import termination_as_interrupt
 from .successor import WINDOW_SECONDS
 
 
-def launch(directory):
+def launch(directory, *, command_suffix="successor"):
+    if command_suffix not in ("successor", "temperature"):
+        raise ValueError("Unsupported evaluation supervisor")
     with (directory / "claims/supervisor.lock").open("a+") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         with termination_as_interrupt():
-            return _launch(directory)
+            return _launch(directory, command_suffix)
 
 
-def _launch(directory):
+def _launch(directory, command_suffix="successor"):
     window = directory / "claims/window.json"
     wall_end = read(window)["deadlineUnix"] if window.exists() else time.time() + WINDOW_SECONDS
     monotonic_end = time.monotonic() + max(0, wall_end - time.time())
-    commands = [["verify-successor", str(directory)]]
+    commands = [[f"verify-{command_suffix}", str(directory)]]
     if not (directory / "engineering-report.json").exists():
-        command = ["execute-successor", str(directory), "--stage", "engineering"]
+        command = [f"execute-{command_suffix}", str(directory), "--stage", "engineering"]
         if (directory / "claims/engineering.json").exists():
             command.append("--resume")
         commands.append(command)
     if not (directory / "final-deployment.json").exists():
-        commands.append(["finalise-successor", str(directory)])
+        commands.append([f"finalise-{command_suffix}", str(directory)])
     final = directory / "evidence/final/events.jsonl"
     complete = False
     if final.exists():
         report, _ = analyse_file(read(directory / "plan.json"), final)
         complete = report["completed"] == report["scheduled"]
     if not complete:
-        command = ["execute-successor", str(directory), "--stage", "final"]
+        command = [f"execute-{command_suffix}", str(directory), "--stage", "final"]
         if (directory / "claims/final.json").exists():
             command.append("--resume")
         commands.append(command)
-    commands.append(["export-successor", str(directory)])
+    commands.append([f"export-{command_suffix}", str(directory)])
     for command in commands:
         if time.time() >= wall_end - 15:
             raise ValueError("Original successor window expired; preserve all evidence")

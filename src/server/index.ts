@@ -32,7 +32,7 @@ async function shutdown() {
 const app = await createApp(runner, { port, onShutdown: shutdown });
 await app.listen({ host: '127.0.0.1', port });
 console.log(
-  `Game Field · http://127.0.0.1:${port} · ${provider.configured ? 'Nebius key configured' : 'local baselines; no Nebius key configured'}`,
+  `Dilemma Dynamics · http://127.0.0.1:${port} · ${provider.configured ? 'Nebius key configured' : 'local baselines; no Nebius key configured'}`,
 );
 if (provider.configured)
   void runner

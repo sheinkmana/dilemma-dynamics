@@ -167,7 +167,7 @@ export async function createApp(
         format = req.params.format;
       reply.header(
         'Content-Disposition',
-        `attachment; filename="game-field-${m.id.slice(0, 8)}.${format === 'html' ? 'html' : format === 'jsonl' ? 'jsonl' : 'json'}"`,
+        `attachment; filename="dilemma-dynamics-${m.id.slice(0, 8)}.${format === 'html' ? 'html' : format === 'jsonl' ? 'jsonl' : 'json'}"`,
       );
       if (format === 'html') return reply.type('text/html; charset=utf-8').send(replayHtml(m));
       if (format === 'jsonl')

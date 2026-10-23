@@ -15,8 +15,8 @@ jobs:
       - run: uv run ruff check python python_tests tools
       - run: uv run pytest -q
       - run: uv run python tools/verify_public_results.py
-      - run: docker build -f deploy/Dockerfile -t gamefield-research:test .
-      - run: docker run --rm --network none gamefield-research:test --help
+      - run: docker build -f deploy/Dockerfile -t dilemma-dynamics-research:test .
+      - run: docker run --rm --network none dilemma-dynamics-research:test --help
   app:
     runs-on: ubuntu-latest
     steps:
@@ -31,3 +31,4 @@ jobs:
       - run: npm run verify:public
       - run: npm test
       - run: npm run build
+      - run: npm run build:public

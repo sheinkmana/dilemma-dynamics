@@ -133,7 +133,14 @@ async def run(
     seconds = plan["limits"]["wallSeconds"] - plan["limits"]["shutdownMarginSeconds"]
     if wall_seconds is not None:
         seconds = min(seconds, wall_seconds)
-    gateway = Gateway(ledger, prices, time.monotonic() + seconds, transport, wall_deadline)
+    gateway = Gateway(
+        ledger,
+        prices,
+        time.monotonic() + seconds,
+        transport,
+        wall_deadline,
+        temperature=plan["procedure"]["temperature"],
+    )
     ledger.event(
         "run-started",
         planSha256=plan["sha256"],
