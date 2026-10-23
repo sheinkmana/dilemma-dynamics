@@ -12,7 +12,7 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(
     `/api${path}`,
     body === undefined
-      ? {}
+      ? { signal: AbortSignal.timeout(10000) }
       : {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Gamefield-Token': sessionToken },
@@ -266,6 +266,10 @@ export function DilemmaPage({
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
   const [offline, setOffline] = useState(false);
+  const [connection, setConnection] = useState<'checking' | 'connected' | 'offline'>('checking');
+  const [stream, setStream] = useState<'connecting' | 'live' | 'reconnecting'>('connecting');
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [lessonRequest, setLessonRequest] = useState(0);
   const eligible = models.filter(
     (m) => m.available && m.inputRate !== null && m.outputRate !== null,
   );
@@ -288,8 +292,10 @@ export function DilemmaPage({
     sessionToken = h.token;
     setHealth(h);
     setSaved(list);
+    setConnection('connected');
   };
   const select = (s: DilemmaSession) => {
+    setLessonRequest(0);
     setSession(s);
     setCursor(null);
     setError('');
@@ -319,6 +325,7 @@ export function DilemmaPage({
         }
         if (cancelled) return;
         setHealth(h);
+        setConnection('connected');
         setSaved(list);
         setModels(found);
         const ids = found
@@ -333,8 +340,10 @@ export function DilemmaPage({
           if (!cancelled) setSession(s);
         }
       } catch {
-        if (!cancelled)
+        if (!cancelled) {
+          setConnection('offline');
           setError('Could not connect to the local server. Start it with npm start, then reload.');
+        }
       } finally {
         if (!cancelled) setBusy(false);
       }
@@ -345,21 +354,26 @@ export function DilemmaPage({
   }, []);
   useEffect(() => {
     if (!session || offline) return;
+    setStream('connecting');
+    setLastUpdate(null);
     const id = session.id,
       source = new EventSource(`/api/dilemma/sessions/${id}/events`);
     source.onmessage = (event) => {
       const next = JSON.parse(event.data) as DilemmaSession;
       setSession((old) => (old?.id === id && old.version <= next.version ? next : old));
+      setStream('live');
+      setLastUpdate(new Date().toLocaleTimeString());
     };
+    source.onerror = () => setStream('reconnecting');
     return () => source.close();
   }, [session?.id, offline]);
   useEffect(() => {
     if (offline) return;
-    const timer = setInterval(() => void refresh().catch(() => {}), 8000);
+    const timer = setInterval(() => void refresh().catch(() => setConnection('offline')), 8000);
     return () => clearInterval(timer);
   }, [offline]);
   useEffect(() => {
-    if (!offline && session) void refresh().catch(() => {});
+    if (!offline && session) void refresh().catch(() => setConnection('offline'));
   }, [session?.version, offline]);
   const act = async (work: () => Promise<void>) => {
     setBusy(true);
@@ -389,8 +403,9 @@ export function DilemmaPage({
         mode: demo ? 'demo' : 'autonomous',
         players,
         protocol: demo ? 'actions' : protocol,
-        horizon:
-          horizon === 'geometric'
+        horizon: demo
+          ? { kind: 'fixed', rounds: 10 }
+          : horizon === 'geometric'
             ? { kind: 'geometric' }
             : { kind: 'fixed', rounds: Number(horizon) },
         mapping,
@@ -413,7 +428,7 @@ export function DilemmaPage({
   const liveLabel = pending
     ? `Round ${session!.pendingRound} · choices private`
     : `Round ${index}${cursor !== null ? ' · replay' : ' · revealed'}`;
-  const controlsDisabled = busy || offline;
+  const controlsDisabled = busy || offline || connection !== 'connected';
   if (offline)
     return (
       <main className="shutdown-screen">
@@ -470,9 +485,57 @@ export function DilemmaPage({
             </button>
           )}
         </div>
+        {!session && !analysisOnly && (
+          <section className="pd-welcome" aria-label="Start exploring">
+            <p>
+              An interactive lab for students and AI builders: see how incentives shape Nemotron
+              decisions, then examine what the evidence supports.
+            </p>
+            <div className="pd-entry-actions">
+              <a className="entry-primary" href="#replay">
+                Explore a recorded Nemotron interaction →
+              </a>
+              <button
+                disabled={controlsDisabled || Boolean(anyRunning)}
+                onClick={() => start(true)}
+              >
+                Run a free ten-round local demo
+              </button>
+              <button onClick={() => setLessonRequest((n) => n + 1)}>Learn the game</button>
+            </div>
+            <small>
+              Recorded study: no key needed. Local demo: simple policies, not models. Configure live
+              Nemotron play below.
+            </small>
+          </section>
+        )}
+        <p
+          className={`pd-connection ${connection !== 'connected' || (session && stream !== 'live') ? 'notice' : 'muted'}`}
+          role="status"
+        >
+          {connection === 'checking'
+            ? 'Connecting to the local server…'
+            : connection === 'offline'
+              ? 'Local server unreachable. Displayed state may be stale; requests may still be running. Reconnecting automatically.'
+              : session && stream !== 'live'
+                ? 'Server reachable · reconnecting to live updates. Displayed round may be stale.'
+                : 'Connected to the local server.'}
+          {lastUpdate && ` Last round-state update: ${lastUpdate}.`}
+          {connection === 'offline' && (
+            <button
+              onClick={() =>
+                void refresh()
+                  .then(() => setError(''))
+                  .catch(() => setConnection('offline'))
+              }
+            >
+              Check connection
+            </button>
+          )}
+        </p>
         <DilemmaLearning
           key={session ? 'interaction-guide' : 'setup-guide'}
-          defaultOpen={!session && !analysisOnly}
+          openRequest={lessonRequest}
         />
         {error && (
           <p className="error" role="alert">
@@ -580,7 +643,7 @@ export function DilemmaPage({
               <button
                 className="primary"
                 type="submit"
-                disabled={busy || !eligible.length || Boolean(anyRunning)}
+                disabled={controlsDisabled || !eligible.length || Boolean(anyRunning)}
               >
                 Start autonomous interaction →
               </button>
@@ -607,16 +670,16 @@ export function DilemmaPage({
               <button
                 className="text-button"
                 type="button"
-                disabled={busy || Boolean(anyRunning)}
+                disabled={controlsDisabled || Boolean(anyRunning)}
                 onClick={() => start(true)}
               >
-                Run free local demo
+                Run free ten-round local demo
               </button>
             </div>
             {!health?.keyConfigured && (
               <p className="notice">
                 Autonomous play needs the server’s Nebius key. The explicitly local demo uses two
-                simple policies, not models.
+                simple policies, not models. The local demo always uses ten announced rounds.
               </p>
             )}
             <details>
@@ -853,6 +916,47 @@ export function DilemmaPage({
               </p>
             </details>
           </>
+        )}
+        {health && (
+          <details className="pd-records">
+            <summary>Shared app budget</summary>
+            <p>
+              The shared ledger persists across restarts and covers all live games. Spent:{' '}
+              {money(health.sessionSpentUsd)}; reserved: {money(health.reservedUsd)}. Changing this
+              limit does not erase charges or restart sessions.
+            </p>
+            <form
+              className="pd-entry-actions"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const nextCap = Number(new FormData(event.currentTarget).get('cap'));
+                void act(async () => {
+                  await api('/settings', { cap: nextCap });
+                });
+              }}
+            >
+              <label>
+                Shared estimated limit · USD{' '}
+                <input
+                  key={health.sessionCapUsd}
+                  name="cap"
+                  type="number"
+                  min="0.01"
+                  max="1000"
+                  step="0.01"
+                  defaultValue={health.sessionCapUsd}
+                  required
+                />
+              </label>
+              <button disabled={controlsDisabled} type="submit">
+                Save shared limit
+              </button>
+            </form>
+            <p className="muted">
+              This is a local estimate, not a provider-enforced invoice cap. A higher limit permits
+              more spending when you explicitly start or resume a session.
+            </p>
+          </details>
         )}
         <details className="pd-saved">
           <summary>Past interactions ({saved.length})</summary>

@@ -4,11 +4,30 @@
 \usepackage[hidelinks]{hyperref}
 
 \title{Bounded drafting in repeated games}
-\author{}
-\date{22 October 2026}
+\author{Alisa Sheinkman}
+\date{Study: 22 October 2026; report revised: 23 October 2026}
 
 \begin{document}
 \maketitle
+
+\begin{abstract}
+Does a bounded draft before an action improve an agent's decisions? In a
+completed 1,776-episode study using two NVIDIA Nemotron models on Nebius Token
+Factory, drafting lowered average exact benchmark loss, but worsened performance
+against Tit-for-Tat on average. Autonomous cooperation varied by pairing.
+Game Field combines inspectable play with a public action dataset and offline
+score reproduction. This amended study is descriptive, not a general model ranking.
+\end{abstract}
+
+\section{Question and contribution}
+
+For students examining incentives and builders inspecting agents, cooperation
+counts alone do not establish decision quality. A model can earn more by
+cooperating less. We separate exact own-payoff loss against committed policies
+from outcomes between adaptive agents. The contribution is this inspectable
+Nemotron procedure comparison and its reproducible action dataset, not a first
+demonstration of LLM cooperation. Educational impact and real-world negotiation
+performance have not been evaluated.
 
 \section{Design}
 
@@ -55,6 +74,12 @@ The primary contrast is draft minus direct mean loss within each model.
 The 16 conditions and four strata receive equal weight. Approximate 95\%
 intervals use 20,000 stratified whole-block bootstrap draws.
 
+\paragraph{Worked example.}
+Against Always Cooperate in a one-round game, choosing C earns 3 points whereas
+D earns 5. The loss of C is therefore $5-3=2$; the loss of D is zero. This is
+foregone own payoff, not a moral judgement or cooperation score. A block repeats
+all conditions; a presentation stratum groups an action mapping and a player seat.
+
 \section{Results}
 
 Each procedure has 384 Track A episodes. Drafting reduced average loss for both
@@ -100,6 +125,36 @@ both defected in 1,042 rounds, and 829 were asymmetric. First-round mutual
 cooperation occurred in 26/240 dyads (10.8\%). Rounds within a dyad are dependent;
 these counts do not supply 2,060 independent observations or a general ranking.
 
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrr}
+\hline
+Pairing & First CC / 24 & CC / 206 rounds & Joint return \\
+\hline
+Nano Direct / Nano Direct & 5 & 52 & 3.833 \\
+Nano Direct / Nano Draft & 3 & 14 & 3.113 \\
+Nano Direct / Super Direct & 5 & 33 & 3.529 \\
+Nano Direct / Super Draft & 0 & 6 & 2.842 \\
+Nano Draft / Nano Draft & 2 & 10 & 2.746 \\
+Nano Draft / Super Direct & 3 & 19 & 3.271 \\
+Nano Draft / Super Draft & 3 & 10 & 2.533 \\
+Super Direct / Super Direct & 3 & 33 & 3.479 \\
+Super Direct / Super Draft & 1 & 6 & 3.067 \\
+Super Draft / Super Draft & 1 & 6 & 2.267 \\
+\hline
+\end{tabular}
+\caption{All Track B pairings, 24 dyads each. Joint return is the mean of
+$(1-0.9)$ times the sum of both players' points over a dyad.}
+\label{tab:pairings}
+\end{table}
+
+The pooled cooperation rate hides variation (Table~\ref{tab:pairings}). For
+example, Nano Direct self-play had 52/206 mutual-cooperation rounds, compared
+with 10/206 in Nano Draft self-play. These are descriptive comparisons under
+a shared stopping schedule; longer dyads contribute more to the round-level rate.
+The return normalisation is not the mean payoff per observed round.
+
 \section{Interpretation and limitations}
 
 A best response to a commitment differs from an equilibrium \cite{rasmusen}.
@@ -120,23 +175,76 @@ window limit generalisation. Interval coverage and power are not established.
 There is no general model ranking or identified autonomous-play equilibrium;
 draft text does not verify internal beliefs.
 
+\section{Related work}
+
+Akata et al.\ \cite{akata} study LLM behaviour in repeated games and a social
+chain-of-thought intervention. Fontana et al.\ \cite{fontana} examine cooperative
+behaviour against adversaries of varying hostility. Pal et al.\ \cite{pal}
+examine strategies, continuation probabilities, horizons and framing in repeated
+Prisoner's Dilemma. Our narrower extension compares bounded Direct/Draft
+procedures in two hosted Nemotron deployments using exact committed-opponent
+loss, alongside autonomous pairing outcomes. These results do not establish
+superiority over those studies' models, tasks or methods.
+
 \section{Execution and reproduction}
 
 The run used 17,124 successful requests, with no retries or protocol failures,
 in approximately 3 hours 8 minutes. Estimated final inference cost was \$4.9278,
 not a provider invoice.
 
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\hline
+Procedure & Requests & Estimated USD \\
+\hline
+Nano Direct & 2,854 & 0.068376 \\
+Nano Draft & 5,708 & 0.795708 \\
+Super Direct & 2,854 & 0.338590 \\
+Super Draft & 5,708 & 3.725092 \\
+\hline
+\end{tabular}
+\caption{Final evaluation costs across both tracks, priced at the recorded
+20 October rates from retained usage aggregates.}
+\label{tab:costs}
+\end{table}
+
+Drafting uses two requests per decision and longer inputs and outputs.
+Table~\ref{tab:costs} includes both benchmark and autonomous play, so it is not
+a Track A cost-effectiveness estimate. Public actions cannot independently
+validate usage aggregates or provider billing. The completed run used local
+CPU coordination and remote Token Factory inference; earlier cloud job probes
+failed before scientific inference.
+
+The public app offers an action-by-action study replay and aggregate results.
+Its live educational mode instead uses temperature zero, reasoning requested off,
+and optional reported forecasts; it does not rerun this scientific protocol.
+
+Repository and public data:
+\href{https://github.com/sheinkmana/game-field}{github.com/sheinkmana/game-field}.
+The data package's executed plan and source index identify the study; current app
+and report revisions do not replace frozen execution evidence.
 Data and offline verification instructions are in
-\texttt{public/research/README.md}. Scores and intervals reproduce from revealed
+\path{public/research/README.md}. Scores and intervals reproduce from revealed
 actions without inference. Raw responses, drafts and receipts remain private;
 public records cannot authenticate provider identity, raw transport or billing.
 
-\begin{thebibliography}{1}
+\begin{thebibliography}{4}
 \bibitem{rasmusen}
 Eric Rasmusen.
 \emph{Games and Information: An Introduction to Game Theory}.
 Supplied fourth-edition draft, chapter headers dated 2005.
 Sections 1.2, 4.1, 5.1--5.2 and 6.5.
+\bibitem{akata}
+Elif Akata et al. \emph{Playing repeated games with Large Language Models}.
+\href{https://arxiv.org/abs/2305.16867}{arXiv:2305.16867}, 2023; revised 2025.
+\bibitem{fontana}
+Nicol\`o Fontana, Francesco Pierri and Luca Maria Aiello.
+\emph{Nicer Than Humans: How do Large Language Models Behave in the Prisoner's Dilemma?}
+\href{https://arxiv.org/abs/2406.13605}{arXiv:2406.13605}, 2024.
+\bibitem{pal}
+Saptarshi Pal et al. \emph{Strategies of cooperation and defection in five large language models}.
+\href{https://arxiv.org/abs/2601.09849}{arXiv:2601.09849}, 2026.
 \end{thebibliography}
 
 \end{document}

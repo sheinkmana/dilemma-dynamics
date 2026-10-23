@@ -11,6 +11,7 @@ Its findings are descriptive; predecessor and engineering observations are exclu
 - [Summary](summary.json), [executed plan](plan.json) and [episode actions](episodes.json)
 - [Condition means](condition-losses.csv), [block contrasts](block-contrasts.csv) and [opponent differences](policy-effects.csv)
 - [Autonomous pairing results](crossplay.csv)
+- [Usage and cost aggregates](execution-costs.json), covering both study tracks
 - [Executed source index](executed-source-index.json) and [public file checksums](manifest.json)
 
 From the repository root, with Python 3.12 and uv:
@@ -23,6 +24,16 @@ uv run python tools/verify_public_results.py
 Verification reproduces scores, bootstrap intervals and CSVs, checks public file
 hashes, and confirms that scoring, analysis, design and the dependency lockfile
 match the executed versions. It requires no credentials or inference.
+It also checks the published usage-cost arithmetic against dated prices and
+request counts against episode decisions. The usage aggregates were transcribed
+from the retained completed-run audit; this arithmetic cannot independently
+authenticate provider token counts or invoices.
+
+In the app, **Study replay** browses every recorded episode and compares matched
+Direct/Draft conditions. **Results** includes all ten autonomous pairings and
+the procedure cost table. Recordings contain actions, not reconstructed drafts
+or beliefs. The report is by Alisa Sheinkman, revised 23 October 2026; the study
+date and frozen execution data remain 22 October.
 
 To compile the plain LaTeX report with a standard TeX installation:
 

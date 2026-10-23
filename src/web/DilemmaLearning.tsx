@@ -1,4 +1,4 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { ACTIONS, CONTINUATION_PROBABILITY, payoff } from '../dilemma/spec.js';
 import { continuationExample, type ResponseAssumption } from '../dilemma/education.js';
 import type { Action, Seat } from '../dilemma/types.js';
@@ -363,13 +363,28 @@ function ActionsAndStrategies() {
   );
 }
 
-export function DilemmaLearning({ defaultOpen = false }: { defaultOpen?: boolean }) {
+export function DilemmaLearning({
+  defaultOpen = false,
+  openRequest = 0,
+}: {
+  defaultOpen?: boolean;
+  openRequest?: number;
+}) {
   const [open, setOpen] = useState(defaultOpen);
+  const element = useRef<HTMLDetailsElement>(null);
+  useEffect(() => {
+    if (openRequest) {
+      setOpen(true);
+      element.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      element.current?.querySelector('summary')?.focus();
+    }
+  }, [openRequest]);
   const [step, setStep] = useState(0);
   const id = useId();
   const lessons = ['One decision', 'The future', 'What play reveals'];
   return (
     <details
+      ref={element}
       className="pd-learning"
       open={open}
       onToggle={(event) => setOpen(event.currentTarget.open)}

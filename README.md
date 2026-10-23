@@ -1,8 +1,20 @@
 # Game Field
 
-A local app for repeated Prisoner's Dilemma play and decision analysis, with
-Dots & Boxes and Tic-tac-toe under **Recreational**. The app runs on your CPU;
-Nebius Token Factory serves model requests remotely.
+An interactive lab by **Alisa Sheinkman** for students and AI builders to explore
+how **NVIDIA Nemotron agents respond to incentives**. Watch simultaneous decisions,
+inspect their consequences, and explore a reproducible study of when bounded
+drafting helps—and hurts—decision quality.
+
+![Game Field recorded study replay](docs/study-replay.png)
+
+**Start here:** [two-minute judge walkthrough](docs/JUDGE_WALKTHROUGH.md) ·
+[study report](public/research/paper/report.pdf) · [methods and data](public/research/README.md).
+A public hosted demo and YouTube video have not been published yet. The local
+test build below provides free access to recorded Nemotron play, lessons, and results.
+
+The intended audience is learners examining strategic incentives and builders
+inspecting agent decisions. This is a controlled game laboratory; real-world
+negotiation performance and educational outcomes have not been validated.
 
 ## Study results
 
@@ -29,17 +41,51 @@ npm start
 ```
 
 Open **http://127.0.0.1:4317**. After building, `npm start` is enough.
-For development, run `npm run dev` and `npm run dev:web` in separate terminals.
+Choose **Explore a recorded Nemotron interaction** for a key-free introduction,
+or **Run free ten-round local demo** to watch simple local policies.
+The lesson is available through **Learn the game**.
+
+For development, run `npm run dev` and `npm run dev:web` in separate terminals,
+then open the Vite URL printed by the second command (normally
+**http://127.0.0.1:5173**). The default development proxy expects the API on port 4317.
 
 For model play, copy `.env.example` to `.env`, set `NEBIUS_API_KEY`, and restart.
 The key stays on the server. Models must have reviewed catalog prices.
-Without a key, **Run free local demo** uses two labelled local policies.
+Without a key, the recorded study, Results, lessons, and local policies still work.
+
+To preview only the built static interface, run `npm run preview` and open
+**http://127.0.0.1:4173/#replay** or **http://127.0.0.1:4173/#results**.
+These entry points need no API server. Live play and local-policy sessions require
+`npm start`; static preview is not a hosted deployment.
+
+## NVIDIA and Nebius integration
+
+Nebius Token Factory executes the model requests; the app and evaluation
+coordinators run on a local CPU. The completed study used:
+
+- `nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B`
+- `nvidia/nemotron-3-super-120b-a12b`
+
+Token Factory provided a common hosted chat API and usage accounting for comparing
+the two models without managing model weights or provisioning a GPU. The final
+evaluation recorded 17,124 successful requests over approximately 3h08m and
+$4.9278 in estimated inference charges. These are retained-run records, not a
+provider invoice. Earlier CPU Serverless Job probes failed; the completed run
+used local coordination with remote Token Factory inference.
+
+The architecture is **React UI → local Fastify coordinator → Token Factory**.
+The coordinator validates decisions, reveals paired choices together, reserves
+estimated costs, and saves sessions in SQLite. A separate Python pipeline handles
+scientific schedules, exact payoff scoring and offline verification. The static
+Results and Study replay pages read the curated public package.
 
 ## Use the app
 
 - **Dilemma:** choose two models, a decision protocol, a horizon and a session
   limit, then start. Actions remain private until both players have chosen.
 - **Analysis:** inspect incentives, reported forecasts and completed rounds.
+- **Study replay:** inspect any recorded study episode, reveal rounds, and switch
+  between matched Direct/Draft configurations. It makes no inference requests.
 - **Results:** read the completed study and download its report and data.
 - **Recreational:** play or replay Dots & Boxes and Tic-tac-toe.
 
@@ -50,7 +96,9 @@ not an announced final round. The fixed ten-round option announces its end.
 **Action only** records a choice; **Action + forecasts** also records reported
 expectations before reveal. Forecasts are not verified internal beliefs. The
 live app uses temperature zero and reasoning requested off; the scientific
-study uses a different protocol. See the [game contract](docs/DILEMMA_PROTOCOL.md)
+study uses temperature one and a separate capped draft-then-action procedure.
+Study replay shows saved actions from that study; its private draft text is not
+reconstructed. See the [game contract](docs/DILEMMA_PROTOCOL.md)
 and [analysis methods](docs/AUTONOMOUS_DILEMMA_ANALYSIS.md).
 
 Pause waits for a joint-round boundary. Stop cancels pending work without
@@ -89,9 +137,21 @@ The Dots & Boxes evaluator supports the chain/loop endgames in
 search elsewhere. It is not a general optimal solver. See the
 [methods](docs/RECREATIONAL_METHODS.md) and [documentation index](docs/README.md).
 
-Before the next commit and public release, follow the
-[publication notes](docs/PUBLICATION.md), including the lease-bound push after
-the approved history cleanup.
+## Troubleshooting
+
+| Symptom | What to do |
+| --- | --- |
+| No available models | Set the server-side key, restart, then choose **Refresh models**. Discovery lists endpoint availability; only models with reviewed prices can be selected. |
+| HTTP 401 or 403 | Check that the key is valid for the configured Token Factory endpoint. Never paste the key into an issue or browser field. |
+| HTTP 429, timeout or interrupted play | Inspect the session status and charges. Resume only when offered; never assume the failed request was free. Successful sealed partner decisions are retained. |
+| Live view says reconnecting | Displayed state may be stale. Wait for reconnection or use **Check connection**. A disconnected browser does not prove the server stopped requests. |
+| Shared budget exhausted | The $5 ledger persists across restarts. Review recorded/reserved spend under **Shared app budget** before explicitly raising the limit. Changing the environment default does not reset an existing ledger. |
+| Static preview shows no live server | Use **Study replay** or **Results**, or run `npm start` for live/local sessions. |
+| Development page cannot reach API | Keep the API on 4317 or update the proxy in `vite.config.ts`; use the Vite URL for the UI. |
+
+Release maintainers: see [publication notes](docs/PUBLICATION.md).
+Submission preparation: [walkthrough and video script](docs/JUDGE_WALKTHROUGH.md)
+and [Devpost draft/checklist](docs/SUBMISSION.md).
 
 ## License
 

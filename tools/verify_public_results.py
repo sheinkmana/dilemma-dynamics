@@ -9,6 +9,7 @@ import hashlib
 import json
 import math
 from collections import Counter
+from decimal import Decimal
 from pathlib import Path
 from statistics import mean
 
@@ -51,6 +52,31 @@ def verify():
     for name, expected in manifest["files"].items():
         require(hashlib.sha256((DATA / name).read_bytes()).hexdigest() == expected, name)
     plan, rows, summary = read("plan.json"), read("episodes.json"), read("summary.json")
+    costs = read("execution-costs.json")
+    prices = json.loads((ROOT / "fixtures/prices-2026-10-20.json").read_text())["prices"]
+    prices_by_model = {row["model"]: row for row in prices}
+    arm_models = {arm["id"]: arm["model"] for arm in plan["arms"]}
+    require(set(costs["arms"]) == set(arm_models), "Cost arms differ")
+    total_cost = Decimal(0)
+    total_requests = 0
+    for arm, usage in costs["arms"].items():
+        price = prices_by_model[arm_models[arm]]
+        calculated = (
+            Decimal(usage["promptTokens"]) * Decimal(price["inputRate"])
+            + Decimal(usage["completionTokens"]) * Decimal(price["outputRate"])
+        ) / Decimal(1_000_000)
+        require(calculated == Decimal(usage["costUsd"]), "Usage cost differs: " + arm)
+        decisions = sum(
+            len(row["history"]) * row["players"].count(arm) for row in rows
+        )
+        require(
+            usage["requests"] == decisions * (2 if arm.endswith("-draft") else 1),
+            "Request count differs from recorded actions: " + arm,
+        )
+        total_cost += calculated
+        total_requests += usage["requests"]
+    require(total_cost == Decimal(summary["finalEstimatedUsd"]), "Total cost differs")
+    equal(total_requests, summary["requestCount"])
     executed_source = read("executed-source-index.json")
     require(digest(executed_source) == summary["sourceSha256"], "Executed source index differs")
     for name in (

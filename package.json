@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "tsx watch src/server/index.ts",
     "dev:web": "vite --host 127.0.0.1",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.server.json",
     "start": "node --disable-warning=ExperimentalWarning dist/server/index.js",
     "test": "tsx --test tests/*.test.ts",

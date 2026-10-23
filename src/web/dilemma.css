@@ -32,6 +32,83 @@
 .pd-page {
   max-width: 1180px;
 }
+.pd-welcome {
+  padding: 20px;
+  margin-bottom: 18px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+.pd-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+}
+.pd-entry-actions a {
+  padding: 12px 16px;
+  background: var(--green);
+  color: var(--paper);
+  border-radius: 3px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.pd-entry-actions button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--text);
+  background: var(--panel);
+}
+.pd-entry-actions input {
+  max-width: 100%;
+}
+.pd-connection {
+  font-size: 13px;
+}
+.pd-connection button {
+  margin-left: 12px;
+}
+.replay-filters {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 16px;
+}
+.results-page .pd-controls button {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+}
+.results-page .pd-controls button:not(.primary) {
+  background: var(--panel);
+  color: var(--text);
+}
+.results-page .pd-controls[role='group'] {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.results-page .pd-controls button[aria-pressed='true'] {
+  background: var(--green);
+  color: var(--paper);
+}
+@media (max-width: 700px) {
+  .results-page .pd-controls[role='group'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    font-size: 12px;
+  }
+  .replay-filters {
+    grid-template-columns: 1fr;
+  }
+  .pd-entry-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .pd-entry-actions a {
+    text-align: center;
+  }
+}
 .pd-setup {
   background: var(--paper);
   border: 1px solid var(--line);

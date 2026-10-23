@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "scope": "Final evaluation, both tracks combined. Usage aggregates transcribed from the retained completed-run audit; raw provider records remain private. Not a provider invoice or a Track A cost-effectiveness estimate.",
+  "pricingDate": "2026-10-20",
+  "pricingSource": "../../fixtures/prices-2026-10-20.json",
+  "arms": {
+    "nano-direct": {
+      "requests": 2854,
+      "promptTokens": 1068726,
+      "completionTokens": 17717,
+      "costUsd": "0.06837564"
+    },
+    "nano-draft": {
+      "requests": 5708,
+      "promptTokens": 4462398,
+      "completionTokens": 2199849,
+      "costUsd": "0.79570764"
+    },
+    "super-direct": {
+      "requests": 2854,
+      "promptTokens": 1068687,
+      "completionTokens": 19982,
+      "costUsd": "0.3385899"
+    },
+    "super-draft": {
+      "requests": 5708,
+      "promptTokens": 4838592,
+      "completionTokens": 2526127,
+      "costUsd": "3.7250919"
+    }
+  }
+}

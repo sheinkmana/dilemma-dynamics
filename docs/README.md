@@ -2,6 +2,9 @@
 
 Start with the [application README](../README.md).
 
+- [Two-minute judge walkthrough and video script](JUDGE_WALKTHROUGH.md)
+- [Devpost description draft and submission checklist](SUBMISSION.md)
+
 ## Completed scientific evaluation
 
 - [Full results write-up](../public/research/paper/report.pdf)

@@ -15,6 +15,7 @@ import { gameFor } from '../games/registry.js';
 import './style.css';
 import { DilemmaPage } from './Dilemma.js';
 import { StudyResults } from './StudyResults.js';
+import { StudyReplay } from './StudyReplay.js';
 
 let token = '';
 async function api<T>(url: string, body?: unknown): Promise<T> {
@@ -834,12 +835,28 @@ function Recreation({
     </div>
   );
 }
+type Page = 'dilemma' | 'analysis' | 'replay' | 'results' | 'recreational';
+function pageFromHash(): Page {
+  const hash = window.location.hash.slice(1);
+  return ['analysis', 'replay', 'results', 'recreational'].includes(hash)
+    ? (hash as Page)
+    : 'dilemma';
+}
 function App() {
   const [theme, setTheme] = useState(initialTheme);
-  const [page, setPage] = useState<'dilemma' | 'analysis' | 'results' | 'recreational'>(
-    window.location.hash === '#results' ? 'results' : 'dilemma',
-  );
-  const [visitedRecreation, setVisitedRecreation] = useState(false);
+  const [page, setPage] = useState<Page>(pageFromHash);
+  const [visitedRecreation, setVisitedRecreation] = useState(page === 'recreational');
+  const [visitedDilemma, setVisitedDilemma] = useState(page === 'dilemma' || page === 'analysis');
+  useEffect(() => {
+    const navigate = () => {
+      const next = pageFromHash();
+      setPage(next);
+      if (next === 'recreational') setVisitedRecreation(true);
+      if (next === 'dilemma' || next === 'analysis') setVisitedDilemma(true);
+    };
+    window.addEventListener('hashchange', navigate);
+    return () => window.removeEventListener('hashchange', navigate);
+  }, []);
   useLayoutEffect(() => {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
@@ -852,41 +869,42 @@ function App() {
   }, [theme]);
   const navigation = (
     <nav className="domain-nav" aria-label="Project sections">
-      {(['dilemma', 'analysis', 'results', 'recreational'] as const).map((p) => (
+      {(['dilemma', 'analysis', 'replay', 'results', 'recreational'] as const).map((p) => (
         <button
           key={p}
           aria-pressed={page === p}
           onClick={() => {
-            setPage(p);
-            window.history.replaceState(
-              null,
-              '',
-              p === 'results' ? '#results' : window.location.pathname + window.location.search,
-            );
-            if (p === 'recreational') setVisitedRecreation(true);
+            window.location.hash = p;
           }}
         >
           {p === 'dilemma'
             ? 'Dilemma'
             : p === 'analysis'
               ? 'Analysis'
-              : p === 'results'
-                ? 'Results'
-                : 'Recreational'}
+              : p === 'replay'
+                ? 'Study replay'
+                : p === 'results'
+                  ? 'Results'
+                  : 'Recreational'}
         </button>
       ))}
     </nav>
   );
   return (
     <>
-      <div hidden={page === 'recreational' || page === 'results'}>
-        <DilemmaPage
-          navigation={navigation}
-          analysisOnly={page === 'analysis'}
-          theme={theme}
-          setTheme={setTheme}
-        />
-      </div>
+      {visitedDilemma && (
+        <div hidden={page !== 'dilemma' && page !== 'analysis'}>
+          <DilemmaPage
+            navigation={navigation}
+            analysisOnly={page === 'analysis'}
+            theme={theme}
+            setTheme={setTheme}
+          />
+        </div>
+      )}
+      {page === 'replay' && (
+        <StudyReplay navigation={navigation} theme={theme} setTheme={setTheme} />
+      )}
       {page === 'results' && (
         <StudyResults navigation={navigation} theme={theme} setTheme={setTheme} />
       )}

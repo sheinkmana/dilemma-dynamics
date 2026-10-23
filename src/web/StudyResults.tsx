@@ -1,5 +1,7 @@
 import React, { type ReactNode, useState } from 'react';
 import study from '../../public/research/summary.json' with { type: 'json' };
+import costs from '../../public/research/execution-costs.json' with { type: 'json' };
+import { playerLabel } from '../dilemma/recorded.js';
 import './results.css';
 
 const number = (value: number) => value.toLocaleString('en-US');
@@ -55,6 +57,7 @@ export function StudyResults({
             they do not establish universal reasoning superiority or a general model ranking.
           </p>
           <div className="results-downloads">
+            <a href="#replay">Replay recorded Nemotron decisions →</a>
             <a href="/research/paper/report.pdf" download>
               Report (PDF) ↓
             </a>
@@ -147,6 +150,20 @@ export function StudyResults({
             Approximate intervals use 20,000 stratified whole-block bootstrap draws. Only six blocks
             per stratum are available; coverage and statistical power are not established.
           </p>
+          <details className="results-details">
+            <summary>What does one point of loss mean?</summary>
+            <p>
+              In a one-round game against Always Cooperate, cooperating earns 3 points; defecting
+              earns 5. Choosing C gives up 2 achievable points, so its oracle loss is 2. Choosing D
+              has loss 0. This measures the stated own-payoff objective, not kindness or
+              cooperation.
+            </p>
+            <p>
+              A block repeats the full set of study conditions. A presentation stratum groups a
+              neutral action-label mapping and a player seat. The study has four such groups, with
+              six blocks each. Resampling whole blocks keeps related observations together.
+            </p>
+          </details>
         </section>
 
         <section className="results-section" aria-labelledby="opponents-title">
@@ -250,7 +267,7 @@ export function StudyResults({
 
         <section className="results-section" aria-labelledby="cooperation-title">
           <p className="results-eyebrow">Track B · Autonomous interaction</p>
-          <h2 id="cooperation-title">Better benchmark decisions did not mean more cooperation.</h2>
+          <h2 id="cooperation-title">Cooperation varied across model–procedure pairings.</h2>
           <div className="results-crossplay">
             <p className="results-big-number">
               {((100 * study.jointActionCounts.CC) / crossplayRounds).toFixed(1)}%
@@ -275,6 +292,109 @@ export function StudyResults({
             Rounds within a dyad are dependent. These are descriptive counts, not{' '}
             {number(crossplayRounds)} independent trials or evidence of a Nash equilibrium. Adaptive
             opponents have no identified exact oracle here.
+          </p>
+        </section>
+
+        <section className="results-section" aria-labelledby="pairing-title">
+          <h2 id="pairing-title">Explore all ten pairings.</h2>
+          <p>
+            Each pairing contains 24 dyads and 206 observed rounds. These are descriptive
+            comparisons under the shared stopping schedule. Longer dyads contribute more to the
+            round-level cooperation rate.
+          </p>
+          <div
+            className="results-table-wrap"
+            role="region"
+            aria-label="Cooperation by pairing"
+            tabIndex={0}
+          >
+            <table className="results-table">
+              <caption>Mutual cooperation and joint return · Track B</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Pairing</th>
+                  <th scope="col">First-round CC</th>
+                  <th scope="col">CC / rounds</th>
+                  <th scope="col">CC rate</th>
+                  <th scope="col">Mean normalised joint return</th>
+                </tr>
+              </thead>
+              <tbody>
+                {study.crossplay.map((row) => (
+                  <tr key={row.cell}>
+                    <th scope="row">{row.cell.split('/').slice(1).map(playerLabel).join(' / ')}</th>
+                    <td>
+                      {row.firstCC.count} / {row.firstCC.opportunities}
+                    </td>
+                    <td>
+                      {row.mutualCooperation.count} / {row.mutualCooperation.opportunities}
+                    </td>
+                    <td>
+                      {(
+                        (100 * row.mutualCooperation.count) /
+                        row.mutualCooperation.opportunities
+                      ).toFixed(1)}
+                      %
+                    </td>
+                    <td>{row.meanNormalisedJointReturn.toFixed(3)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="results-note">
+            CC means both cooperated. Normalised joint return is 0.1 times the sum of both players’
+            points over a dyad, averaged across dyads. The realised stopping length varies, so this
+            is not simply the average payoff per observed round. No independent-round confidence
+            intervals or general model ranking are implied.
+          </p>
+        </section>
+
+        <section className="results-section" aria-labelledby="cost-title">
+          <h2 id="cost-title">What did drafting cost?</h2>
+          <p>
+            Drafting reduced mean benchmark loss while using more requests and tokens. These totals
+            include both Track A and Track B; they do not isolate the price of a benchmark
+            improvement.
+          </p>
+          <div
+            className="results-table-wrap"
+            role="region"
+            aria-label="Recorded inference costs"
+            tabIndex={0}
+          >
+            <table className="results-table">
+              <caption>Final-run usage estimates · both tracks</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Procedure</th>
+                  <th scope="col">Requests</th>
+                  <th scope="col">Input tokens</th>
+                  <th scope="col">Output tokens</th>
+                  <th scope="col">Estimated USD</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(costs.arms).map(([arm, usage]) => (
+                  <tr key={arm}>
+                    <th scope="row">{playerLabel(arm)}</th>
+                    <td>{number(usage.requests)}</td>
+                    <td>{number(usage.promptTokens)}</td>
+                    <td>{number(usage.completionTokens)}</td>
+                    <td>${Number(usage.costUsd).toFixed(6)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="results-note">
+            Usage aggregates come from the retained audit, priced at the recorded 20 October rates.
+            They are not provider invoices, and public action data cannot independently validate
+            token usage.{' '}
+            <a href="/research/execution-costs.json" download>
+              Download cost aggregates
+            </a>
+            .
           </p>
         </section>
 
