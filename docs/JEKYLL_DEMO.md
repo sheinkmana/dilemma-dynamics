@@ -13,12 +13,17 @@ passed; all 22 demo files were copied byte-for-byte, including the public
 research package. The renamed post and demo were checked in the browser.
 These changes are local and have not been committed, pushed or deployed.
 
-The subsequent game-type clarification updates the website post, README and
+The initial game-type clarification updated the website post, README and
 static demo together. It identifies the repeated Prisoner's Dilemma as the main
 cooperation study and the local app's Dots & Boxes/Tic-tac-toe playground as a
 separate recreational side project. The website demo still offers saved dilemma
 episodes and Results only; it explains the distinction without adding live
 controls or board-game sessions.
+
+The current post leads with the dilemma evaluation and places recreational board
+games in a short extra at the end. Replay and Results likewise keep that extra
+below the study content. Benchmark wording describes achievable payoff forgone,
+with the reference opponent policy and optimal continuation stated explicitly.
 
 The `public` Vite mode builds recorded Study replay and Results for `/dilemma-dynamics/`.
 It uses a separate browser entry (`src/web/public.tsx`) that does not import
@@ -33,6 +38,8 @@ npm run preview:public
 
 Open `http://127.0.0.1:4173/dilemma-dynamics/` to preview. No API server or key is needed.
 Each build replaces `dist/web/`, so export only immediately after `build:public`.
+The build keeps only manifest-listed research files and verifies their checksums;
+temporary report compiler files are excluded from the export.
 
 ## Website integration
 

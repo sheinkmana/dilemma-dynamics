@@ -53,7 +53,7 @@ export function GameTypes({ recreational = false }: { recreational?: boolean }) 
         <summary>
           {recreational
             ? 'Why are these different kinds of games?'
-            : 'How this study differs from the board-game side project'}
+            : 'Extra: recreational board games'}
         </summary>
         {comparison}
       </details>

@@ -93,7 +93,6 @@ export function StudyReplay({
             <a href="#results">See aggregate results →</a>
           </p>
         </div>
-        <GameTypes />
         <StudyTemperature
           value={temperature}
           onChange={(next) => {
@@ -243,7 +242,7 @@ export function StudyReplay({
                       ? 'The announced final round ended the game.'
                       : 'The hidden stopping draw ended the game; players did not know it was their last round.'}
                     {episode.normalisedOracleLoss !== null &&
-                      ` Full-episode benchmark loss: ${episode.normalisedOracleLoss.toFixed(4)} points (lower is better).`}
+                      ` Full-episode benchmark loss: ${episode.normalisedOracleLoss.toFixed(4)} normalised payoff points forgone.`}
                   </p>
                 )}
                 <details className="results-details">
@@ -282,6 +281,7 @@ export function StudyReplay({
             )}
           </>
         )}
+        <GameTypes />
       </main>
     </div>
   );

@@ -54,9 +54,9 @@ export function StudyResults({
           <p className="results-eyebrow">
             Repeated Prisoner’s Dilemma · two completed studies · 22–23 October 2026
           </p>
-          <h1>Drafting improved average benchmark decisions.</h1>
+          <h1>Drafting narrowed the gap to the payoff benchmark.</h1>
           <p className="results-lead">
-            A capped draft followed by a separate action request reduced average decision loss for
+            A capped draft followed by a separate action request reduced average benchmark loss for
             both Nemotron models at temperatures 1 and 0, across 3,552 completed episodes. The
             benefit depended on the opponent; drafting worsened performance against Tit-for-Tat on
             average.
@@ -78,7 +78,6 @@ export function StudyResults({
           </div>
         </div>
 
-        <GameTypes />
         <StudyTemperature value={temperature} onChange={setTemperature} />
         <dl className="results-stats">
           <div>
@@ -114,9 +113,9 @@ export function StudyResults({
           </p>
           <h2 id="temperature-title">The size of the drafting benefit changed.</h2>
           <p>
-            Drafting lowered mean benchmark loss at both temperatures. Super Direct improved at zero
-            while Super Draft was nearly unchanged, reducing Super’s drafting advantage. Nano’s
-            change in the drafting advantage was uncertain under the approximate interval.
+            Drafting lowered mean benchmark loss at both temperatures. Super Direct’s loss fell at
+            zero while Super Draft’s was nearly unchanged, reducing Super’s drafting advantage.
+            Nano’s change in the drafting advantage was uncertain under the approximate interval.
           </p>
           <div
             className="results-table-wrap"
@@ -126,7 +125,7 @@ export function StudyResults({
           >
             <table className="results-table">
               <caption>
-                Mean benchmark loss and draft − direct contrast · lower loss is better
+                Mean benchmark loss and draft − direct contrast · payoff points forgone
               </caption>
               <thead>
                 <tr>
@@ -207,12 +206,13 @@ export function StudyResults({
           <p className="results-eyebrow">
             Temperature {temperature} · Track A · Decisions against disclosed policies
           </p>
-          <h2 id="benchmark-title">Lower loss means a better decision.</h2>
+          <h2 id="benchmark-title">The gap to the best achievable payoff.</h2>
           <p>
-            The reference solver finds the best expected own payoff against a known committed
-            opponent. Oracle loss measures the payoff given up by a chosen action, with optimal
-            continuation thereafter. Episode loss sums these gaps with the specified horizon
-            normalisation. It is a point measure, not a percentage or cooperation score.
+            Against each disclosed opponent policy, an exact solver identifies the highest expected
+            payoff available to the player. Oracle loss measures how much of that payoff a chosen
+            action gives up, assuming optimal play thereafter. We sum these gaps within each episode
+            and normalise for its horizon. A smaller value means less achievable payoff forgone
+            under this benchmark. Cooperation is reported separately in Track B.
           </p>
           <div className="results-model-grid">
             {study.primary.map((result) => (
@@ -612,6 +612,7 @@ export function StudyResults({
         <p className="results-note">
           This page displays saved findings. Viewing or filtering it sends no inference requests.
         </p>
+        <GameTypes />
       </main>
     </div>
   );
