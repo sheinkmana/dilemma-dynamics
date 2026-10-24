@@ -12,7 +12,9 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install uv==0.11.29
       - run: uv sync --frozen --all-extras
-      - run: uv run ruff check python python_tests tools
+      - run: uv run ruff check conftest.py python python_tests tools
+      - name: Check host-platform compatibility
+        run: uv run python -m pytest -q python_tests/test_overload.py
       - run: uv run python -m pytest -q
       - run: uv run python tools/verify_public_results.py
       - run: docker build -f deploy/Dockerfile -t dilemma-dynamics-research:test .
