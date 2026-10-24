@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "scope": "Public derived package; hashes do not authenticate privately retained provider evidence.",
   "files": {
-    "README.md": "910b2248bae29dd6f3d200fced3075ab7bb22e9641423a8faa483792e637bbe5",
+    "README.md": "b3dcc186115ee1f5eeb60b4ce186fdc290282ed19625a3f7585c038f711b799d",
     "block-contrasts.csv": "17a5da7a1388cbbe330231fda05a30f8314d0305a947b4ddaec993b55e4f6ab7",
     "condition-losses.csv": "58077e0c56968a67c6560589e9bdb5be0206c13f763576b6ff9e1dd5c1ee2551",
     "crossplay.csv": "acc70fe3fa637d62299604974863f69dcf2b7f4428776e066800b996d9889bea",
@@ -13,11 +13,24 @@
     "figures/condition-effects.svg": "c97b041fc887c1da6d646b1de80676ab0c9bd6140fcfd539fa9c84f0b2e69fc9",
     "figures/primary-results.png": "5f9c89799b3e27474d852355bd13e9fb0beaaf7783b0f475a47cec3a09952a48",
     "figures/primary-results.svg": "a144b14d94386be3e2e8a0db6e11fa3a71ba5b65f03515fbe19da234eff5c3a3",
-    "paper/main.tex": "96b701df10df555ab275b2b54f63ad412c4dae39489da87be9dbdc62d0b301a3",
-    "paper/report.pdf": "f73db2d1282ec7ded818aa73dc05737c0a456dc8f43bb3a93d9b130f5b867ded",
+    "figures/temperature-comparison.png": "b731a4f12c57a2a0f3a91e3d43c9f35ec329c6e10c804c79685869806e20695c",
+    "figures/temperature-comparison.svg": "8e1ea505560f0ef04753519eb19bbbe8ec5133a8228d8f922cf0dceba0c5fd52",
+    "paper/main.tex": "f4e4c92ec16f78a946a362cf306ec96bfab187e409c28f2499e8c833722d4f61",
+    "paper/report.pdf": "35bc35b43f601e4f0329a31ed068cb362ae0131183feb0bc8b0acc50a3d716b9",
     "plan.json": "9db175f9a41e60fdbb7f61684caf35f1437f15a15f0c7a0a87be6a8f621188d4",
     "policy-effects.csv": "8d57b46f0dae90a74cac984348c30dd81b654369525fa6c5b0c3be6a790584a7",
-    "protocol.md": "7ab9abca2fe0514a76dc826976c30a4de95e7a8330002c5300e9a9bc3685897b",
-    "summary.json": "c5c613230898a32c0a21b33a526483c8624d387060251279f359d7f97317eb31"
+    "protocol.md": "305e5c6db019f21d5c59b8e303148032393032e5dd7d1f88a68ca310c27a31f8",
+    "summary.json": "c5c613230898a32c0a21b33a526483c8624d387060251279f359d7f97317eb31",
+    "temperature-comparison.csv": "07117fbf069f60f92403e82228795f383c6c6d11456540701c8fb9b8e255dd53",
+    "temperature-comparison.json": "f787bcb8b47b46371393227c41f29e20d30b44ad474e1e5334ecdd3e5f0e8773",
+    "temperature-zero/block-contrasts.csv": "45060cc4c7bb7553b526c7075849c28969b378c73e44da52867f56ad028f2cec",
+    "temperature-zero/condition-losses.csv": "bb4d58132e2e9b57611808286d1a61ea9913b44c38772a857341e3567a84c036",
+    "temperature-zero/crossplay.csv": "6a7ba82335b67cf432ed42acd767bd4959ecb2d91ac267de0a06baa194030c4d",
+    "temperature-zero/episodes.json": "8d9fa52978c154193b00a8f77cbd3017e5406849982c87ef3d300d0df8310565",
+    "temperature-zero/executed-source-index.json": "dbcc06dad1576d95707fbaa5bd50457290ac4115b4a1f7c8de77fba27e271e19",
+    "temperature-zero/execution-costs.json": "140d56bb75c2b432fd6436a82d38f96b8f132b5382ad696bcfdb9f1fc17d72ee",
+    "temperature-zero/plan.json": "b6437fe5ed06c0cf563ee565b9db0771ae8927435c4ca10dc10cdacae3917b27",
+    "temperature-zero/policy-effects.csv": "22e62d1fce4c6b1de606a680a96b41219c90e128e9183c20b88f0a8abc19fcee",
+    "temperature-zero/summary.json": "b8ac658d47daea59641e4077671de8cc69f8510aefdd1d96226c719401204ba6"
   }
 }

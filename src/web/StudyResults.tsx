@@ -2,8 +2,9 @@ import { BrandText } from './BrandText.js';
 import { GameTypes } from './GameTypes.js';
 import { publicAsset } from './assets.js';
 import React, { type ReactNode, useState } from 'react';
-import study from '../../public/research/summary.json' with { type: 'json' };
-import costs from '../../public/research/execution-costs.json' with { type: 'json' };
+import comparison from '../../public/research/temperature-comparison.json' with { type: 'json' };
+import { studies, type StudyTemperature as Temperature } from './studyData.js';
+import { StudyTemperature } from './StudyTemperature.js';
 import { playerLabel } from '../dilemma/recorded.js';
 import './results.css';
 
@@ -28,6 +29,8 @@ export function StudyResults({
   setTheme: (theme: 'light' | 'dark') => void;
 }) {
   const [policy, setPolicy] = useState('all');
+  const [temperature, setTemperature] = useState<Temperature>(0);
+  const { summary: study, costs, path } = studies[temperature];
   const crossplayRounds = Object.values(study.jointActionCounts).reduce((a, b) => a + b, 0);
   return (
     <div className="simple-app pd-app">
@@ -49,13 +52,14 @@ export function StudyResults({
       <main className="game-page results-page">
         <div className="results-intro">
           <p className="results-eyebrow">
-            Repeated Prisoner’s Dilemma · completed study · 22 October 2026
+            Repeated Prisoner’s Dilemma · two completed studies · 22–23 October 2026
           </p>
           <h1>Drafting improved average benchmark decisions.</h1>
           <p className="results-lead">
             A capped draft followed by a separate action request reduced average decision loss for
-            both Nemotron models. The benefit depended on the opponent; drafting worsened
-            performance against Tit-for-Tat on average.
+            both Nemotron models at temperatures 1 and 0, across 3,552 completed episodes. The
+            benefit depended on the opponent; drafting worsened performance against Tit-for-Tat on
+            average.
           </p>
           <p className="results-caveat">
             Descriptive amended study. These findings apply to the tested procedures and schedule;
@@ -75,9 +79,10 @@ export function StudyResults({
         </div>
 
         <GameTypes />
+        <StudyTemperature value={temperature} onChange={setTemperature} />
         <dl className="results-stats">
           <div>
-            <dt>Completed episodes</dt>
+            <dt>Episodes · temperature {temperature}</dt>
             <dd>
               {number(study.completed)} / {number(study.scheduled)}
             </dd>
@@ -103,8 +108,105 @@ export function StudyResults({
           </div>
         </dl>
 
+        <section className="results-section" aria-labelledby="temperature-title">
+          <p className="results-eyebrow">
+            Matched temperature sensitivity · both completed studies
+          </p>
+          <h2 id="temperature-title">The size of the drafting benefit changed.</h2>
+          <p>
+            Drafting lowered mean benchmark loss at both temperatures. Super Direct improved at zero
+            while Super Draft was nearly unchanged, reducing Super’s drafting advantage. Nano’s
+            change in the drafting advantage was uncertain under the approximate interval.
+          </p>
+          <div
+            className="results-table-wrap"
+            role="region"
+            aria-label="Both temperatures"
+            tabIndex={0}
+          >
+            <table className="results-table">
+              <caption>
+                Mean benchmark loss and draft − direct contrast · lower loss is better
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Model</th>
+                  <th scope="col">Temperature</th>
+                  <th scope="col">Direct</th>
+                  <th scope="col">Draft</th>
+                  <th scope="col">Draft − direct</th>
+                  <th scope="col">Approx. 95% interval</th>
+                </tr>
+              </thead>
+              <tbody>
+                {([1, 0] as const).flatMap((t) =>
+                  studies[t].summary.primary.map((result) => (
+                    <tr key={`${t}-${result.model}`}>
+                      <th scope="row">Nemotron {result.model === 'nano' ? 'Nano' : 'Super'}</th>
+                      <td>{t}</td>
+                      <td>{loss(result.directMean)}</td>
+                      <td>{loss(result.draftMean)}</td>
+                      <td>{difference(result.estimate)}</td>
+                      <td>[{result.approximateInterval95.map(loss).join(', ')}]</td>
+                    </tr>
+                  )),
+                )}
+              </tbody>
+            </table>
+          </div>
+          <details className="results-details">
+            <summary>Matched changes from temperature 1 to 0</summary>
+            <div
+              className="results-table-wrap"
+              role="region"
+              aria-label="Temperature changes"
+              tabIndex={0}
+            >
+              <table className="results-table">
+                <caption>Temperature 0 − temperature 1 · negative means lower loss at zero</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Procedure</th>
+                    <th scope="col">Change</th>
+                    <th scope="col">Approx. 95% interval</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.entries(comparison.temperatureChanges).map(([arm, row]) => (
+                    <tr key={arm}>
+                      <th scope="row">{playerLabel(arm)}</th>
+                      <td>{difference(row.temperature0Minus1)}</td>
+                      <td>[{row.approximateInterval95.map(loss).join(', ')}]</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {Object.entries(comparison.changeInDraftingEffect).map(([model, row]) => (
+              <p key={model}>
+                Nemotron {model === 'nano' ? 'Nano' : 'Super'}: change in draft − direct ={' '}
+                {difference(row.changeInDraftMinusDirect)}, approx. 95% interval [
+                {row.approximateInterval95.map(loss).join(', ')}]. Positive means a smaller drafting
+                benefit at zero.
+              </p>
+            ))}
+            <a href={publicAsset('research/temperature-comparison.csv')} download>
+              Download matched changes (CSV)
+            </a>
+          </details>
+          <p className="results-caveat">
+            This sensitivity analysis followed inspection of earlier outcomes. Dates, provider
+            execution windows and recovery policies also differed, so changes cannot be attributed
+            solely to temperature. Intervals pair the same 24 whole blocks across studies, with
+            20,000 stratified bootstrap draws and no multiplicity correction. Temperature zero does
+            not guarantee deterministic hosted inference.
+          </p>
+        </section>
+
         <section className="results-section" aria-labelledby="benchmark-title">
-          <p className="results-eyebrow">Track A · Decisions against disclosed policies</p>
+          <p className="results-eyebrow">
+            Temperature {temperature} · Track A · Decisions against disclosed policies
+          </p>
           <h2 id="benchmark-title">Lower loss means a better decision.</h2>
           <p>
             The reference solver finds the best expected own payoff against a known committed
@@ -397,7 +499,7 @@ export function StudyResults({
             Usage aggregates come from the retained audit, priced at the recorded 20 October rates.
             They are not provider invoices, and public action data cannot independently validate
             token usage.{' '}
-            <a href={publicAsset('/research/execution-costs.json')} download>
+            <a href={publicAsset(`${path}/execution-costs.json`)} download>
               Download cost aggregates
             </a>
             .
@@ -412,7 +514,8 @@ export function StudyResults({
               <p>
                 Direct used one thinking-off action request capped at 128 tokens. Draft used a
                 thinking-on draft capped at 1,024 tokens, then a separate thinking-off action
-                request capped at 128 tokens. Both used temperature 1 and full completed history.
+                request capped at 128 tokens. The selected study used temperature {temperature},
+                top-p 1 and full completed history for both procedures.
               </p>
               <p>
                 The intervention includes extra compute, an extra request, and conditioning on draft
@@ -433,8 +536,8 @@ export function StudyResults({
             </div>
           </div>
           <p className="results-caveat">
-            The live educational app uses a different protocol: temperature zero with optional
-            forecasts. Its sessions are separate from this fixed scientific evaluation.
+            The live educational app offers optional forecasts and requests reasoning off. Its
+            sessions are separate from these fixed scientific evaluations.
           </p>
         </section>
 
@@ -442,14 +545,15 @@ export function StudyResults({
           <h2 id="limits-title">Scope, history and evidence</h2>
           <ul className="results-limitations">
             <li>
-              The successor followed an interrupted eight-block run whose outcomes had already been
-              inspected. Predecessor and engineering observations are excluded. This is not a new
-              confirmatory preregistration.
+              The temperature-1 successor followed an interrupted eight-block run (HTTP 502). The
+              temperature-0 recovery followed a 62-episode interruption (HTTP 529). Earlier outcomes
+              had been inspected; interrupted and engineering observations are excluded from both
+              completed studies. These are descriptive amendments.
             </li>
             <li>
               One environment schedule, four committed policies, fixed payoffs, and one provider
-              execution window limit generalisation. Provider sampling randomness was not matched by
-              seed.
+              execution window per temperature limit generalisation. Provider sampling randomness
+              was not matched by seed.
             </li>
             <li>
               The recorded model IDs do not prove an immutable provider weights version. Draft text
@@ -468,16 +572,16 @@ export function StudyResults({
             recorded as successful; the inference cost is an estimate.
           </p>
           <div className="results-downloads">
-            <a href={publicAsset('/research/episodes.json')} download>
+            <a href={publicAsset(`${path}/episodes.json`)} download>
               Episode actions (JSON) ↓
             </a>
-            <a href={publicAsset('/research/summary.json')} download>
+            <a href={publicAsset(`${path}/summary.json`)} download>
               Results summary (JSON) ↓
             </a>
-            <a href={publicAsset('/research/condition-losses.csv')} download>
+            <a href={publicAsset(`${path}/condition-losses.csv`)} download>
               Condition results (CSV) ↓
             </a>
-            <a href={publicAsset('/research/crossplay.csv')} download>
+            <a href={publicAsset(`${path}/crossplay.csv`)} download>
               Pairing results (CSV) ↓
             </a>
           </div>

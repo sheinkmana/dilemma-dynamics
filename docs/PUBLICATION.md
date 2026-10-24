@@ -3,24 +3,24 @@
 The public project name is **Dilemma Dynamics**, with the subtitle
 *Exploring AI strategies, incentives and cooperation.* Repository links and the
 standalone demo base use `dilemma-dynamics`. The 23 October branding revision
-changes presentation only: the active temperature-zero run's Python source,
+changes presentation only: the completed temperature studies' Python source,
 deployment templates, fixtures, dependency files, preparation and historical
 evidence retain their original names and bytes. Research commands and local
 app persistence/settings remain compatible. See the README's compatibility
 note before considering any internal package rename.
 
-Updated 23 October 2026. Publishing source and recorded results does not deploy
+Updated 24 October 2026. Publishing source and recorded results does not deploy
 the local app or authorise another paid evaluation. The project uses MIT; linked
 reference works and dependencies retain their own rights and licenses.
 
-The user has separately approved preparation of the full
-[temperature-zero extension](TEMPERATURE_ZERO_EVALUATION.md) within the existing
-$30 total. The user reports that local bundle is now running; the branding work
-does not launch or control it. Public results and
-their frozen package remain the temperature-one study. The original design is
-retained byte for byte in `python/gamefield_research/design_v1.py`, which the
-public verifier checks against the original executed-source hash; the current
-entry point adds validation for a separately identified temperature-zero plan.
+Both matched temperature studies are complete: 1,776 episodes each, 3,552 total.
+The 24 October release adds temperature-zero scores, actions, cost aggregates,
+source index, matched changes and intervals, plus the combined report and app
+selectors. Original temperature-one data files remain byte-preserved. Frozen
+research execution files, preparation, claims, clocks and raw evidence are unchanged.
+The original design remains in `python/gamefield_research/design_v1.py`; the
+public verifier checks the appropriate executed design for each temperature.
+The [data README](../public/research/README.md) documents the evidence boundary.
 
 ## Included
 
@@ -34,7 +34,7 @@ uses a bundled, static snapshot of the completed study. Its filters and download
 make no inference calls. The live educational protocol differs from the study.
 
 The [public results package](../public/research/README.md) includes a complete
-LaTeX report and compiled PDF, methods and amendments, the executed plan, all 1,776 revealed episode
+LaTeX report and compiled PDF, methods and amendments, the executed plan, all 3,552 revealed episode
 records, numeric CSVs, figures and checksums. Offline verification recomputes
 scores and estimates, including the two bootstrap intervals. Limitations are
 displayed with the findings.
@@ -64,6 +64,14 @@ authenticate provider identity, raw request history or billing. Raw responses,
 private drafts and receipts are intentionally absent from public downloads.
 
 ## Validation before committing
+
+The current release passed 58 app tests, 138 offline Python tests, both builds,
+publication checks and offline verification of both temperatures, matched
+intervals and all CSVs. The combined PDF and both temperature selectors were
+visually checked. The separate website build and 35-file verifier passed. See
+[the release record](RELEASE_2026-10-24.md) for current results. The older checks
+below are retained as dated records.
+
 
 The game-type clarification adds a shared app comparison, a distinct
 **Board games · side project** navigation label, and a guide to the different
@@ -135,9 +143,10 @@ files and all private research evidence remain intact. An ignored local Git
 bundle preserves the original commit. No public release or remote push is made
 by this preparation.
 
-The local feature commit `fbcee6e` already contains autonomous Dilemma and public
-results, following cleaned root `cb73ff4`. The 23 October presentation fixes must
-be reviewed and committed separately. Remote state and public visibility are not
+The local base `79fd572` contains the 23 October branding revision, following
+replay update `7bd9474`, autonomous-study feature `fbcee6e` and cleaned root
+`cb73ff4`. The 24 October temperature release changes remain uncommitted and
+should be reviewed separately in this repository and the website repository. Remote state and public visibility are not
 established by this document. Inspect the current remote before publishing:
 
 ```sh

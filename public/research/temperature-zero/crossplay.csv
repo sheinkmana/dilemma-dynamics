@@ -1,0 +1,11 @@
+pairing,scheduledDyads,completedDyads,meanNormalisedJointReturn,firstCC_count,firstCC_opportunities,mutualCooperation_count,mutualCooperation_opportunities,breakdown_count,breakdown_opportunities,recovery_count,recovery_opportunities
+B/nano-direct/nano-direct,24,24,3.275,7,24,56,206,13,51,11,131
+B/nano-direct/nano-draft,24,24,2.970833333333333,7,24,34,206,16,31,12,151
+B/nano-direct/super-direct,24,24,2.683333333333333,0,24,4,206,3,3,4,179
+B/nano-direct/super-draft,24,24,2.5166666666666666,6,24,12,206,7,11,2,171
+B/nano-draft/nano-draft,24,24,2.7583333333333333,5,24,25,206,16,22,14,160
+B/nano-draft/super-direct,24,24,2.7708333333333335,0,24,10,206,9,9,10,173
+B/nano-draft/super-draft,24,24,2.6875,7,24,17,206,15,17,8,165
+B/super-direct/super-direct,24,24,3.75,0,24,86,206,35,74,47,108
+B/super-direct/super-draft,24,24,2.6791666666666667,0,24,0,206,0,0,0,182
+B/super-draft/super-draft,24,24,2.0416666666666665,0,24,0,206,0,0,0,182

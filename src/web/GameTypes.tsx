@@ -28,9 +28,9 @@ export function GameTypes({ recreational = false }: { recreational?: boolean }) 
         </section>
       </div>
       <p className="game-types-scope">
-        The published 1,776-episode study concerns the repeated Prisoner’s Dilemma. Board-game
-        matches belong to a separate recreational side project; their scores and solver checks
-        answer different questions.
+        The published 3,552 episodes across two temperatures concern the repeated Prisoner’s
+        Dilemma. Board-game matches belong to a separate recreational side project; their scores and
+        solver checks answer different questions.
       </p>
     </>
   );

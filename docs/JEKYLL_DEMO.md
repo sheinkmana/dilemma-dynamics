@@ -1,5 +1,11 @@
 # Standalone Jekyll demo
 
+24 October release: both completed temperature studies, the combined report and
+public action datasets are included. The separate website post, README, deployment
+verifier and 35-file demo have been updated locally; Jekyll, PurgeCSS and all
+copy/link/checksum checks passed. See [the current release record](RELEASE_2026-10-24.md).
+The 23 October build records below are historical.
+
 Local website migration completed on 23 October 2026: the demo directory,
 native post, links, minifier exclusion and deployment verifier now use
 `dilemma-dynamics`. The production Jekyll build, PurgeCSS step and verifier
@@ -22,7 +28,7 @@ configured base URL. The normal `npm run build` retains the full localhost app.
 
 ```sh
 npm run build:public
-npm run preview
+npm run preview:public
 ```
 
 Open `http://127.0.0.1:4173/dilemma-dynamics/` to preview. No API server or key is needed.
@@ -33,8 +39,9 @@ Each build replaces `dist/web/`, so export only immediately after `build:public`
 Copy `dist/web/` into the Jekyll source's `dilemma-dynamics/` directory and copy the
 project `LICENSE` to `dilemma-dynamics/LICENSE.txt`. Use the native post
 `_posts/2026-10-23-dilemma-dynamics.md`, with permalink `/blog/2026/dilemma-dynamics/` and a
-prominent demo link. It identifies the data as the completed temperature-1 study;
-the separately running temperature-zero extension does not change these published results.
+prominent demo link. It documents both completed temperature studies and their
+descriptive sensitivity comparison, links both action datasets and the combined
+report, and offers temperature selection in Replay and Results.
 
 For an existing Game Field integration, rename the demo directory and post,
 update its links and exclusion below, and rename the website verifier from
@@ -67,7 +74,7 @@ links. The workflow runs it before deployment. PurgeCSS targets only the theme's
 `_site/assets/css/`, not `_site/dilemma-dynamics/assets/`.
 
 Serve the built `_site/` directory from the website root, then check the post,
-default replay, both tracks, procedure comparison, round controls, Results
+default replay, both temperatures and tracks, procedure comparison, round controls, Results
 filters, themes, and downloads. No app server should be running. Only saved
 public evidence belongs in the export; do not copy local data, study output,
 credentials, or the server build.

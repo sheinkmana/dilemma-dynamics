@@ -42,7 +42,7 @@ Exact hosted IDs:
 Each model has two procedures. **Direct** requests thinking off and at most 128
 completion tokens. **Draft** always requests a thinking-on draft of at most
 1,024 tokens, then a separate thinking-off action of at most 128 tokens. Both use
-temperature 1 and top-p 1. The action request sees the original observation plus
+the study-specific temperature (1 or 0) and top-p 1. The action request sees the original observation plus
 its own retained draft; subsequent rounds never see earlier drafts. Only the
 strict single-field JSON action determines play. JSON Schema support must be
 verified on both hosted deployments; unsupported fields do not trigger fallback.
@@ -77,6 +77,30 @@ The original 24-block design was prepared on 20 October. Cloud probes failed bef
 The separately identified 22 October recovery successor executed all 24 original blocks (1,776 episodes), preserving episode IDs, stopping schedules, presentation settings and relative order. The predecessor's outcomes had already been inspected. Its observations and all engineering observations are excluded. The successor remains a descriptive amendment, not a new confirmatory preregistration.
 
 The recovery policy was frozen before successor inference. It permitted at most three separately reserved transmissions for transient transport/HTTP failures, reused durable successful responses, retained unresolved charges, and preserved deadlines across restarts. Invalid successful responses could not be regenerated. No retries or failures were actually recorded in the successor. A shared local 12-hour window and the existing $30 campaign ceiling applied; final inference finished in approximately 3h08m. [The results report](paper/report.pdf) gives completion and cost details.
+
+The matched temperature-zero extension was requested after inspecting temperature-one results.
+Its first local attempt stopped after 62 completed episodes on HTTP 529, which
+policy `audited-recovery/1` treated as non-retryable. A separately identified fresh
+24-block recovery finished all 1,776 episodes on 23 October. Policy
+`audited-recovery/2`, frozen before that recovery, admitted HTTP 529 with at most
+three attempts and 15/45-second backoffs. No retry or protocol failure actually
+occurred. The original attempt, its clock, charges and evidence remain preserved;
+its partial episodes and all engineering observations are excluded.
+
+Both successful final runs used the same episode IDs/order, environment seeds,
+stopping lengths, mappings and seats. Temperature-zero uses a separate plan,
+source index and evidence head. Its final inference estimate is $4.47913740,
+with approximately 2h15m elapsed (session time to terminal ledger mtime). The
+broader comparison now contains 3,552 completed episodes, not a pooled 48-block study.
+
+The post-viewing temperature sensitivity computes temperature-0 minus temperature-1
+block means for each arm, and the change in Draft-minus-Direct within each model.
+It resamples matched whole blocks jointly across temperatures: six per stratum,
+four strata, 20,000 draws. Positive interactions mean a smaller Draft advantage at
+zero. See [the data README](README.md) for exact seeds and [comparison data](temperature-comparison.json).
+These exploratory approximate intervals have no multiplicity adjustment. Different
+execution dates, provider/backend windows and recovery policies confound causal
+temperature attribution. Temperature zero does not guarantee deterministic hosted inference.
 
 Stopping uses exact rational HMAC Bernoulli draws, computed before execution and
 hidden from observations. A 1,000-round guard rejects an excessive schedule;

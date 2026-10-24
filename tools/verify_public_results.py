@@ -15,6 +15,7 @@ from statistics import mean
 
 from gamefield_research.analysis import paired_interval
 from gamefield_research.core import metrics
+from gamefield_research.design import validate_plan as validate_temperature_plan
 from gamefield_research.design_v1 import digest, validate_plan
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,13 +46,12 @@ def read(name):
     return json.loads((DATA / name).read_text())
 
 
-def verify():
-    manifest = read("manifest.json")
-    files = {p.relative_to(DATA).as_posix() for p in DATA.rglob("*") if p.is_file()}
-    require(files == set(manifest["files"]) | {"manifest.json"}, "Public file set changed")
-    for name, expected in manifest["files"].items():
-        require(hashlib.sha256((DATA / name).read_bytes()).hexdigest() == expected, name)
+def verify_dataset(directory, temperature):
+    def read(name):
+        return json.loads((directory / name).read_text())
+
     plan, rows, summary = read("plan.json"), read("episodes.json"), read("summary.json")
+    equal(plan["procedure"]["temperature"], temperature)
     costs = read("execution-costs.json")
     prices = json.loads((ROOT / "fixtures/prices-2026-10-20.json").read_text())["prices"]
     prices_by_model = {row["model"]: row for row in prices}
@@ -85,12 +85,12 @@ def verify():
     ):
         # The executed design is retained byte for byte as v1; the current
         # entry point also supports separately identified temperature-zero plans.
-        current_name = name.replace("/design.py", "/design_v1.py")
+        current_name = name.replace("/design.py", "/design_v1.py") if temperature == 1 else name
         require(
             hashlib.sha256((ROOT / current_name).read_bytes()).hexdigest() == executed_source[name],
             "Scoring/design/dependency source differs from executed study: " + name,
         )
-    validate_plan(plan)
+    (validate_plan if temperature == 1 else validate_temperature_plan)(plan)
     require(plan["sha256"] == summary["planSha256"], "Wrong plan")
     require(len(rows) == len(plan["episodes"]) == summary["completed"] == 1776, "Wrong count")
     require(summary["scheduled"] == 1776, "Wrong schedule count")
@@ -184,7 +184,7 @@ def verify():
                 {k: sum(r[metric][k] for r in group) for k in ("count", "opportunities")},
             )
     for name in ("condition-losses", "block-contrasts", "policy-effects", "crossplay"):
-        with (DATA / (name + ".csv")).open() as file:
+        with (directory / (name + ".csv")).open() as file:
             records = list(csv.DictReader(file))
         if name == "condition-losses":
             require(len(records) == 16, "Wrong condition CSV count")
@@ -220,8 +220,86 @@ def verify():
                 for metric in ("firstCC", "mutualCooperation", "breakdown", "recovery"):
                     for key in ("count", "opportunities"):
                         equal(int(row[f"{metric}_{key}"]), pairing[metric][key])
+    return plan, rows, blocks
+
+
+def verify_comparison(zero, one):
+    plan0, rows0, blocks0 = zero
+    plan1, rows1, blocks1 = one
+    equal(plan0["episodes"], plan1["episodes"])
+    equal(plan0["arms"], plan1["arms"])
+    equal(plan0["samplingAmendment"]["referencePlanSha256"], plan1["sha256"])
+    equal([r["id"] for r in rows0], [r["id"] for r in rows1])
+    result = read("temperature-comparison.json")
+    equal(result["planSha256"], {"temperature0": plan0["sha256"], "temperature1": plan1["sha256"]})
+    equal(result["completedEpisodes"], 3552)
+    equal(result["episodesPerTemperature"], 1776)
+    equal(result["matchedBlocks"], 24)
+    equal(result["resamples"], 20000)
+    csv_expected = []
+    prefix = f"temperature-comparison/1/{plan0['sha256']}/{plan1['sha256']}"
+    for model in ("nano", "super"):
+        for procedure in ("direct", "draft"):
+            arm = f"{model}-{procedure}"
+            delta = [
+                blocks0[(model, b)][procedure + "Loss"] - blocks1[(model, b)][procedure + "Loss"]
+                for b in range(24)
+            ]
+            estimate, interval = paired_interval(
+                [delta[s::4] for s in range(4)], f"{prefix}/{arm}", 20000
+            )
+            equal(
+                result["temperatureChanges"][arm],
+                {"temperature0Minus1": estimate, "approximateInterval95": interval},
+            )
+            csv_expected.append(
+                {
+                    "contrast": arm,
+                    "temperature0Minus1": estimate,
+                    "interval95Low": interval[0],
+                    "interval95High": interval[1],
+                }
+            )
+        delta = [
+            blocks0[(model, b)]["difference"] - blocks1[(model, b)]["difference"] for b in range(24)
+        ]
+        estimate, interval = paired_interval(
+            [delta[s::4] for s in range(4)], f"{prefix}/{model}/interaction", 20000
+        )
+        equal(
+            result["changeInDraftingEffect"][model],
+            {"changeInDraftMinusDirect": estimate, "approximateInterval95": interval},
+        )
+        csv_expected.append(
+            {
+                "contrast": model + "-drafting-interaction",
+                "temperature0Minus1": estimate,
+                "interval95Low": interval[0],
+                "interval95High": interval[1],
+            }
+        )
+    with (DATA / "temperature-comparison.csv").open() as stream:
+        actual = [
+            {k: v if k == "contrast" else float(v) for k, v in row.items()}
+            for row in csv.DictReader(stream)
+        ]
+    equal(
+        sorted(actual, key=lambda x: x["contrast"]),
+        sorted(csv_expected, key=lambda x: x["contrast"]),
+    )
+
+
+def verify():
+    manifest = read("manifest.json")
+    files = {p.relative_to(DATA).as_posix() for p in DATA.rglob("*") if p.is_file()}
+    require(files == set(manifest["files"]) | {"manifest.json"}, "Public file set changed")
+    for name, expected in manifest["files"].items():
+        require(hashlib.sha256((DATA / name).read_bytes()).hexdigest() == expected, name)
+    one = verify_dataset(DATA, 1)
+    zero = verify_dataset(DATA / "temperature-zero", 0)
+    verify_comparison(zero, one)
     print(
-        "Public results verified: 1,776 episodes, all scores, both intervals and four CSVs. No inference."
+        "Public results verified: 3,552 episodes, both temperatures, all scores, four primary intervals, six matched temperature intervals and nine CSVs. No inference."
     )
 
 

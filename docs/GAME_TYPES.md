@@ -44,7 +44,7 @@ are result labels; they do not create the cooperation incentives of the dilemma.
 
 ## What the evidence covers
 
-The published **1,776-episode study** concerns the repeated Prisoner's Dilemma.
+The published **3,552 episodes across temperatures 1 and 0** concern the repeated Prisoner's Dilemma.
 Its decision-loss and cooperation findings do not measure board-game strength.
 The recreational side project's rule tests, bounded solver checks and dated
 endpoint acceptance matches establish different things; they are not another

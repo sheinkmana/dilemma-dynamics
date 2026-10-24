@@ -1,233 +1,316 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath}
+\usepackage{amsmath,graphicx}
 \usepackage[hidelinks]{hyperref}
-
-\title{Bounded drafting in repeated games}
+\hypersetup{pdftitle={Bounded drafting in repeated games: matched temperature sensitivity},pdfauthor={Alisa Sheinkman}}
+\setlength{\emergencystretch}{2em}
+\raggedbottom
+\title{Bounded drafting in repeated games\\\large A matched temperature sensitivity study in Dilemma Dynamics}
 \author{Alisa Sheinkman}
-\date{Study: 22 October 2026; report revised: 23 October 2026}
-
+\date{Studies: 22--23 October 2026; report revised: 24 October 2026}
 \begin{document}
 \maketitle
-
 \begin{abstract}
-Does a bounded draft before an action improve an agent's decisions? In a
-completed 1,776-episode study using two NVIDIA Nemotron models on Nebius Token
-Factory, drafting lowered average exact benchmark loss, but worsened performance
-against Tit-for-Tat on average. Autonomous cooperation varied by pairing.
-Dilemma Dynamics combines inspectable play with a public action dataset and offline
-score reproduction. This amended study is descriptive, not a general model ranking.
+Does a bounded draft before an action improve an agent's decisions? Two completed
+1,776-episode studies compared Direct and Draft procedures in NVIDIA Nemotron
+Nano and Super on Nebius Token Factory, first at temperature 1 and then at 0.
+Drafting lowered average exact benchmark loss for both models at both temperatures,
+but worsened performance against Tit-for-Tat on average. Super's drafting advantage
+was smaller at zero: its Direct result improved while its Draft result was nearly
+unchanged. Autonomous mutual cooperation occurred in 9.2\% of rounds at temperature
+1 and 11.8\% at 0. These are descriptive amended studies, with matched environment
+schedules but different execution windows. They do not isolate a causal temperature
+effect or establish a general model ranking.
 \end{abstract}
 
 \section{Question and contribution}
-
-For students examining incentives and builders inspecting agents, cooperation
-counts alone do not establish decision quality. A model can earn more by
-cooperating less. We separate exact own-payoff loss against committed policies
-from outcomes between adaptive agents. The contribution is this inspectable
-Nemotron procedure comparison and its reproducible action dataset, not a first
-demonstration of LLM cooperation. Educational impact and real-world negotiation
-performance have not been evaluated.
+Cooperation counts alone do not establish decision quality: an agent can earn
+more by cooperating less. Dilemma Dynamics separates exact own-payoff loss against
+committed policies from interaction between adaptive agents. For students examining
+incentives and builders inspecting agents, it offers an action-by-action replay,
+a public dataset of 3,552 completed episodes and offline score reproduction.
+Educational outcomes and real-world negotiation performance have not been evaluated.
 
 \section{Design}
-
-We compared direct action with a bounded draft-then-action procedure in two
-Nemotron models: Nano (30B-A3B) and Super (120B-A12B).\footnote{Hosted IDs:
-\texttt{nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B} and
-\texttt{nvidia/nemotron-3-super-120b-a12b}.}
-Players maximised expected own cumulative points in a repeated Prisoner's
-Dilemma: \(CC=(3,3)\), \(CD=(0,5)\), \(DC=(5,0)\), \(DD=(1,1)\).
-Choices were private until both players had acted.
+We compared Nano (30B-A3B) and Super (120B-A12B). Hosted IDs:
+\begin{itemize}
+\item \texttt{nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B}
+\item \texttt{nvidia/nemotron-3-super-120b-a12b}
+\end{itemize}
+Players maximised expected own cumulative points in a repeated Prisoner's Dilemma:
+\(CC=(3,3)\), \(CD=(0,5)\), \(DC=(5,0)\), \(DD=(1,1)\).
+Choices stayed private until both players acted.
 
 Direct used one thinking-off action request (128-token cap). Draft used a
-thinking-on draft (1,024-token cap), then a separate thinking-off action
-request (128-token cap). Both received full completed history and used
-temperature 1 and top-\(p=1\). Only the current draft was added to the action request.
+thinking-on draft (1,024-token cap), then a separate thinking-off action request
+(128-token cap). Both received full completed history; only the current draft
+was added to the action request. Each completed study used its selected temperature
+for every phase, with top-\(p=1\). Drafting changes compute, request count, thinking
+settings and conditioning together; it is not an equal-cost intervention.
 
-All 1,776 scheduled episodes completed in 24 balanced blocks:
-\begin{itemize}
-\item Track A: 1,536 episodes against disclosed AllC, AllD, Tit-for-Tat (TFT)
-or Grim policies. The 16 conditions covered continuation probabilities
-\(\delta=0.4,0.6,0.9\), one-round AllC/AllD, and ten-round TFT/Grim.
-\item Track B: 240 autonomous dyads covering all ten unordered pairings of
-the four model--procedure configurations, including self-play, at \(\delta=0.9\).
-\end{itemize}
-Four label/seat strata had six blocks each. Arms shared environment draws and
-stopping lengths within blocks; provider sampling randomness was not matched.
+Each temperature completed the same 24-block schedule: 1,536 Track A episodes
+against disclosed AllC, AllD, Tit-for-Tat (TFT) and Grim policies, plus 240 Track B
+autonomous dyads spanning all ten unordered model--procedure pairings, including
+self-play. Track A has 16 conditions: each policy at \(\delta=.4,.6,.9\), one-round
+AllC/AllD, and ten-round TFT/Grim. Track B uses \(\delta=.9\).
+Four label/seat strata have six blocks each. Episode order, IDs, environment seeds,
+stopping lengths and presentations match across temperatures. Provider sampling
+randomness was not matched. A geometric game's final round was hidden when choosing.
 
-\section{Scoring}
-
-Track A loss measures expected payoff forgone against a committed opponent.
-The gap for action \(a_t\) at state \(s_t\) is
-\(g_t=V^*(s_t)-Q^*(s_t,a_t)\), where continuation after that action is optimal.
+\clearpage
+\section{Scoring and primary results}
+At state \(s_t\), the gap for action \(a_t\) is
+\(g_t=V^*(s_t)-Q^*(s_t,a_t)\), with optimal continuation after that action.
 Episode loss is
 \[
-L_{\mathrm{geometric}}=(1-\delta)\sum_t g_t,
-\qquad
-L_{\mathrm{fixed}}=\frac{1}{H}\sum_{t=1}^{H}g_t.
+L_{\rm geometric}=(1-\delta)\sum_t g_t,
+\qquad L_{\rm fixed}=\frac{1}{H}\sum_{t=1}^{H}g_t.
 \]
 Geometric gaps are not discounted again: continuation is in \(Q^*\), and
-termination supplies survival weighting. Lower loss is better; it measures
-neither action accuracy nor cooperation.
+termination supplies survival weighting. Lower loss means fewer achievable own
+points given up, not more cooperation or a percentage of correct actions.
+For example, in a one-round game against AllC, C earns 3 and D earns 5: C has
+loss 2 and D has loss 0.
 
-The primary contrast is draft minus direct mean loss within each model.
-The 16 conditions and four strata receive equal weight. Approximate 95\%
-intervals use 20,000 stratified whole-block bootstrap draws.
+The primary contrast is Draft minus Direct mean loss within each model and
+temperature, equally weighting 16 conditions and four strata. Each procedure has
+384 benchmark episodes per temperature. Approximate 95\% intervals use 20,000
+stratified whole-block bootstrap draws, preserving related observations together.
+There are only six blocks per stratum; interval coverage and power are not established.
 
-\paragraph{Worked example.}
-Against Always Cooperate in a one-round game, choosing C earns 3 points whereas
-D earns 5. The loss of C is therefore $5-3=2$; the loss of D is zero. This is
-foregone own payoff, not a moral judgement or cooperation score. A block repeats
-all conditions; a presentation stratum groups an action mapping and a player seat.
-
-\section{Results}
-
-Each procedure has 384 Track A episodes. Drafting reduced average loss for both
-models (Table~\ref{tab:primary}), but the benefit varied by opponent
-(Table~\ref{tab:opponent}). The opponent breakdown is exploratory.
-
-\begin{table}[ht]
-\centering
-\begin{tabular}{lrrrr}
+\begin{table}[h!]
+\centering\small
+\begin{tabular}{lrrrrr}
 \hline
-Model & Direct & Draft & Difference & Approx.\ 95\% interval \\
+Model & Temp. & Direct & Draft & Difference & Approx. 95\% interval \\
 \hline
-Nano  & 0.6889 & 0.4942 & $-0.1947$ & $[-0.3077,-0.0983]$ \\
-Super & 0.6150 & 0.3779 & $-0.2371$ & $[-0.3095,-0.1735]$ \\
+Nano & 1 & 0.6889 & 0.4942 & $-0.1947$ & $[-0.3077,-0.0983]$ \\
+Super & 1 & 0.6150 & 0.3779 & $-0.2371$ & $[-0.3095,-0.1735]$ \\
+Nano & 0 & 0.7161 & 0.5616 & $-0.1545$ & $[-0.2230,-0.0935]$ \\
+Super & 0 & 0.4718 & 0.3763 & $-0.0956$ & $[-0.1280,-0.0635]$ \\
 \hline
 \end{tabular}
-\caption{Mean normalised oracle loss. Negative differences favour drafting.}
+\caption{Mean normalised oracle loss. Negative differences favour Draft.
+Relative reductions are 28.3\% and 38.6\% at temperature 1, and 21.6\% and 20.3\% at 0, for Nano and Super respectively.}
 \label{tab:primary}
 \end{table}
 
-\begin{table}[ht]
+Drafting lowered average benchmark loss in all four comparisons (Table~\ref{tab:primary}).
+The benefit depended on the opponent (Table~\ref{tab:opponent}). Against AllC and
+AllD, improvement means better selection of defection under the own-payoff
+objective. Drafting worsened average performance against TFT at both temperatures.
+The opponent breakdown is exploratory.
+
+\begin{table}[h!]
 \centering
-\begin{tabular}{lrr}
+\begin{tabular}{lrrrr}
 \hline
-Opponent & Nano difference & Super difference \\
+ & \multicolumn{2}{c}{Temperature 1} & \multicolumn{2}{c}{Temperature 0} \\
+Opponent & Nano & Super & Nano & Super \\
 \hline
-AllC & $-0.7562$ & $-0.5146$ \\
-AllD & $-0.2135$ & $-0.3708$ \\
-Grim & $-0.1575$ & $-0.2542$ \\
-TFT  & $+0.3485$ & $+0.1913$ \\
+AllC & $-0.7562$ & $-0.5146$ & $-0.7583$ & $-0.2312$ \\
+AllD & $-0.2135$ & $-0.3708$ & $-0.0302$ & $-0.2198$ \\
+Grim & $-0.1575$ & $-0.2542$ & $-0.0240$ & $-0.2231$ \\
+TFT & $+0.3485$ & $+0.1913$ & $+0.1945$ & $+0.2919$ \\
 \hline
 \end{tabular}
-\caption{Draft minus direct loss, averaging four conditions per opponent.}
+\caption{Draft minus Direct loss, averaging four conditions per opponent.}
 \label{tab:opponent}
 \end{table}
 
-Drafting worsened average performance against TFT. Against AllC and AllD,
-improvement means better selection of defection under the own-payoff objective,
-not more cooperation.
+\clearpage
+\section{Matched temperature sensitivity}
+The temperature-zero extension was requested after reviewing temperature-one
+results. We pair corresponding blocks across the two studies rather than pool
+48 blocks as independent repetitions. For each arm, compute its block mean loss
+at 0 minus its mean at 1; for the interaction, subtract the corresponding
+Direct change from the Draft change. Resample the same six matched blocks within
+each of four strata, using 20,000 draws. Positive interaction means a smaller
+Draft advantage at zero. Intervals are approximate, with no multiplicity correction.
 
-In Track B, mutual cooperation occurred in 189/2,060 rounds (9.2\%);
-both defected in 1,042 rounds, and 829 were asymmetric. First-round mutual
-cooperation occurred in 26/240 dyads (10.8\%). Rounds within a dyad are dependent;
-these counts do not supply 2,060 independent observations or a general ranking.
-
-\begin{table}[ht]
+\begin{figure}[h!]
 \centering
-\small
-\begin{tabular}{lrrr}
+\includegraphics[width=\linewidth]{public/research/figures/temperature-comparison.png}
+\caption{Within-temperature drafting contrasts. Bars show approximate 95\%
+stratified whole-block bootstrap intervals; lower loss favours Draft.}
+\end{figure}
+
+\begin{table}[h!]
+\centering\small
+\begin{tabular}{lrr}
 \hline
-Pairing & First CC / 24 & CC / 206 rounds & Joint return \\
+Contrast (temperature 0 minus 1) & Change & Approx. 95\% interval \\
 \hline
-Nano Direct / Nano Direct & 5 & 52 & 3.833 \\
-Nano Direct / Nano Draft & 3 & 14 & 3.113 \\
-Nano Direct / Super Direct & 5 & 33 & 3.529 \\
-Nano Direct / Super Draft & 0 & 6 & 2.842 \\
-Nano Draft / Nano Draft & 2 & 10 & 2.746 \\
-Nano Draft / Super Direct & 3 & 19 & 3.271 \\
-Nano Draft / Super Draft & 3 & 10 & 2.533 \\
-Super Direct / Super Direct & 3 & 33 & 3.479 \\
-Super Direct / Super Draft & 1 & 6 & 3.067 \\
-Super Draft / Super Draft & 1 & 6 & 2.267 \\
+Nano Direct & $+0.0272$ & $[-0.0320,+0.0832]$ \\
+Nano Draft & $+0.0674$ & $[+0.0363,+0.1049]$ \\
+Super Direct & $-0.1431$ & $[-0.1846,-0.1022]$ \\
+Super Draft & $-0.0016$ & $[-0.0351,+0.0372]$ \\
+Nano drafting interaction & $+0.0402$ & $[-0.0256,+0.1142]$ \\
+Super drafting interaction & $+0.1415$ & $[+0.0840,+0.2066]$ \\
 \hline
 \end{tabular}
-\caption{All Track B pairings, 24 dyads each. Joint return is the mean of
-$(1-0.9)$ times the sum of both players' points over a dyad.}
+\caption{Matched changes. Negative arm changes mean better benchmark decisions
+at zero; positive interactions mean a smaller drafting advantage.}
+\label{tab:temperature}
+\end{table}
+
+Super Direct improved substantially at zero while Super Draft was nearly
+unchanged, narrowing Super's Draft advantage. Nano Draft had higher mean loss
+at zero; the interval for Nano's interaction spans zero. These comparisons do
+not support a universal preferred temperature. Different dates, provider/backend
+windows and recovery policies also differed; temperature attribution is confounded.
+Temperature zero does not guarantee deterministic hosted inference.
+
+\clearpage
+\section{Autonomous interaction}
+There is no identified exact oracle for these adaptive opponents. Track B instead
+reports cooperation and joint return. Each temperature has 240 dyads and 2,060
+observed rounds under the same stopping schedule. Rounds within a dyad are
+dependent; these are not 2,060 independent trials.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lrr}
+\hline
+Outcome & Temperature 1 & Temperature 0 \\
+\hline
+Mutual cooperation (CC) & 189 / 2,060 (9.2\%) & 244 / 2,060 (11.8\%) \\
+Mutual defection (DD) & 1,042 & 1,264 \\
+Asymmetric rounds (CD or DC) & 829 & 552 \\
+First-round CC & 26 / 240 (10.8\%) & 32 / 240 (13.3\%) \\
+\hline
+\end{tabular}
+\caption{Descriptive pooled counts, not an independent-round temperature test.}
+\end{table}
+
+\begin{table}[h!]
+\centering\small
+\begin{tabular}{lrrrr}
+\hline
+ & \multicolumn{2}{c}{Temperature 1} & \multicolumn{2}{c}{Temperature 0} \\
+Pairing & CC / 206 & Return & CC / 206 & Return \\
+\hline
+Nano Direct / Nano Direct & 52 & 3.833 & 56 & 3.275 \\
+Nano Direct / Nano Draft & 14 & 3.113 & 34 & 2.971 \\
+Nano Direct / Super Direct & 33 & 3.529 & 4 & 2.683 \\
+Nano Direct / Super Draft & 6 & 2.842 & 12 & 2.517 \\
+Nano Draft / Nano Draft & 10 & 2.746 & 25 & 2.758 \\
+Nano Draft / Super Direct & 19 & 3.271 & 10 & 2.771 \\
+Nano Draft / Super Draft & 10 & 2.533 & 17 & 2.688 \\
+Super Direct / Super Direct & 33 & 3.479 & 86 & 3.750 \\
+Super Direct / Super Draft & 6 & 3.067 & 0 & 2.679 \\
+Super Draft / Super Draft & 6 & 2.267 & 0 & 2.042 \\
+\hline
+\end{tabular}
+\caption{All ten pairings, 24 dyads each at each temperature. Return is the mean
+of $(1-0.9)$ times the sum of both players' points over a dyad. It is not mean
+payoff per observed round. Full first-CC, breakdown and recovery counts are in the public CSVs.}
 \label{tab:pairings}
 \end{table}
 
-The pooled cooperation rate hides variation (Table~\ref{tab:pairings}). For
-example, Nano Direct self-play had 52/206 mutual-cooperation rounds, compared
-with 10/206 in Nano Draft self-play. These are descriptive comparisons under
-a shared stopping schedule; longer dyads contribute more to the round-level rate.
-The return normalisation is not the mean payoff per observed round.
+The pooled rate hides substantial variation (Table~\ref{tab:pairings}). Super
+Direct self-play, for example, had 33/206 mutual-cooperation rounds at temperature
+1 and 86/206 at 0; Super Draft self-play had none at 0. Longer dyads contribute
+more to a round-level rate. These observations do not establish a general model
+ranking, a complete strategy, or a Nash equilibrium.
 
-\section{Interpretation and limitations}
-
+\section{Interpretation}
 A best response to a commitment differs from an equilibrium \cite{rasmusen}.
 Grim's initial cooperation threshold is \(\delta=1/2\); TFT's is \(\delta=2/3\).
 With ten announced rounds, either committed policy is best answered by nine
-cooperations then defection (32 own points). Finite-game backward induction
-for two strategic players does not imply immediate defection against these
-commitments. Geometric termination was hidden when choosing.
+cooperations then defection (32 own points). Finite-game backward induction for
+two strategic players does not imply immediate defection against these commitments.
 
-An earlier run stopped at 339/592 episodes after HTTP 502. Its outcomes were
-inspected before this successor, which retained the original 24-block schedule
-and excluded predecessor and engineering observations. These results are
-descriptive, not a new confirmatory preregistration.
+\clearpage
+\section{Amendments and limitations}
+The temperature-one study followed an eight-block local attempt stopped at
+339/592 episodes by HTTP 502. Its outcomes had been inspected before the fresh
+24-block successor. The first temperature-zero attempt stopped at 62/1,776
+completed episodes on HTTP 529, which its frozen recovery policy did not permit
+retrying. The separately identified temperature-zero recovery executed all 24
+blocks with a prospective policy admitting bounded retries for 529. Neither
+completed run actually needed a retry. Interrupted and engineering observations
+are excluded from the public scientific datasets; original evidence and guards
+remain retained privately. These are descriptive amendments, not fresh
+confirmatory preregistrations.
 
-Drafting changes compute, request count, thinking settings and conditioning
-together. Six blocks per stratum, one schedule, four policies and one provider
-window limit generalisation. Interval coverage and power are not established.
-There is no general model ranking or identified autonomous-play equilibrium;
-draft text does not verify internal beliefs.
+One environment schedule, four policies, fixed payoffs and one provider window
+per temperature limit generalisation. Provider IDs do not authenticate immutable
+weight versions. Draft text is not verified internal belief. Extra requests,
+compute, thinking settings and draft conditioning change together. The temperature
+comparison followed earlier outcome inspection and is confounded by execution
+windows and recovery policies. No universal reasoning superiority, causal
+temperature effect or educational benefit is established.
 
+\section{Execution and costs}
+Each completed final run recorded 17,124 successful requests, zero retries,
+zero protocol failures and no unresolved reservations. Approximate final durations
+were 3h08m at temperature 1 and 2h15m at 0, measured from the session start to the
+terminal ledger's filesystem modification (the terminal event has no timestamp).
+Usage-priced final inference estimates were \$4.92776508 and \$4.47913740,
+respectively: \$9.40690248 combined, excluding engineering and failed predecessors.
+These are estimates at recorded 20 October rates, not provider invoices.
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{lrrr}
+\hline
+Procedure & Requests per temp. & USD at temp. 1 & USD at temp. 0 \\
+\hline
+Nano Direct & 2,854 & 0.068376 & 0.068219 \\
+Nano Draft & 5,708 & 0.795708 & 0.730194 \\
+Super Direct & 2,854 & 0.338590 & 0.338530 \\
+Super Draft & 5,708 & 3.725092 & 3.342195 \\
+\hline
+\end{tabular}
+\caption{Final-run usage estimates covering both tracks, not a benchmark-only
+cost-effectiveness estimate. Public actions cannot independently validate token usage or billing.}
+\end{table}
+
+The completed runs used local CPU coordination and remote Token Factory inference,
+with no GPU provisioning. Earlier CPU Serverless Job probes failed before
+scientific inference. Viewing the static app and running offline verification
+sends no inference requests. The live educational app offers optional forecasts
+and requests reasoning off; its sessions do not reproduce the scientific Draft protocol.
+
+\clearpage
 \section{Related work}
-
 Akata et al.\ \cite{akata} study LLM behaviour in repeated games and a social
 chain-of-thought intervention. Fontana et al.\ \cite{fontana} examine cooperative
 behaviour against adversaries of varying hostility. Pal et al.\ \cite{pal}
 examine strategies, continuation probabilities, horizons and framing in repeated
-Prisoner's Dilemma. Our narrower extension compares bounded Direct/Draft
+Prisoner's Dilemma. Our narrower contribution compares bounded Direct/Draft
 procedures in two hosted Nemotron deployments using exact committed-opponent
-loss, alongside autonomous pairing outcomes. These results do not establish
-superiority over those studies' models, tasks or methods.
+loss and a matched temperature sensitivity analysis, alongside autonomous pairing
+outcomes. It does not establish superiority over those studies' models, tasks or methods.
 
-\section{Execution and reproduction}
+\section{Reproduction and public evidence}
+Repository: \href{https://github.com/sheinkmana/dilemma-dynamics}{github.com/sheinkmana/dilemma-dynamics}.
+The public app offers every released episode at either temperature and aggregate
+comparisons. Each temperature has a separate executed plan and source index.
+Episode IDs recur across matched studies; identify an observation by temperature
+and episode ID together. Original temperature-one data remain at the package
+root; temperature-zero data are additive under \path{public/research/temperature-zero/}.
 
-The run used 17,124 successful requests, with no retries or protocol failures,
-in approximately 3 hours 8 minutes. Estimated final inference cost was \$4.9278,
-not a provider invoice.
+From the repository root, with Python 3.12 and the frozen environment:
+\begin{verbatim}
+uv sync --frozen
+uv run python tools/verify_public_results.py
+\end{verbatim}
+The verifier recomputes all 3,552 episode scores, four primary bootstrap
+intervals, six matched temperature intervals and nine CSVs, checks the public
+checksum manifest, and verifies cost arithmetic against dated rates. Scoring,
+analysis, design and dependency versions are checked against each study's
+executed source index; the original design is retained byte for byte as
+\texttt{design\_v1.py}. App and report revisions do not replace frozen execution evidence.
+See \path{public/research/README.md} for the file map and exact bootstrap seed convention.
 
-\begin{table}[ht]
-\centering
-\begin{tabular}{lrr}
-\hline
-Procedure & Requests & Estimated USD \\
-\hline
-Nano Direct & 2,854 & 0.068376 \\
-Nano Draft & 5,708 & 0.795708 \\
-Super Direct & 2,854 & 0.338590 \\
-Super Draft & 5,708 & 3.725092 \\
-\hline
-\end{tabular}
-\caption{Final evaluation costs across both tracks, priced at the recorded
-20 October rates from retained usage aggregates.}
-\label{tab:costs}
-\end{table}
-
-Drafting uses two requests per decision and longer inputs and outputs.
-Table~\ref{tab:costs} includes both benchmark and autonomous play, so it is not
-a Track A cost-effectiveness estimate. Public actions cannot independently
-validate usage aggregates or provider billing. The completed run used local
-CPU coordination and remote Token Factory inference; earlier cloud job probes
-failed before scientific inference.
-
-The public app offers an action-by-action study replay and aggregate results.
-Its live educational mode instead uses temperature zero, reasoning requested off,
-and optional reported forecasts; it does not rerun this scientific protocol.
-
-Repository and public data:
-\href{https://github.com/sheinkmana/dilemma-dynamics}{github.com/sheinkmana/dilemma-dynamics}.
-The data package's executed plan and source index identify the study; current app
-and report revisions do not replace frozen execution evidence.
-Data and offline verification instructions are in
-\path{public/research/README.md}. Scores and intervals reproduce from revealed
-actions without inference. Raw responses, drafts and receipts remain private;
-public records cannot authenticate provider identity, raw transport or billing.
+The released plans and actions are unchanged copies of verified exports. Raw
+provider responses, private drafts, receipts, executed source archives and
+operational records remain private. Public data reproduce scores but cannot
+independently authenticate provider identity, transport history, raw event chains
+or billing. Checksums detect changes; they are not signatures. Reference works
+are cited and are not redistributed.
 
 \begin{thebibliography}{4}
 \bibitem{rasmusen}

@@ -25,7 +25,7 @@ Each request receives the numeric rules, assigned objective, announced horizon, 
 
 Prompts use neutral X/Y tokens, with a recorded mapping to C/D visible to the viewer. They do not instruct a strategy or name the dilemma. This controls one framing factor without establishing that pretraining familiarity has been eliminated. A local environment seed reproduces stopping draws, not hosted model generation; temperature zero does not guarantee deterministic inference.
 
-The current model protocol uses temperature zero, reasoning requested off, no tools or examples, no correction attempts, and the provider adapter's 90-second timeout. Action-only allows 128 output tokens; action-plus-forecasts allows 256. Reasoning exposure or reported reasoning tokens interrupt play. These are watch-session settings, not the broader research settings proposed in the study.
+The current model protocol uses temperature zero, reasoning requested off, no tools or examples, no correction attempts, and the provider adapter's 90-second timeout. Action-only allows 128 output tokens; action-plus-forecasts allows 256. Reasoning exposure or reported reasoning tokens interrupt play. These are watch-session settings, not the separate completed research protocols, which test temperatures 1 and 0 and add a bounded Draft procedure.
 
 Action-only accepts exactly `ACTION: X` or `ACTION: Y`, after trimming surrounding whitespace. Forecast mode requires exactly four lines:
 

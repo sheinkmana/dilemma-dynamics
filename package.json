@@ -18,7 +18,8 @@
     "check": "tsc --noEmit",
     "cli": "tsx src/cli/index.ts",
     "study": "uv run gamefield-study",
-    "verify:public": "node tools/check-public-repo.mjs"
+    "verify:public": "node tools/check-public-repo.mjs",
+    "preview:public": "vite preview --mode public --host 127.0.0.1 --port 4173"
   },
   "dependencies": {
     "@fastify/static": "10.1.6",

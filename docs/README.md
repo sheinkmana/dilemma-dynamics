@@ -6,7 +6,7 @@ Start with the [application README](../README.md).
 - [Devpost description draft and submission checklist](SUBMISSION.md)
 - [Cooperation study and board-game side project: why the game types differ](GAME_TYPES.md)
 
-## Completed temperature-one cooperation study
+## Completed cooperation studies: temperatures 1 and 0
 
 - [Full results write-up](../public/research/paper/report.pdf)
 - [Methods and amendments](../public/research/protocol.md)
@@ -24,18 +24,18 @@ Start with the [application README](../README.md).
 
 Dots & Boxes and Tic-tac-toe explore competitive tactics and search on a visible
 board. Their rule/solver checks and acceptance matches are separate from the
-cooperation study and its 1,776 published dilemma episodes.
+cooperation study and its 3,552 published dilemma episodes.
 
 - [Recreational evaluation methods](RECREATIONAL_METHODS.md)
 - [Recreational verification](RECREATIONAL_VERIFICATION.md)
 - [Standalone example replay](example-replay.html)
 
 Dated app verification records describe their original releases. The
-temperature-one cooperation study is complete. Operational handoffs, cloud configuration,
+two matched temperature studies are complete. Operational handoffs, cloud configuration,
 raw evidence archives and supplied reference PDFs remain local and are excluded
 from publication.
 
 The current project name is **Dilemma Dynamics**. Earlier verification screenshots
 retain their original Game Field branding; the application README uses a new
-preview. The temperature-zero extension is currently running separately from
-the completed temperature-one evaluation.
+preview. Both temperature studies completed; the combined report, Results and
+Replay now include the matched temperature sensitivity analysis.

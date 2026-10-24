@@ -18,11 +18,12 @@ uses labelled simple policies. Neither starts hosted inference.
 
 1. **0:00–0:30 — Study replay.** Choose **Explore a recorded Nemotron interaction**.
    The default shows Nano Direct against Tit-for-Tat, block 1, ten announced
-   rounds. Reveal two or three rounds; inspect both actions and cumulative points.
+   rounds at temperature 0. Switch the temperature selector to view the matched
+   temperature-1 study. Reveal two or three rounds; inspect both actions and cumulative points.
 2. **0:30–0:50 — Compare procedures.** Choose **Nemotron Nano · Draft** to inspect
    the matched condition and block. This changes the recorded episode; it does not
    generate a new result. One trajectory is illustrative, not a general comparison.
-3. **0:50–1:20 — Results.** Inspect the two average benchmark-loss contrasts and
+3. **0:50–1:20 — Results.** Inspect all four model/temperature benchmark-loss contrasts and
    the Tit-for-Tat reversal. Open the scoring example, then inspect the full
    pairing table and procedure costs. Lower own-payoff loss is not a cooperation score.
 4. **1:20–2:00 — Dilemma and Analysis.** Return to Dilemma, run the free ten-round
@@ -50,7 +51,8 @@ Set `NEBIUS_API_KEY` in the ignored `.env` using `.env.example`, restart the ser
 and refresh models. Select two available priced models and an estimated session
 limit, then explicitly start. This incurs Token Factory usage. The reviewer does
 not need to do this to inspect the released study or complete the free walkthrough.
-Live play uses temperature 0 and reasoning requested off, unlike the study.
+Live play uses temperature 0, reasoning requested off and optional forecasts; it
+does not reproduce the scientific Draft protocol.
 
 ## Public video script (target 2m45s)
 
@@ -63,7 +65,7 @@ to the README and Devpost only after the video is publicly available.
 | 0:00–0:20 | Dilemma welcome | “Dilemma Dynamics is a lab for students and AI builders to examine how agents respond to incentives. We separate what a model chose, what it reported, and what the evidence can establish.” |
 | 0:20–0:55 | Recorded Nano episode; reveal rounds | “These are saved NVIDIA Nemotron actions from our completed Token Factory study. Both choices were private until joint reveal. Replay requires no API key.” |
 | 0:55–1:20 | Switch to matched Draft episode; procedure details | “Direct uses one action request. Draft adds a capped thinking request before a separate action. A single replay illustrates the protocol; it does not establish the average effect.” |
-| 1:20–1:55 | Results and opponent table | “Across 1,776 completed episodes, drafting reduced mean benchmark loss for both models, but worsened average loss against Tit-for-Tat. These are descriptive findings from an amended run.” |
+| 1:20–1:55 | Results and opponent table | “Across two matched studies totaling 3,552 episodes, drafting lowered average loss for both models at temperatures one and zero, but worsened average loss against Tit-for-Tat. Super’s drafting advantage narrowed at zero. These are descriptive findings.” |
 | 1:55–2:20 | Pairing table and costs | “Better own-payoff decisions are distinct from cooperation. We publish every pairing and the extra inference cost, rather than claiming a universal winner.” |
 | 2:20–2:45 | Local demo/Analysis, report and verification links | “The app explains incentives, preserves replays and limits estimated spending. Nebius hosts Nano and Super inference; our CPU coordinator validates decisions and our Python pipeline reproduces the released scores offline.” |
 

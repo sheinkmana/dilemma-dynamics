@@ -1,6 +1,6 @@
 # Autonomous Dilemma: decision-theoretic analysis
 
-Methodological reference, updated 19 October 2026. The main experience is **two autonomous models, analysed during and after play**. The core action-only and forecast protocols, live and retrospective analysis, joint-round engine, persistence, and exports are implemented. Scripted opponents are explicitly labelled local demonstrations. A separate completed scientific study provides repeated comparisons and exact-policy benchmarks. Learned observer models and counterfactual branch experiments remain future work. See the [protocol contract](DILEMMA_PROTOCOL.md) for execution rules, [implementation verification](DILEMMA_VERIFICATION.md) for tested scope and live results, and the [cooperation study](../public/research/protocol.md) for the separate completed study design.
+Methodological reference, updated 19 October 2026. The main experience is **two autonomous models, analysed during and after play**. The core action-only and forecast protocols, live and retrospective analysis, joint-round engine, persistence, and exports are implemented. Scripted opponents are explicitly labelled local demonstrations. Two separate completed scientific temperature studies provide repeated comparisons and exact-policy benchmarks. Learned observer models and counterfactual branch experiments remain future work. See the [protocol contract](DILEMMA_PROTOCOL.md) for execution rules, [implementation verification](DILEMMA_VERIFICATION.md) for tested scope and live results, and the [cooperation study](../public/research/protocol.md) for the separate completed study design.
 
 ## 1. What the product evaluates
 
@@ -145,7 +145,7 @@ Minimum acceptance examples:
 - Instrumentation, analyst hypotheses, exact scripted references, and branch estimates cannot be mistaken for each other in records or UI.
 - Every player request excludes all analyst records, forecasts from the opponent, and current sealed choices.
 
-The implemented core is autonomous model-versus-model play, passive incentive analysis, optional instrumented decisions and an after-game audit, backed by ledger/replay guarantees. The proposed exact scripted-policy benchmark is specified in the cooperation study. Learned opponent models, extra LLM commentary and paid counterfactual branches are separate extensions.
+The implemented core is autonomous model-versus-model play, passive incentive analysis, optional instrumented decisions and an after-game audit, backed by ledger/replay guarantees. The completed exact committed-policy benchmarks at temperatures 1 and 0 are specified in the cooperation study. Learned opponent models, extra LLM commentary and paid counterfactual branches are separate extensions.
 
 ## References
 

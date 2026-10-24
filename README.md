@@ -7,11 +7,11 @@ how **NVIDIA Nemotron agents respond to incentives**. Watch simultaneous decisio
 inspect their consequences, and explore a reproducible study of when bounded
 drafting helps—and hurts—decision quality.
 
-![Dilemma Dynamics recorded study replay](docs/dilemma-dynamics-replay.png)
+![Dilemma Dynamics recorded study replay](docs/dilemma-dynamics-replay-2026-10-24.jpg)
 
 **Start here:** [two-minute judge walkthrough](docs/JUDGE_WALKTHROUGH.md) ·
 [study report](public/research/paper/report.pdf) · [methods and data](public/research/README.md).
-A public hosted demo and YouTube video have not been published yet. The local
+Public deployment and the final YouTube URL still need confirmation. The local
 test build below provides free access to recorded Nemotron play, lessons, and results.
 
 The intended audience is learners examining strategic incentives and builders
@@ -36,19 +36,34 @@ board, useful for exploring tactics, search and decision inspection.
 | Tic-tac-toe | Visible alternating moves; zero-sum under standard win/draw/loss utility. | Force a win when possible and avoid a loss; perfect play draws. |
 
 Giving away a box can be a tactic for winning more later; it does not enlarge
-the total reward available to both players. The published **1,776-episode study
-covers the dilemma**, while board-game matches and solver checks belong to the
+the total reward available to both players. The published **3,552 episodes across temperatures 1 and 0
+cover the dilemma**, while board-game matches and solver checks belong to the
 recreational side project. The public website demo includes the dilemma study's
 recordings and results only. Read [why these are different kinds of games](docs/GAME_TYPES.md).
 
 ## Study results
 
-All 1,776 episodes completed across 24 blocks. Drafting reduced mean benchmark
-loss for Nano (−0.1947) and Super (−0.2371), but increased average loss against
-Tit-for-Tat. Mutual cooperation occurred in 189/2,060 autonomous rounds (9.2%).
-These descriptive results follow an amended run; they are not a general model
-ranking.
+Both matched **24-block / 1,776-episode studies** completed, at temperature 1 on
+22 October and temperature 0 on 23 October 2026: **3,552 episodes** total.
 
+| Model | Temperature | Direct loss | Draft loss | Draft − direct |
+| --- | ---: | ---: | ---: | ---: |
+| Nano | 1 | 0.6889 | 0.4942 | −0.1947 |
+| Super | 1 | 0.6150 | 0.3779 | −0.2371 |
+| Nano | 0 | 0.7161 | 0.5616 | −0.1545 |
+| Super | 0 | 0.4718 | 0.3763 | −0.0956 |
+
+Lower benchmark loss is better. Drafting reduced average loss for both models at
+both temperatures, but increased average loss against Tit-for-Tat. Super's
+Draft advantage narrowed at zero as Direct improved and Draft was nearly unchanged.
+Nano's change in drafting advantage was uncertain. Mutual cooperation was
+189/2,060 autonomous rounds (9.2%) at 1 and 244/2,060 (11.8%) at 0.
+
+These are descriptive amended studies. The matched temperature comparison follows
+earlier outcome inspection; execution windows and recovery policies also differed.
+It does not isolate a causal temperature effect or establish a general model ranking.
+Interrupted and engineering observations are excluded. See the report for approximate
+intervals and limitations.
 Read the [report (PDF)](public/research/paper/report.pdf) or its
 [LaTeX source](public/research/paper/main.tex).
 [Methods and amendments](public/research/protocol.md) and
@@ -85,7 +100,7 @@ These entry points need no API server. Live play and local-policy sessions requi
 
 For the standalone Jekyll demo at `/dilemma-dynamics/`, run `npm run build:public`.
 This produces `dist/web/` with a separate browser entry that opens Study replay
-and includes only replay and Results. It makes no API or inference requests.
+and includes only replay and Results. Preview it with `npm run preview:public`. It makes no API or inference requests.
 Copy that directory's contents into the website's `dilemma-dynamics/` directory, along
 with `LICENSE` as `LICENSE.txt`. See [Jekyll demo preparation](docs/JEKYLL_DEMO.md)
 for build, export, and verification instructions.
@@ -100,8 +115,9 @@ coordinators run on a local CPU. The completed study used:
 
 Token Factory provided a common hosted chat API and usage accounting for comparing
 the two models without managing model weights or provisioning a GPU. The final
-evaluation recorded 17,124 successful requests over approximately 3h08m and
-$4.9278 in estimated inference charges. These are retained-run records, not a
+evaluations each recorded 17,124 successful requests with zero retries or failures.
+Final inference estimates were $4.9278 at temperature 1 (about 3h08m) and $4.4791
+at 0 (about 2h15m), excluding engineering and failed predecessors. These are retained-run records, not a
 provider invoice. Earlier CPU Serverless Job probes failed; the completed run
 used local coordination with remote Token Factory inference.
 
@@ -117,8 +133,8 @@ Results and Study replay pages read the curated public package.
   limit, then start. Actions remain private until both players have chosen.
 - **Analysis:** inspect incentives, reported forecasts and completed rounds.
 - **Study replay:** inspect any recorded study episode, reveal rounds, and switch
-  between matched Direct/Draft configurations. It makes no inference requests.
-- **Results:** read the completed study and download its report and data.
+  between temperatures and matched Direct/Draft configurations. It makes no inference requests.
+- **Results:** compare both completed temperature studies and download their report and data.
 - **Board games · side project:** play or replay Dots & Boxes and Tic-tac-toe,
   with an explanation of their competitive incentives and visible-move structure.
 
@@ -129,13 +145,14 @@ not an announced final round. The fixed ten-round option announces its end.
 **Action only** records a choice; **Action + forecasts** also records reported
 expectations before reveal. Forecasts are not verified internal beliefs. The
 live app uses temperature zero and reasoning requested off; the scientific
-study uses temperature one and a separate capped draft-then-action procedure.
+studies tested temperatures one and zero with a separate capped draft-then-action procedure.
 
-A separate [temperature-zero extension](docs/TEMPERATURE_ZERO_EVALUATION.md) is
-currently running through the research runner. It has not yet produced published evaluation results;
-the published results remain the completed temperature-one study.
+The [temperature-zero extension](docs/TEMPERATURE_ZERO_EVALUATION.md) is complete.
+Results and Study replay offer a temperature selector; downloads and provenance
+follow the selected study. Original temperature-one data remain byte-preserved,
+with temperature-zero data added in `public/research/temperature-zero/`.
 
-Study replay shows saved actions from that study; its private draft text is not
+Study replay shows saved actions from either study; its private draft text is not
 reconstructed. See the [game contract](docs/DILEMMA_PROTOCOL.md)
 and [analysis methods](docs/AUTONOMOUS_DILEMMA_ANALYSIS.md).
 
@@ -151,8 +168,7 @@ the standalone demo builds for `/dilemma-dynamics/`.
 
 The research package `gamefield_research`, `gamefield-study` command, Python
 dependency metadata, study identifiers, and frozen evidence retain their
-original names. The active temperature-zero evaluation verifies those files
-against its prepared source hashes. The local app also retains its existing
+original names. Both completed studies retain their prepared source hashes and original evidence. The local app also retains its existing
 `GAMEFIELD_*` settings, SQLite filename, request header and saved preferences
 for compatibility with existing sessions. These identifiers are independent
 of the display name. The local checkout directory can remain `game`.

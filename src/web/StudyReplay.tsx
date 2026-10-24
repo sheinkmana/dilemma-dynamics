@@ -10,6 +10,8 @@ import {
 } from '../dilemma/recorded.js';
 import { payoff } from '../dilemma/spec.js';
 import { PayoffTable } from './DilemmaLearning.js';
+import { StudyTemperature } from './StudyTemperature.js';
+import { studies, type StudyTemperature as Temperature } from './studyData.js';
 import './results.css';
 
 export function StudyReplay({
@@ -21,7 +23,13 @@ export function StudyReplay({
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
 }) {
-  const [rows, setRows] = useState<RecordedEpisode[]>([]);
+  const [temperature, setTemperature] = useState<Temperature>(0);
+  const [recording, setRecording] = useState<{
+    temperature: Temperature;
+    rows: RecordedEpisode[];
+  } | null>(null);
+  const rows = recording?.temperature === temperature ? recording.rows : [];
+  const { path, date } = studies[temperature];
   const [error, setError] = useState('');
   const [track, setTrack] = useState<'A' | 'B'>('A');
   const [cell, setCell] = useState('A/tft-h10/nano-direct');
@@ -31,18 +39,19 @@ export function StudyReplay({
   useEffect(() => {
     const controller = new AbortController();
     setError('');
-    void fetch(publicAsset('research/episodes.json'), { signal: controller.signal })
+    setRecording(null);
+    void fetch(publicAsset(`${path}/episodes.json`), { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error('The recorded study could not be loaded.');
         const data = parseRecordedEpisodes(await response.json());
-        if (!controller.signal.aborted) setRows(data);
+        if (!controller.signal.aborted) setRecording({ temperature, rows: data });
       })
       .catch(() => {
         if (!controller.signal.aborted)
           setError('Could not load the saved study. Check the connection and try again.');
       });
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, temperature, path]);
   const cells = [...new Set(rows.filter((r) => r.track === track).map((r) => r.cell))].sort();
   const episode = rows.find((r) => r.cell === cell && r.block === block);
   const index = Math.min(round, episode?.rounds ?? 0);
@@ -72,12 +81,12 @@ export function StudyReplay({
       <main className="game-page results-page">
         <div className="results-intro">
           <p className="results-eyebrow">
-            Repeated Prisoner’s Dilemma · recorded study · 22 October 2026
+            Repeated Prisoner’s Dilemma · recorded studies · 22–23 October 2026
           </p>
           <h1>Replay the decisions.</h1>
           <p>
-            Step through published actions from all 1,776 completed episodes. No key or inference is
-            needed. This is a recording, not a new model interaction.
+            Step through 3,552 published episodes across temperatures 0 and 1, with 1,776 in each
+            study. No key or inference is needed. This is a recording, not a new model interaction.
           </p>
           <p className="results-caveat">
             One episode illustrates play; it does not estimate a procedure’s effect.{' '}
@@ -85,6 +94,14 @@ export function StudyReplay({
           </p>
         </div>
         <GameTypes />
+        <StudyTemperature
+          value={temperature}
+          onChange={(next) => {
+            setTemperature(next);
+            setError('');
+            setRound(0);
+          }}
+        />
         {error ? (
           <p role="alert">
             {error} <button onClick={() => setAttempt((n) => n + 1)}>Retry loading</button>
@@ -239,22 +256,23 @@ export function StudyReplay({
                   <p>
                     Direct: one thinking-off action request, capped at 128 tokens. Draft: a
                     thinking-on draft capped at 1,024 tokens, then a separate thinking-off action
-                    request capped at 128 tokens. Both used temperature 1. Only the current draft
-                    was added to the action request.
+                    request capped at 128 tokens. Both used temperature {temperature} and top-p 1.
+                    Only the current draft was added to the action request.
                   </p>
                   <p>
-                    The live Dilemma app instead uses temperature 0, reasoning requested off, and
-                    optional reported forecasts. This replay contains actions only; it does not
-                    reconstruct private drafts or beliefs.
+                    The live Dilemma app offers optional reported forecasts and requests reasoning
+                    off. This replay contains actions only; it does not reconstruct private drafts
+                    or beliefs.
                   </p>
                   <p>
-                    Episode <code>{episode.id}</code> · block {episode.block + 1} (data index{' '}
-                    {episode.block}) · presentation stratum {episode.stratum + 1}. A stratum groups
-                    the action-label mapping and player seat; each has six study blocks.
+                    Temperature {temperature} · {date} · episode <code>{episode.id}</code> · block{' '}
+                    {episode.block + 1} (data index {episode.block}) · presentation stratum{' '}
+                    {episode.stratum + 1}. A stratum groups the action-label mapping and player
+                    seat; each has six study blocks.
                   </p>
                   <p>
-                    <a href={publicAsset('/research/episodes.json')} download>
-                      Download all published actions
+                    <a href={publicAsset(`${path}/episodes.json`)} download>
+                      Download all actions at temperature {temperature}
                     </a>{' '}
                     · <a href="#results">Methods and findings</a>. Public actions reproduce scores,
                     but cannot authenticate private provider responses or billing.

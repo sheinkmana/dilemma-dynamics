@@ -1,11 +1,17 @@
 # Temperature-zero extension
 
-Status update, 23 October 2026: the user reports that the separately prepared
-`temperature-zero-local-2026-10-23` bundle is currently running. The Dilemma
-Dynamics rename changes public presentation only. Keep its source-bound Python
-code, deployment files, fixtures, Python dependencies, preparation, claims and
-evidence unchanged. The preparation-only statements below describe the earlier
-handoff, not the current launch status.
+**Completed, checked 24 October 2026:** the original local attempt stopped at
+62 episodes on HTTP 529. A separately identified recovery completed all
+**1,776/1,776 episodes** on 23 October, with 17,124 successful requests, zero
+retries/failures and $4.47913740 usage-priced final inference. Both temperatures
+are now included in the [combined report](../public/research/paper/report.pdf),
+[public data](../public/research/README.md), Results and Replay. Interrupted and
+engineering observations are excluded. No further inference is needed.
+
+The preparation and launch descriptions below are historical. Preserve all
+source, claims, clocks and evidence; do not launch them again.
+
+## Historical preparation and launch record
 
 Prepared 23 October 2026. The completed 22 October study used temperature **1**
 for every direct, draft and draft-conditioned action request. Its results remain
