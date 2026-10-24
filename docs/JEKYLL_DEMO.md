@@ -1,5 +1,34 @@
 # Standalone Jekyll demo
 
+## Free browser gameplay · 24 October 2026
+
+The public build now shares the full app’s interface and all five sections:
+Dilemma, Analysis, Study replay, Results, and Board games. Both temperature studies,
+recorded episodes, filters, lessons, report and data downloads remain available.
+The website opens Study replay by default. Direct links use `#dilemma`, `#analysis`,
+`#replay`, `#results`, and `#recreational`.
+
+Free play uses a browser runtime: a ten-round Dilemma demonstration with random
+and reciprocal policies, plus Dots & Boxes and Tic-tac-toe with simple or random
+bots. These are local policies, not new Nemotron runs. Play supports pause,
+resume, stop, round stepping in Dilemma, decision analysis, saved history and
+replay downloads. Games save in this browser when storage is available. Reloading
+pauses unfinished games; Resume is explicit. Storage failures show a notice and
+play continues in memory. Download replays to retain a separate copy. Browser
+saves are separate from the localhost app’s SQLite sessions.
+
+`src/web/App.tsx` is shared by both entries. `transport.tsx` selects the browser
+runtime only in public mode; it never falls back to a server. Public builds omit
+live model configuration, budget editing, model discovery and server shutdown.
+The normal build retains the local server transport and its model controls.
+Frozen study sources, evidence and the public research package are unchanged.
+
+Rebuild and replace the website’s demo directory using the commands below. This
+repository change alone does not update the separate website checkout or publish
+its deployed copy. Verify free games as well as Replay and Results before release.
+
+## Earlier deployment records
+
 24 October release: both completed temperature studies, the combined report and
 public action datasets are included. The separate website post, README, deployment
 verifier and 35-file demo have been updated locally; Jekyll, PurgeCSS and all
@@ -16,7 +45,7 @@ These changes are local and have not been committed, pushed or deployed.
 The initial game-type clarification updated the website post, README and
 static demo together. It identifies the repeated Prisoner's Dilemma as the main
 cooperation study and the local app's Dots & Boxes/Tic-tac-toe playground as a
-separate recreational side project. The website demo still offers saved dilemma
+separate recreational side project. At that earlier release the website demo offered saved dilemma
 episodes and Results only; it explains the distinction without adding live
 controls or board-game sessions.
 
@@ -25,10 +54,12 @@ games in a short extra at the end. Replay and Results likewise keep that extra
 below the study content. Benchmark wording describes achievable payoff forgone,
 with the reference opponent policy and optimal continuation stated explicitly.
 
-The `public` Vite mode builds recorded Study replay and Results for `/dilemma-dynamics/`.
-It uses a separate browser entry (`src/web/public.tsx`) that does not import
-the local app controls. Unknown hashes fall back to Study replay; `#results`
-opens Results. All public assets, data fetches, and download links use Vite's
+## Build
+
+The `public` Vite mode builds the shared app for `/dilemma-dynamics/`.
+Its entry (`src/web/public.tsx`) selects free browser execution through the public
+build mode. An empty hash opens Study replay; `#results` opens Results and
+`#dilemma` opens free Dilemma play. All public assets, data fetches, and download links use Vite's
 configured base URL. The normal `npm run build` retains the full localhost app.
 
 ```sh
@@ -39,7 +70,10 @@ npm run preview:public
 Open `http://127.0.0.1:4173/dilemma-dynamics/` to preview. No API server or key is needed.
 Each build replaces `dist/web/`, so export only immediately after `build:public`.
 The build keeps only manifest-listed research files and verifies their checksums;
-temporary report compiler files are excluded from the export.
+temporary report compiler files are excluded from the export. It also runs
+`tools/verify-public-app.mjs` against compiled scripts to reject API routes, the
+inference endpoint and server event streams. Static research data fetches remain
+available.
 
 ## Website integration
 
@@ -82,7 +116,10 @@ links. The workflow runs it before deployment. PurgeCSS targets only the theme's
 
 Serve the built `_site/` directory from the website root, then check the post,
 default replay, both temperatures and tracks, procedure comparison, round controls, Results
-filters, themes, and downloads. No app server should be running. Only saved
+filters, themes, and downloads. Also check Dilemma play and analysis, both board
+games, pause/resume, reload recovery, saved history and replay downloads. Confirm
+that no model configuration or server shutdown controls appear. No app server
+should be running. Only saved
 public evidence belongs in the export; do not copy local data, study output,
 credentials, or the server build.
 

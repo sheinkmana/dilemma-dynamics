@@ -24,8 +24,12 @@ The [data README](../public/research/README.md) documents the evidence boundary.
 
 ## Included
 
-The application has Dilemma, Analysis, Study replay, Results and a separately
-labelled **Board games · side project** section. The main project studies
+Both local and standalone public builds have Dilemma, Analysis, Study replay,
+Results and a separately labelled **Board games · side project** section. The
+public build adds free browser gameplay and browser-local saves, while
+model execution and shutdown controls remain local. See the [standalone demo
+guide](JEKYLL_DEMO.md) for rebuilding and exporting to the separate website.
+The main project studies
 cooperation and incentives in the repeated Prisoner's Dilemma; the recreational
 games explore competitive tactics and search with visible moves. The
 [game-type guide](GAME_TYPES.md) explains their different information and reward
@@ -64,6 +68,13 @@ authenticate provider identity, raw request history or billing. Raw responses,
 private drafts and receipts are intentionally absent from public downloads.
 
 ## Validation before committing
+
+The browser-gameplay extension passed 66 app tests, TypeScript, both production
+builds and publication checks. Its public build also checks compiled scripts for
+API paths, the inference endpoint and server event streams, failing if any are
+present. The original 58 tests include research package checksums and both
+recorded-study datasets; eight additional tests cover browser gameplay, scoring,
+lifecycle, storage and downloads. No inference is launched by these checks.
 
 The current release passed 58 app tests, 138 offline Python tests, both builds,
 publication checks and offline verification of both temperatures, matched

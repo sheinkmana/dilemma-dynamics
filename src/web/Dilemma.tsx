@@ -9,22 +9,7 @@ import { CONTINUATION_PROBABILITY, EXPECTED_GEOMETRIC_ROUNDS, payoff } from '../
 import { DilemmaLearning, PayoffTable } from './DilemmaLearning.js';
 import './dilemma.css';
 type Saved = Omit<DilemmaSession, 'rounds'> & { roundCount: number };
-let sessionToken = '';
-async function api<T>(path: string, body?: unknown): Promise<T> {
-  const response = await fetch(
-    `/api${path}`,
-    body === undefined
-      ? { signal: AbortSignal.timeout(10000) }
-      : {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Gamefield-Token': sessionToken },
-          body: JSON.stringify(body),
-        },
-  );
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error ?? 'Request failed.');
-  return data;
-}
+import { api, browserOnly, subscribe, ExportLink, BrowserNotice } from './transport.js';
 const money = (n: number) => `$${n.toFixed(6)}`;
 const fmt = (n: number | null, digits = 2) => (n === null ? 'Not elicited' : n.toFixed(digits));
 const word = (action: string) => (action === 'C' ? 'Cooperate' : 'Defect');
@@ -291,7 +276,6 @@ export function DilemmaPage({
       api<Health>('/health'),
       api<Saved[]>('/dilemma/sessions'),
     ]);
-    sessionToken = h.token;
     setHealth(h);
     setSaved(list);
     setConnection('connected');
@@ -313,7 +297,6 @@ export function DilemmaPage({
           api<Saved[]>('/dilemma/sessions'),
           api<ModelInfo[]>('/models'),
         ]);
-        sessionToken = h.token;
         let found = ms;
         if (h.keyConfigured && !ms.some((m) => m.available)) {
           try {
@@ -358,16 +341,16 @@ export function DilemmaPage({
     if (!session || offline) return;
     setStream('connecting');
     setLastUpdate(null);
-    const id = session.id,
-      source = new EventSource(`/api/dilemma/sessions/${id}/events`);
-    source.onmessage = (event) => {
-      const next = JSON.parse(event.data) as DilemmaSession;
-      setSession((old) => (old?.id === id && old.version <= next.version ? next : old));
-      setStream('live');
-      setLastUpdate(new Date().toLocaleTimeString());
-    };
-    source.onerror = () => setStream('reconnecting');
-    return () => source.close();
+    const id = session.id;
+    return subscribe<DilemmaSession>(
+      `/dilemma/sessions/${id}`,
+      (next) => {
+        setSession((old) => (old?.id === id && old.version <= next.version ? next : old));
+        setStream('live');
+        setLastUpdate(new Date().toLocaleTimeString());
+      },
+      () => setStream('reconnecting'),
+    );
   }, [session?.id, offline]);
   useEffect(() => {
     if (offline) return;
@@ -453,18 +436,20 @@ export function DilemmaPage({
               </button>
             ))}
           </div>
-          <button
-            className="quiet shutdown-button"
-            disabled={busy}
-            onClick={() =>
-              void act(async () => {
-                await api('/shutdown', {});
-                setOffline(true);
-              })
-            }
-          >
-            Shut down server
-          </button>
+          {!browserOnly && (
+            <button
+              className="quiet shutdown-button"
+              disabled={busy}
+              onClick={() =>
+                void act(async () => {
+                  await api('/shutdown', {});
+                  setOffline(true);
+                })
+              }
+            >
+              Shut down server
+            </button>
+          )}
         </div>
       </header>
       <main className="game-page pd-page" aria-busy={busy}>
@@ -511,23 +496,27 @@ export function DilemmaPage({
               <button onClick={() => setLessonRequest((n) => n + 1)}>Learn the game</button>
             </div>
             <small>
-              Recorded study: no key needed. Local demo: simple policies, not models. Configure live
-              Nemotron play below.
+              {browserOnly
+                ? 'Recorded study and free browser play need no key. The demo uses simple local policies, not models.'
+                : 'Recorded study: no key needed. Local demo: simple policies, not models. Configure live Nemotron play below.'}
             </small>
           </section>
         )}
+        <BrowserNotice />
         <GameTypes />
         <p
           className={`pd-connection ${connection !== 'connected' || (session && stream !== 'live') ? 'notice' : 'muted'}`}
           role="status"
         >
-          {connection === 'checking'
-            ? 'Connecting to the local server…'
-            : connection === 'offline'
-              ? 'Local server unreachable. Displayed state may be stale; requests may still be running. Reconnecting automatically.'
-              : session && stream !== 'live'
-                ? 'Server reachable · reconnecting to live updates. Displayed round may be stale.'
-                : 'Connected to the local server.'}
+          {browserOnly
+            ? 'Free browser play · no API or model requests.'
+            : connection === 'checking'
+              ? 'Connecting to the local server…'
+              : connection === 'offline'
+                ? 'Local server unreachable. Displayed state may be stale; requests may still be running. Reconnecting automatically.'
+                : session && stream !== 'live'
+                  ? 'Server reachable · reconnecting to live updates. Displayed round may be stale.'
+                  : 'Connected to the local server.'}
           {lastUpdate && ` Last round-state update: ${lastUpdate}.`}
           {connection === 'offline' && (
             <button
@@ -570,113 +559,125 @@ export function DilemmaPage({
             className="pd-setup"
             onSubmit={(event) => {
               event.preventDefault();
-              start(false);
+              start(browserOnly);
             }}
           >
-            <div className="pd-model-fields">
-              {selected.map((id, seat) => (
-                <label key={seat}>
-                  Player {seat === 0 ? 'A' : 'B'} · autonomous model
-                  <select
-                    value={id}
-                    disabled={busy || !eligible.length}
-                    onChange={(event) =>
-                      setSelected(
-                        (old) =>
-                          old.map((v, i) => (i === seat ? event.target.value : v)) as [
-                            string,
-                            string,
-                          ],
-                      )
-                    }
-                  >
-                    {!eligible.length && <option value="">No available models</option>}
-                    {eligible.map((m) => (
-                      <option key={m.id} value={m.id}>
-                        {m.name}
+            {!browserOnly && (
+              <>
+                <div className="pd-model-fields">
+                  {selected.map((id, seat) => (
+                    <label key={seat}>
+                      Player {seat === 0 ? 'A' : 'B'} · autonomous model
+                      <select
+                        value={id}
+                        disabled={busy || !eligible.length}
+                        onChange={(event) =>
+                          setSelected(
+                            (old) =>
+                              old.map((v, i) => (i === seat ? event.target.value : v)) as [
+                                string,
+                                string,
+                              ],
+                          )
+                        }
+                      >
+                        {!eligible.length && <option value="">No available models</option>}
+                        {eligible.map((m) => (
+                          <option key={m.id} value={m.id}>
+                            {m.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  ))}
+                </div>
+                <div className="pd-settings">
+                  <label>
+                    Decision protocol
+                    <select
+                      value={protocol}
+                      onChange={(e) => setProtocol(e.target.value as typeof protocol)}
+                    >
+                      <option value="actions">Action only</option>
+                      <option value="forecasts">Action + forecasts</option>
+                    </select>
+                  </label>
+                  <label>
+                    Interaction
+                    <select value={horizon} onChange={(e) => setHorizon(e.target.value)}>
+                      <option value="geometric">
+                        {CONTINUATION_PROBABILITY * 100}% continuation
                       </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
-            </div>
-            <div className="pd-settings">
-              <label>
-                Decision protocol
-                <select
-                  value={protocol}
-                  onChange={(e) => setProtocol(e.target.value as typeof protocol)}
-                >
-                  <option value="actions">Action only</option>
-                  <option value="forecasts">Action + forecasts</option>
-                </select>
-              </label>
-              <label>
-                Interaction
-                <select value={horizon} onChange={(e) => setHorizon(e.target.value)}>
-                  <option value="geometric">{CONTINUATION_PROBABILITY * 100}% continuation</option>
-                  <option value="1">One decision</option>
-                  <option value="10">Known final round · 10 rounds</option>
-                </select>
-              </label>
-              <label>
-                Estimated session limit · USD
-                <input
-                  type="number"
-                  min="0.001"
-                  max="5"
-                  step="0.001"
-                  required
-                  value={cap}
-                  onChange={(e) => setCap(Number(e.target.value))}
-                />
-              </label>
-            </div>
-            <p className="muted">
-              {protocol === 'actions'
-                ? 'Players submit one action. The analyst shows verified incentives without inventing beliefs.'
-                : 'Players seal numeric forecasts with each action. Analysis checks reported consistency and forecast error; reports are not verified internal beliefs.'}
-            </p>
+                      <option value="1">One decision</option>
+                      <option value="10">Known final round · 10 rounds</option>
+                    </select>
+                  </label>
+                  <label>
+                    Estimated session limit · USD
+                    <input
+                      type="number"
+                      min="0.001"
+                      max="5"
+                      step="0.001"
+                      required
+                      value={cap}
+                      onChange={(e) => setCap(Number(e.target.value))}
+                    />
+                  </label>
+                </div>
+                <p className="muted">
+                  {protocol === 'actions'
+                    ? 'Players submit one action. The analyst shows verified incentives without inventing beliefs.'
+                    : 'Players seal numeric forecasts with each action. Analysis checks reported consistency and forecast error; reports are not verified internal beliefs.'}
+                </p>
+              </>
+            )}
             <div className="pd-payoffs pd-before-payoffs">
               <PayoffTable />
               <small>
                 Each player maximises expected own total points. Choices are simultaneous and
                 revealed together.{' '}
-                {horizon === 'geometric'
-                  ? `After each round, an independent draw continues play with probability ${CONTINUATION_PROBABILITY * 100}%. Expected length is ${EXPECTED_GEOMETRIC_ROUNDS} rounds, with no announced final round.`
-                  : `Exactly ${horizon} announced ${horizon === '1' ? 'round' : 'rounds'}.`}
+                {browserOnly
+                  ? 'The free demo uses ten announced rounds, with a random policy and a reciprocal policy.'
+                  : horizon === 'geometric'
+                    ? `After each round, an independent draw continues play with probability ${CONTINUATION_PROBABILITY * 100}%. Expected length is ${EXPECTED_GEOMETRIC_ROUNDS} rounds, with no announced final round.`
+                    : `Exactly ${horizon} announced ${horizon === '1' ? 'round' : 'rounds'}.`}
               </small>
             </div>
             <div className="pd-setup-actions">
+              {!browserOnly && (
+                <>
+                  <button
+                    className="primary"
+                    type="submit"
+                    disabled={controlsDisabled || !eligible.length || Boolean(anyRunning)}
+                  >
+                    Start autonomous interaction →
+                  </button>
+                  <button
+                    className="quiet"
+                    type="button"
+                    disabled={busy}
+                    onClick={() =>
+                      void act(async () => {
+                        const ms = await api<ModelInfo[]>('/models/refresh', {});
+                        setModels(ms);
+                        const ids = ms
+                          .filter((m) => m.available && m.inputRate !== null)
+                          .map((m) => m.id);
+                        setSelected([
+                          ids.includes(selected[0]) ? selected[0] : (ids[0] ?? ''),
+                          ids.includes(selected[1]) ? selected[1] : (ids[1] ?? ids[0] ?? ''),
+                        ]);
+                      })
+                    }
+                  >
+                    Refresh models
+                  </button>
+                </>
+              )}
               <button
-                className="primary"
-                type="submit"
-                disabled={controlsDisabled || !eligible.length || Boolean(anyRunning)}
-              >
-                Start autonomous interaction →
-              </button>
-              <button
-                className="quiet"
-                type="button"
-                disabled={busy}
-                onClick={() =>
-                  void act(async () => {
-                    const ms = await api<ModelInfo[]>('/models/refresh', {});
-                    setModels(ms);
-                    const ids = ms
-                      .filter((m) => m.available && m.inputRate !== null)
-                      .map((m) => m.id);
-                    setSelected([
-                      ids.includes(selected[0]) ? selected[0] : (ids[0] ?? ''),
-                      ids.includes(selected[1]) ? selected[1] : (ids[1] ?? ids[0] ?? ''),
-                    ]);
-                  })
-                }
-              >
-                Refresh models
-              </button>
-              <button
-                className="text-button"
+                className={browserOnly ? 'primary' : 'text-button'}
                 type="button"
                 disabled={controlsDisabled || Boolean(anyRunning)}
                 onClick={() => start(true)}
@@ -684,30 +685,32 @@ export function DilemmaPage({
                 Run free ten-round local demo
               </button>
             </div>
-            {!health?.keyConfigured && (
+            {!browserOnly && !health?.keyConfigured && (
               <p className="notice">
                 Autonomous play needs the server’s Nebius key. The explicitly local demo uses two
                 simple policies, not models. The local demo always uses ten announced rounds.
               </p>
             )}
-            <details>
-              <summary>Protocol details</summary>
-              <p>
-                Rules only · temperature 0 · reasoning requested off ·{' '}
-                {protocol === 'actions' ? 128 : 256} output tokens · no corrections · completed
-                history rebuilt each round. Analysis never coaches either player.
-              </p>
-              <label>
-                Neutral action mapping
-                <select
-                  value={mapping}
-                  onChange={(e) => setMapping(e.target.value as typeof mapping)}
-                >
-                  <option value="X=C">X = C, Y = D</option>
-                  <option value="X=D">X = D, Y = C</option>
-                </select>
-              </label>
-            </details>
+            {!browserOnly && (
+              <details>
+                <summary>Protocol details</summary>
+                <p>
+                  Rules only · temperature 0 · reasoning requested off ·{' '}
+                  {protocol === 'actions' ? 128 : 256} output tokens · no corrections · completed
+                  history rebuilt each round. Analysis never coaches either player.
+                </p>
+                <label>
+                  Neutral action mapping
+                  <select
+                    value={mapping}
+                    onChange={(e) => setMapping(e.target.value as typeof mapping)}
+                  >
+                    <option value="X=C">X = C, Y = D</option>
+                    <option value="X=D">X = D, Y = C</option>
+                  </select>
+                </label>
+              </details>
+            )}
           </form>
         )}
         {session && (
@@ -729,19 +732,30 @@ export function DilemmaPage({
                 agents see {session.config.mapping === 'X=C' ? 'X=C, Y=D' : 'X=D, Y=C'}
               </span>
             </div>
-            <section className="pd-costs" aria-label="Estimated API costs">
-              <span>
-                Interaction <strong>{money(session.spentUsd)} USD</strong>
-              </span>
-              <span>
-                Reserved <strong>{money(session.reservedUsd)}</strong>
-              </span>
-              <span>
-                Limit <strong>{money(session.config.maxUsd)}</strong>
-              </span>
-              <span>
-                Across app <strong>{money(health?.sessionSpentUsd ?? 0)}</strong>
-              </span>
+            <section
+              className="pd-costs"
+              aria-label={browserOnly ? 'Play costs' : 'Estimated API costs'}
+            >
+              {browserOnly ? (
+                <span>
+                  Free browser demo · <strong>$0</strong> · no model requests
+                </span>
+              ) : (
+                <>
+                  <span>
+                    Interaction <strong>{money(session.spentUsd)} USD</strong>
+                  </span>
+                  <span>
+                    Reserved <strong>{money(session.reservedUsd)}</strong>
+                  </span>
+                  <span>
+                    Limit <strong>{money(session.config.maxUsd)}</strong>
+                  </span>
+                  <span>
+                    Across app <strong>{money(health?.sessionSpentUsd ?? 0)}</strong>
+                  </span>
+                </>
+              )}
             </section>
             {analysisOnly && <Profile session={session} />}
             <div className={analysisOnly ? 'pd-analysis-layout' : 'pd-layout'}>
@@ -885,16 +899,18 @@ export function DilemmaPage({
             {!analysisOnly && <Profile session={session} />}
             <details className="pd-records">
               <summary>Replay, audit & protocol</summary>
-              <p>
-                {session.config.protocol === 'forecasts' ? '256' : '128'} output tokens per model
-                decision · temperature 0 · reasoning requested off · no strategic feedback. Protocol
-                failures and operational interruptions earn no invented points.
-              </p>
+              {!browserOnly && (
+                <p>
+                  {session.config.protocol === 'forecasts' ? '256' : '128'} output tokens per model
+                  decision · temperature 0 · reasoning requested off · no strategic feedback.
+                  Protocol failures and operational interruptions earn no invented points.
+                </p>
+              )}
               <p>
                 {session.attempts} attempts · {session.invalidAttempts} invalid decisions ·{' '}
                 {session.endReason ?? 'no end reason yet'}
               </p>
-              {round && (
+              {!browserOnly && round && (
                 <p>
                   Selected round:{' '}
                   {round.telemetry
@@ -907,25 +923,27 @@ export function DilemmaPage({
                 </p>
               )}
               <div className="pd-downloads">
-                <a href={`/api/dilemma/sessions/${session.id}/export/html`} download>
+                <ExportLink path={`/dilemma/sessions/${session.id}/export/html`}>
                   Offline replay
-                </a>
-                <a href={`/api/dilemma/sessions/${session.id}/export/json`} download>
-                  Full JSON + committed request audit
-                </a>
-                <a href={`/api/dilemma/sessions/${session.id}/export/jsonl`} download>
-                  JSONL
-                </a>
+                </ExportLink>
+                <ExportLink path={`/dilemma/sessions/${session.id}/export/json`}>
+                  {browserOnly
+                    ? 'Full JSON · local decisions'
+                    : 'Full JSON + committed request audit'}
+                </ExportLink>
+                <ExportLink path={`/dilemma/sessions/${session.id}/export/jsonl`}>JSONL</ExportLink>
               </div>
-              <p className="muted">
-                Costs are estimates from provider usage and the dated catalog; missing usage retains
-                a conservative reservation. Unresolved responses remain private in exports. Stopping
-                randomness is disclosed only after natural completion.
-              </p>
+              {!browserOnly && (
+                <p className="muted">
+                  Costs are estimates from provider usage and the dated catalog; missing usage
+                  retains a conservative reservation. Unresolved responses remain private in
+                  exports. Stopping randomness is disclosed only after natural completion.
+                </p>
+              )}
             </details>
           </>
         )}
-        {health && (
+        {!browserOnly && health && (
           <details className="pd-records">
             <summary>Shared app budget</summary>
             <p>
@@ -991,8 +1009,18 @@ export function DilemmaPage({
           )}
         </details>
         <footer className="app-footer">
-          <span>{health?.keyConfigured ? 'Server key configured' : 'No model key configured'}</span>
-          <span>Choices, rules, and analysis save automatically.</span>
+          <span>
+            {browserOnly
+              ? 'Free browser play'
+              : health?.keyConfigured
+                ? 'Server key configured'
+                : 'No model key configured'}
+          </span>
+          <span>
+            {browserOnly
+              ? 'Choices and analysis save in this browser when storage is available.'
+              : 'Choices, rules, and analysis save automatically.'}
+          </span>
         </footer>
       </main>
     </div>

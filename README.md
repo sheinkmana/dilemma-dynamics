@@ -25,7 +25,7 @@ Dilemma**. Both players choose privately each round. They can gain together
 through mutual cooperation, even though each has an immediate incentive to
 defect. Future responses can change the value of that choice.
 
-The full local app also includes a separate **board-game side project**:
+Both the local app and the public website include a separate **board-game side project**:
 Dots & Boxes and Tic-tac-toe. These are competitive games on a fully visible
 board, useful for exploring tactics, search and decision inspection.
 
@@ -38,8 +38,8 @@ board, useful for exploring tactics, search and decision inspection.
 Giving away a box can be a tactic for winning more later; it does not enlarge
 the total reward available to both players. The published **3,552 episodes across temperatures 1 and 0
 cover the dilemma**, while board-game matches and solver checks belong to the
-recreational side project. The public website demo includes the dilemma study's
-recordings and results only. Read [why these are different kinds of games](docs/GAME_TYPES.md).
+recreational side project. The public website includes free browser gameplay,
+lessons and analysis alongside the dilemma study’s recordings and results. Read [why these are different kinds of games](docs/GAME_TYPES.md).
 
 ## Study results
 
@@ -99,8 +99,18 @@ These entry points need no API server. Live play and local-policy sessions requi
 `npm start`; static preview is not a hosted deployment.
 
 For the standalone Jekyll demo at `/dilemma-dynamics/`, run `npm run build:public`.
-This produces `dist/web/` with a separate browser entry that opens Study replay
-and includes only replay and Results. Preview it with `npm run preview:public`. It makes no API or inference requests.
+This produces `dist/web/` with the same five sections as the local app: Dilemma,
+Analysis, Study replay, Results, and Board games. It opens Study replay by default;
+`#dilemma`, `#analysis`, `#replay`, `#results`, and `#recreational` are direct links.
+Preview it with `npm run preview:public`. Free play runs entirely in the browser:
+the ten-round Dilemma demo uses random and reciprocal policies, and the board
+games offer simple and random bots. Pause/resume, single-round stepping, analysis,
+saved history and replay downloads work without an API server or key. Progress
+saves in browser storage when available; reloading pauses unfinished games until
+Resume is chosen. Downloads keep a separate copy. Live model runs and server
+shutdown are available only in the local app. Study recordings, results and
+research downloads remain available in both builds. The public build makes no API
+or inference requests.
 Copy that directory's contents into the website's `dilemma-dynamics/` directory, along
 with `LICENSE` as `LICENSE.txt`. See [Jekyll demo preparation](docs/JEKYLL_DEMO.md)
 for build, export, and verification instructions.
