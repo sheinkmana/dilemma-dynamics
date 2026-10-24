@@ -2,6 +2,7 @@
 
 import csv
 import json
+import tempfile
 from collections import Counter, defaultdict
 from decimal import Decimal
 from pathlib import Path
@@ -68,6 +69,14 @@ def request_rows(events):
         choice = (response.get("choices") or [{}])[0]
         choice = choice if isinstance(choice, dict) else {}
         phase = "draft" if body["chat_template_kwargs"]["enable_thinking"] else "action"
+        procedure = (
+            "draft"
+            if phase == "draft" or any(m["role"] == "assistant" for m in body["messages"])
+            else "direct"
+        )
+        arm_id = next(
+            a["id"] for a in ARMS if a["model"] == body["model"] and a["procedure"] == procedure
+        )
         logical = attempts[key]["logicalKey"]
         rows.append(
             {
@@ -75,6 +84,8 @@ def request_rows(events):
                 "episodeId": logical.split("/")[0],
                 "temperature": body["temperature"],
                 "model": body["model"],
+                "arm": arm_id,
+                "procedure": procedure,
                 "phase": phase,
                 "attempt": attempts[key]["number"],
                 "logicalId": logical,
@@ -159,6 +170,37 @@ def summarise(directory):
     selection = read(directory / "selection.json")
     episodes = read(directory / f"schedule-{selection['selectedBlocks']}.json")
     events = read_events(directory / "final/events.jsonl")
+    samples = [
+        {"id": e["id"], "kind": "episode", "temperature": e["temperature"], "episode": e}
+        for e in episodes
+    ]
+    first = events[0]
+    if (
+        first.get("specSha256") != spec["sha256"]
+        or first.get("scheduleSha256") != digest(samples)
+        or first.get("selectionSha256") != digest(selection)
+    ):
+        raise ValueError(
+            "Recorded final identity differs from the specification or selected schedule"
+        )
+    if first.get("sourceSha256") != read(directory / "preparation.json")["sourceSha256"]:
+        raise ValueError("Recorded source identity differs")
+    expected = {e["id"] for e in episodes}
+    if any(
+        r["episodeId"] not in expected
+        for r in events
+        if r["event"] in ("round-revealed", "episode-ended")
+    ):
+        raise ValueError("Canonical ledger contains episodes outside the selected schedule")
+    if first["execution"] == "tokenfactory":
+        from .runner import choose_schedule
+
+        if selection != choose_schedule(directory, selection["selectionUnix"]):
+            raise ValueError(
+                "Final schedule does not reproduce from independent engineering telemetry"
+            )
+        if selection["selectionUnix"] > read(directory / "final/clock.json")["startedUnix"]:
+            raise ValueError("Final selection occurred after the scientific stage started")
     rows = episode_rows({"episodes": episodes}, events)
     complete = [r for r in rows if r["status"] == "completed"]
     block_means = {}
@@ -273,6 +315,54 @@ def summarise(directory):
             )
     requests = request_rows(events)
     decisions = decision_rows(rows, requests)
+    arms = []
+    for t in (0, 1):
+        for arm in ARMS:
+            benchmark = [
+                r
+                for r in complete
+                if r["temperature"] == t
+                and r["track"] == "A"
+                and r["players"][r["subjectSeat"]] == arm["id"]
+            ]
+            actions = [
+                r
+                for r in decisions
+                if r["temperature"] == t and r["arm"] == arm["id"] and r["track"] == "A"
+            ]
+            calls = [r for r in requests if r["temperature"] == t and r["arm"] == arm["id"]]
+            drafts = [r for r in calls if r["phase"] == "draft"]
+            durations = [r["seconds"] for r in calls if r["seconds"] is not None]
+            arms.append(
+                {
+                    "temperature": t,
+                    "arm": arm["id"],
+                    "benchmarkCompleted": len(benchmark),
+                    "meanOracleLoss": mean(r["normalisedOracleLoss"] for r in benchmark)
+                    if benchmark
+                    else None,
+                    "zeroLossEpisodes": sum(r["normalisedOracleLoss"] == 0 for r in benchmark),
+                    "benchmarkDecisions": len(actions),
+                    "zeroGapDecisions": sum(r["oracleGap"] == 0 for r in actions),
+                    "requests": len(calls),
+                    "promptTokens": sum(r["promptTokens"] or 0 for r in calls),
+                    "completionTokens": sum(r["completionTokens"] or 0 for r in calls),
+                    "drafts": len(drafts),
+                    "cappedDrafts": sum(r["draftCapped"] for r in drafts),
+                    "requestMedianSeconds": float(np.median(durations)) if durations else None,
+                    "requestP95Seconds": float(np.quantile(durations, 0.95)) if durations else None,
+                    "estimatedUsd": str(
+                        sum(
+                            (
+                                Decimal(r["estimatedUsd"])
+                                for r in calls
+                                if r["estimatedUsd"] is not None
+                            ),
+                            Decimal(0),
+                        )
+                    ),
+                }
+            )
     bounds = []
     for t in (0, 1):
         for model in ("nano", "super"):
@@ -316,6 +406,7 @@ def summarise(directory):
         "reservedUsd": events[-1].get("reservedUsd"),
         "spentUsd": events[-1].get("spentUsd"),
         "requestCount": len(requests),
+        "arms": arms,
         "contrasts": contrasts,
         "scheduledOutcomeBounds": bounds,
         "cooperation": crossplay,
@@ -336,15 +427,15 @@ def export(directory):
     """Write a new derived export; never changes a plan, ledger or public dataset."""
     directory = Path(directory)
     report, rows, requests, decisions, conditions = summarise(directory)
-    output = directory / ("export-" + report["evidenceHead"][:12])
-    if output.exists():
-        verify_export(directory, output)
+    target = directory / ("export-" + report["evidenceHead"][:12])
+    if target.exists():
+        verify_export(directory, target)
         return {
-            "export": str(output),
+            "export": str(target),
             "complete": report["complete"],
             "completed": report["completed"],
         }
-    output.mkdir()
+    output = Path(tempfile.mkdtemp(prefix=".export-staging-", dir=directory))
     write_json(output / "summary.json", report)
     # Only revealed actions and numerical telemetry go into this release candidate.
     write_json(output / "episodes.json", rows)
@@ -352,17 +443,27 @@ def export(directory):
     csv_write(output / "requests.csv", requests)
     csv_write(output / "decisions.csv", decisions)
     csv_write(output / "conditions.csv", conditions)
+    csv_write(output / "arms.csv", report["arms"])
     csv_write(output / "crossplay.csv", report["cooperation"])
     csv_write(
         output / "contrasts.csv",
         [{**c, "interval": json.dumps(c["interval"])} for c in report["contrasts"]],
     )
+    import pyarrow as pa
+    import pyarrow.parquet as pq
+
+    for name, values in (("decisions", decisions), ("requests", requests)):
+        if values:
+            pq.write_table(pa.Table.from_pylist(values), output / f"{name}.parquet")
+    (output / "report.md").write_text(report_text(report))
+    render_primary(report, output / "primary-contrasts.png")
     write_json(
         output / "manifest.json",
         {p.name: hash_file(p) for p in sorted(output.iterdir()) if p.is_file()},
     )
     verify_export(directory, output)
-    return {"export": str(output), "complete": report["complete"], "completed": report["completed"]}
+    output.rename(target)
+    return {"export": str(target), "complete": report["complete"], "completed": report["completed"]}
 
 
 def verify_export(directory, output):
@@ -391,6 +492,7 @@ def verify_export(directory, output):
         "requests.csv": requests,
         "decisions.csv": decisions,
         "conditions.csv": conditions,
+        "arms.csv": report["arms"],
         "crossplay.csv": report["cooperation"],
         "contrasts.csv": [
             {**c, "interval": json.dumps(c["interval"])} for c in report["contrasts"]
@@ -401,4 +503,116 @@ def verify_export(directory, output):
             raise ValueError("Derived CSV does not reproduce: " + name)
     if read(output / "spec.json") != read(directory / "spec.json"):
         raise ValueError("Exported specification differs")
+    import pyarrow.parquet as pq
+
+    for name, values in (("decisions", decisions), ("requests", requests)):
+        if values and pq.read_table(output / f"{name}.parquet").to_pylist() != values:
+            raise ValueError("Derived Parquet does not reproduce: " + name)
+    if (output / "report.md").read_text() != report_text(report):
+        raise ValueError("Report does not reproduce")
     return report
+
+
+def report_text(report):
+    lines = [
+        "# Dilemma Dynamics: joint-temperature final evaluation",
+        "",
+        f"Execution: **{report['execution']}**. Complete: **{report['complete']}**.",
+        f"Completed {report['completed']}/{report['scheduled']} episodes; "
+        f"{report['selectedBlocksPerTemperature']} matched blocks per temperature.",
+        f"Final estimated inference: ${report['spentUsd']}; unresolved reservations: ${report['reservedUsd']}.",
+        "Engineering and historical campaign charges are separate. Estimates are not provider invoices.",
+        "",
+        "Direct uses a single thinking-off action. Draft uses a capped thinking-on draft, "
+        "then a separate thinking-off action. All choices are simultaneous and private until reveal.",
+        "",
+        "## Procedure results",
+        "",
+        "| Model/procedure | Temperature | Mean benchmark loss | Capped drafts / drafts | Estimated USD |",
+        "|---|---:|---:|---|---:|",
+    ]
+    for arm in report["arms"]:
+        lines.append(
+            f"| {arm['arm']} | {arm['temperature']} | {arm['meanOracleLoss']} | "
+            f"{arm['cappedDrafts']}/{arm['drafts']} | {arm['estimatedUsd']} |"
+        )
+    lines += [
+        "",
+        "## Primary benchmark comparisons",
+        "",
+        "Lower exact own-payoff loss is better. Negative Draft-minus-Direct favours Draft.",
+        "",
+        "| Model | Temperature | Draft minus Direct | Approximate 98.75% interval |",
+        "|---|---:|---:|---|",
+    ]
+    for c in report["contrasts"]:
+        if c["family"] == "primary":
+            value = "unavailable" if c["estimate"] is None else f"{c['estimate']:.6f}"
+            limits = (
+                "insufficient replication"
+                if c["interval"] is None
+                else f"[{c['interval'][0]:.6f}, {c['interval'][1]:.6f}]"
+            )
+            lines.append(f"| {c['model']} | {c['temperature']} | {value} | {limits} |")
+    lines += [
+        "",
+        "Four primary comparisons use approximate Bonferroni family control; coverage is not guaranteed.",
+        "The six secondary contrasts and nominal 95% intervals are in contrasts.csv.",
+        "",
+        "![Primary contrasts](primary-contrasts.png)",
+        "",
+        "## Autonomous interaction",
+        "",
+        "| Temperature | Pairing | CC / rounds | Episode-weighted CC | Normalised joint return |",
+        "|---:|---|---|---|---|",
+    ]
+    for c in report["cooperation"]:
+        lines.append(
+            f"| {c['temperature']} | {c['cell']} | {c['CC']}/{c['rounds']} | "
+            f"{c['episodeWeightedCC']} | {c['meanNormalisedJointReturn']} |"
+        )
+    lines += [
+        "",
+        "Dependent rounds are not independent trials. Cooperation and benchmark decision quality are distinct.",
+        "",
+        "## Limits and provenance",
+        "",
+        *["- " + s for s in report["limitations"]],
+        "",
+        "- Earlier exploratory outcomes informed this design but are not pooled into the final observations.",
+        f"- Specification: `{report['specSha256']}`.",
+        f"- Source: `{report['sourceSha256']}`.",
+        f"- Canonical evidence head: `{report['evidenceHead']}`.",
+        "",
+        "Actions, exact decision gaps, request telemetry, condition means and CSV/Parquet tables "
+        "are derived offline. Private drafts and raw responses stay in the retained evidence.",
+        "",
+    ]
+    return "\n".join(lines)
+
+
+def render_primary(report, path):
+    import matplotlib
+
+    matplotlib.use("Agg")
+    from matplotlib import pyplot as plt
+
+    comparisons = [c for c in report["contrasts"] if c["family"] == "primary"]
+    fig, ax = plt.subplots(figsize=(8, 3.5), constrained_layout=True)
+    for i, c in enumerate(comparisons):
+        if c["estimate"] is None:
+            continue
+        ax.plot(c["estimate"], i, "o", color="#164e63")
+        if c["interval"]:
+            ax.hlines(i, *c["interval"], color="#164e63", linewidth=2)
+    ax.axvline(0, color="#64748b", linestyle="--", linewidth=1)
+    ax.set_yticks(
+        range(len(comparisons)),
+        [f"{c['model'].title()} · temperature {c['temperature']}" for c in comparisons],
+    )
+    ax.invert_yaxis()
+    ax.set_xlabel("Draft − Direct normalised oracle loss (negative favours Draft)")
+    ax.set_title("Primary comparisons · approximate 98.75% intervals")
+    ax.grid(axis="x", alpha=0.2)
+    fig.savefig(path, dpi=160, metadata={"Software": "Dilemma Dynamics frozen evaluation"})
+    plt.close(fig)

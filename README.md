@@ -115,6 +115,16 @@ Copy that directory's contents into the website's `dilemma-dynamics/` directory,
 with `LICENSE` as `LICENSE.txt`. See [Jekyll demo preparation](docs/JEKYLL_DEMO.md)
 for build, export, and verification instructions.
 
+## One app, website or terminal
+
+Both versions use the same interface and include free games, lessons, analysis,
+Study replay, Results and downloads. Launch locally from the terminal for live
+NVIDIA Nemotron API calls through Nebius Token Factory. The public website is
+static: embedding a paid API key in browser code would expose it to visitors.
+The local app keeps your key on its localhost server. This is why the website
+runs free browser bots and saved recordings, while live calls stay local.
+See the Run instructions above for setup; your own live calls can incur charges.
+
 ## NVIDIA and Nebius integration
 
 Nebius Token Factory executes the model requests; the app and evaluation

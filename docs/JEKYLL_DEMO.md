@@ -2,6 +2,12 @@
 
 ## Free browser gameplay · 24 October 2026
 
+Published to the website in commit `0ee5968`. Its GitHub deployment workflow passed,
+and the live `/dilemma-dynamics/` page was checked with free browser play, both
+provider logos, the local/API explanation, Study replay and Results. The 31
+previously published research files were retained byte for byte; concurrent
+research edits in the app checkout were excluded from this interface release.
+
 The public build now shares the full app’s interface and all five sections:
 Dilemma, Analysis, Study replay, Results, and Board games. Both temperature studies,
 recorded episodes, filters, lessons, report and data downloads remain available.
@@ -26,6 +32,11 @@ Frozen study sources, evidence and the public research package are unchanged.
 Rebuild and replace the website’s demo directory using the commands below. This
 repository change alone does not update the separate website checkout or publish
 its deployed copy. Verify free games as well as Replay and Results before release.
+
+Small Nebius and NVIDIA logos appear in every section header in both builds.
+The shared access note explains that the interfaces and free features are the
+same, and that live API calls require a terminal launch. This static site cannot
+keep an embedded paid key private; the local server holds the key instead.
 
 ## Earlier deployment records
 

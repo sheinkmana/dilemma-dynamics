@@ -27,6 +27,7 @@ def main():
     elif args.command == "analyse":
         from .analysis import export
 
+        verify(directory, check_runtime=False)
         result = export(directory)
     elif args.command == "release-check":
         result = release_check(directory)

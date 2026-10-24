@@ -32,7 +32,8 @@ a public dataset of 3,552 completed episodes and offline score reproduction.
 Educational outcomes and real-world negotiation performance have not been evaluated.
 
 \section{Design}
-We compared Nano (30B-A3B) and Super (120B-A12B). Hosted IDs:
+We compared Nano (30B-A3B) \cite{nemotron-nano} and
+Super (120B-A12B) \cite{nemotron-super}. Hosted IDs:
 \begin{itemize}
 \item \texttt{nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B}
 \item \texttt{nvidia/nemotron-3-super-120b-a12b}
@@ -41,7 +42,8 @@ Players maximised expected own cumulative points in a repeated Prisoner's Dilemm
 \(CC=(3,3)\), \(CD=(0,5)\), \(DC=(5,0)\), \(DD=(1,1)\).
 Choices stayed private until both players acted.
 
-Direct used one thinking-off action request (128-token cap). Draft used a
+Direct used one thinking-off action request (128-token cap). NVIDIA documents
+thinking controls in its model cards \cite{nemotron-cards}. Draft used a
 thinking-on draft (1,024-token cap), then a separate thinking-off action request
 (128-token cap). Both received full completed history; only the current draft
 was added to the action request. Each completed study used its selected temperature
@@ -57,7 +59,6 @@ Four label/seat strata have six blocks each. Episode order, IDs, environment see
 stopping lengths and presentations match across temperatures. Provider sampling
 randomness was not matched. A geometric game's final round was hidden when choosing.
 
-\clearpage
 \section{Scoring and primary results}
 At state \(s_t\), the gap for action \(a_t\) is
 \(g_t=V^*(s_t)-Q^*(s_t,a_t)\), with optimal continuation after that action.
@@ -236,7 +237,8 @@ confirmatory preregistrations.
 
 One environment schedule, four policies, fixed payoffs and one provider window
 per temperature limit generalisation. Provider IDs do not authenticate immutable
-weight versions. Draft text is not verified internal belief. Extra requests,
+weight versions or serving configurations; NVIDIA's references describe the
+model families and public implementations. Draft text is not verified internal belief. Extra requests,
 compute, thinking settings and draft conditioning change together. The temperature
 comparison followed earlier outcome inspection and is confounded by execution
 windows and recovery policies. No universal reasoning superiority, causal
@@ -275,14 +277,41 @@ and requests reasoning off; its sessions do not reproduce the scientific Draft p
 
 \clearpage
 \section{Related work}
-Akata et al.\ \cite{akata} study LLM behaviour in repeated games and a social
-chain-of-thought intervention. Fontana et al.\ \cite{fontana} examine cooperative
-behaviour against adversaries of varying hostility. Pal et al.\ \cite{pal}
-examine strategies, continuation probabilities, horizons and framing in repeated
-Prisoner's Dilemma. Our narrower contribution compares bounded Direct/Draft
-procedures in two hosted Nemotron deployments using exact committed-opponent
-loss and a matched temperature sensitivity analysis, alongside autonomous pairing
-outcomes. It does not establish superiority over those studies' models, tasks or methods.
+Rasmusen \cite{rasmusen} provides the theoretical foundation for distinguishing
+best responses, equilibrium and repeated-game incentives. Four empirical papers
+place the present study in the LLM literature.
+
+Akata et al.\ \cite{akata} examine finitely repeated games against LLMs,
+programmed policies and humans. Their social chain-of-thought procedure asks
+GPT-4 to predict its opponent's action before choosing its own, improving
+coordination in their experiments. This is a close precedent for testing
+deliberation procedures, although our bounded Draft procedure does not require
+an explicit opponent prediction.
+
+Fontana et al.\ \cite{fontana} test three LLMs in 100-round Prisoner's Dilemma
+games against random opponents with varying cooperation probabilities, after
+checking rule and history comprehension. Their model-dependent responses to
+hostility motivate opponent-specific reporting; their appendix also examines
+temperature sensitivity. Their cooperation measures differ from our exact
+own-payoff loss against disclosed policies.
+
+Pal et al.\ \cite{pal} elicit decisions across possible one- and two-round
+histories to infer strategies and assess equilibrium properties, while varying
+stopping probabilities, payoffs, horizons and framing. This distinguishes
+strategy elicitation from our observed trajectories: autonomous cooperation
+counts alone do not identify a complete strategy or certify equilibrium.
+
+Taylor and Bergen \cite{taylor} measure action--message incongruence in 2$\times$2
+cheap-talk games, finding sensitivity to incentives and message timing, with
+correlational associations with reasoning performance. Their work motivates
+separating payoff competence from honesty. Our players cannot communicate;
+defection alone is not evidence of deception, and we do not test whether drafting
+increases deception.
+
+Our narrower contribution compares bounded Direct/Draft procedures in two hosted
+Nemotron deployments using exact committed-opponent loss and a matched
+temperature sensitivity analysis, alongside autonomous pairing outcomes. Different
+models, prompts and outcomes preclude direct performance rankings across these studies.
 
 \section{Reproduction and public evidence}
 Repository: \href{https://github.com/sheinkmana/dilemma-dynamics}{github.com/sheinkmana/dilemma-dynamics}.
@@ -312,7 +341,8 @@ independently authenticate provider identity, transport history, raw event chain
 or billing. Checksums detect changes; they are not signatures. Reference works
 are cited and are not redistributed.
 
-\begin{thebibliography}{4}
+\begin{thebibliography}{8}
+\raggedright
 \bibitem{rasmusen}
 Eric Rasmusen.
 \emph{Games and Information: An Introduction to Game Theory}.
@@ -320,14 +350,32 @@ Supplied fourth-edition draft, chapter headers dated 2005.
 Sections 1.2, 4.1, 5.1--5.2 and 6.5.
 \bibitem{akata}
 Elif Akata et al. \emph{Playing repeated games with Large Language Models}.
-\href{https://arxiv.org/abs/2305.16867}{arXiv:2305.16867}, 2023; revised 2025.
+\href{https://arxiv.org/abs/2305.16867v2}{arXiv:2305.16867v2}, 2025 (first posted 2023).
 \bibitem{fontana}
 Nicol\`o Fontana, Francesco Pierri and Luca Maria Aiello.
 \emph{Nicer Than Humans: How do Large Language Models Behave in the Prisoner's Dilemma?}
-\href{https://arxiv.org/abs/2406.13605}{arXiv:2406.13605}, 2024.
+\href{https://arxiv.org/abs/2406.13605v2}{arXiv:2406.13605v2}, 2024.
 \bibitem{pal}
 Saptarshi Pal et al. \emph{Strategies of cooperation and defection in five large language models}.
-\href{https://arxiv.org/abs/2601.09849}{arXiv:2601.09849}, 2026.
+\href{https://arxiv.org/abs/2601.09849v1}{arXiv:2601.09849v1}, 2026.
+\bibitem{taylor}
+Samuel M. Taylor and Benjamin K. Bergen.
+\emph{When Do Large Language Models Exhibit Unsolicited Deception?}
+\href{https://arxiv.org/abs/2504.00285v2}{arXiv:2504.00285v2}, 2026 (first posted 2025).
+\bibitem{nemotron-nano}
+NVIDIA.
+\emph{Nemotron 3 Nano: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning}.
+\href{https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Nano-Technical-Report.pdf}{Technical report}, 23 December 2025.
+\bibitem{nemotron-super}
+NVIDIA.
+\emph{Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid Mamba-Transformer Model for Agentic Reasoning}.
+\href{https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf}{Technical report}, 3 April 2026 revision.
+\bibitem{nemotron-cards}
+NVIDIA.
+\emph{Nemotron 3 model cards and inference documentation}:
+\href{https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16}{Nano 30B-A3B-BF16} and
+\href{https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16}{Super 120B-A12B-BF16}.
+Thinking on/off controls; accessed 24 October 2026.
 \end{thebibliography}
 
 \end{document}

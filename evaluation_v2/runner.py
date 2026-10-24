@@ -12,7 +12,7 @@ from pathlib import Path
 from statistics import mean
 
 import httpx
-from gamefield_research.core import metrics
+from gamefield_research.core import metrics, reward
 from gamefield_research.design import ARMS, digest
 from gamefield_research.engineering import OLD_CONCISE
 from gamefield_research.gateway import GlobalStop, read_events
@@ -26,6 +26,24 @@ from inspect_ai.scorer import Score, scorer
 from inspect_ai.solver import solver
 
 from .design import ALLOCATION, CANDIDATES, read, verify
+
+
+class InspectLedger(RecoveryLedger):
+    """Mirror durable joint reveals into the active native sample transcript."""
+
+    def event(self, event, **data):
+        row = super().event(event, **data)
+        if event == "round-revealed":
+            a, b = data["actions"]
+            transcript().info(
+                {
+                    **data,
+                    "payoffs": [reward(a, b), reward(b, a)],
+                    "canonicalEventSha256": row["sha256"],
+                },
+                source="joint-reveal",
+            )
+        return row
 
 
 def exclusive_json(path, value):
@@ -106,9 +124,16 @@ async def evaluate_stage(directory, stage, samples, *, transport=None):
     deadline = read(clock_path)["deadlineUnix"]
     if now >= deadline:
         raise ValueError("The original stage clock has expired; no renewal")
+    selection = (
+        read(directory / "selection.json")
+        if stage == "final" and (directory / "selection.json").exists()
+        else None
+    )
+    if stage == "final" and transport is None and selection is None:
+        raise ValueError("Final selection identity is missing")
     path = work / "events.jsonl"
     policy = spec["recoveryPolicy"]
-    ledger = RecoveryLedger(
+    ledger = InspectLedger(
         path,
         ALLOCATION[stage],
         policy["retryExposureUsd"][stage],
@@ -125,6 +150,7 @@ async def evaluate_stage(directory, stage, samples, *, transport=None):
         "capUsd": ALLOCATION[stage],
         "prices": read(directory / "prices.json")["prices"],
         "recoveryPolicy": policy,
+        "selectionSha256": digest(selection) if selection is not None else None,
     }
     if ledger.rows:
         if any(ledger.rows[0].get(k) != v for k, v in identity.items()):
@@ -278,7 +304,12 @@ def telemetry(events):
             continue
         body = requests[r["key"]]
         phase = "draft" if body["chat_template_kwargs"]["enable_thinking"] else "action"
-        groups[(body["temperature"], body["model"], phase)].append(
+        procedure = (
+            "draft"
+            if phase == "draft" or any(m["role"] == "assistant" for m in body["messages"])
+            else "direct"
+        )
+        groups[(body["temperature"], body["model"], procedure, phase)].append(
             {
                 "key": r["key"],
                 "usage": r["response"]["usage"],
@@ -305,7 +336,7 @@ def engineering_report(directory):
     valid &= len(completed_bank) == 284 and len(completed_episodes) == 52
     for t in (0, 1):
         for arm in ARMS:
-            drafts = groups[(t, arm["model"], "draft")]
+            drafts = groups[(t, arm["model"], "draft", "draft")]
             valid &= any(
                 r["response"]["choices"][0]["message"].get("reasoning_content")
                 or r["response"]["choices"][0]["message"].get("reasoning")
@@ -336,6 +367,11 @@ def choose_schedule(directory, selection_unix=None):
     if not report["passed"]:
         raise ValueError("Fresh hosted engineering must pass at both temperatures")
     groups = telemetry(read_events(directory / "engineering/events.jsonl"))
+    forced = {
+        s["id"]
+        for s in read(directory / "engineering.json")
+        if s["kind"] == "bank" and s["task"].get("draftTokens") == 32
+    }
     prices = {p["model"]: p for p in read(directory / "prices.json")["prices"]}
     arms = {a["id"]: a for a in ARMS}
     forecasts = []
@@ -348,7 +384,11 @@ def choose_schedule(directory, selection_unix=None):
                     continue
                 arm = arms[player]
                 for phase in ("draft", "action") if arm["procedure"] == "draft" else ("action",):
-                    rows = groups[(e["temperature"], arm["model"], phase)]
+                    rows = [
+                        r
+                        for r in groups[(e["temperature"], arm["model"], arm["procedure"], phase)]
+                        if r["key"].split("/")[0] not in forced
+                    ]
                     price = prices[arm["model"]]
                     cost += e["rounds"] * mean(
                         (
@@ -415,9 +455,13 @@ def execute(directory):
         if time.time() >= read(clock_path)["deadlineUnix"] - 900:
             raise ValueError("Original campaign clock expired; no new clock")
         if not (directory / "selection.json").exists():
-            asyncio.run(
-                evaluate_stage(directory, "engineering", read(directory / "engineering.json"))
-            )
+            already_passed = (
+                directory / "engineering/events.jsonl"
+            ).exists() and engineering_report(directory)["passed"]
+            if not already_passed:
+                asyncio.run(
+                    evaluate_stage(directory, "engineering", read(directory / "engineering.json"))
+                )
             track(directory, "engineering")
             exclusive_json(directory / "selection.json", choose_schedule(directory))
         else:

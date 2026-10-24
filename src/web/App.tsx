@@ -1,3 +1,4 @@
+import { AppAccessNote, ProviderLogos } from './AppIdentity.js';
 import { BrandText } from './BrandText.js';
 import { GameTypes } from './GameTypes.js';
 import React, { useEffect, useLayoutEffect, useState } from 'react';
@@ -422,6 +423,7 @@ function Recreation({
             <BrandText />
           </span>
         </a>
+        <ProviderLogos />
         {navigation}
         <div className="header-actions">
           <div className="theme-toggle" role="group" aria-label="Color mode">
@@ -455,6 +457,7 @@ function Recreation({
         </div>
       </header>
       <main className="game-page" aria-busy={busy || server === 'stopping'}>
+        <AppAccessNote />
         <div className="page-heading">
           <div>
             <span className="eyebrow">BOARD-GAME PLAYGROUND</span>

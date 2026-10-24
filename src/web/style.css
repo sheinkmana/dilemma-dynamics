@@ -965,3 +965,48 @@ a:hover {
     transform: none;
   }
 }
+
+/* Small, locally hosted provider marks keep both builds visually aligned. */
+.app-header {
+  flex-wrap: wrap;
+}
+.technology-logos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fff;
+}
+.technology-logos img {
+  display: block;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.app-access-note {
+  margin-bottom: 24px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.app-access-note p {
+  margin-bottom: 8px;
+}
+.app-access-note strong {
+  color: var(--text);
+}
+.app-access-note summary {
+  cursor: pointer;
+  color: var(--green);
+}
+.app-access-note details[open] summary {
+  margin-bottom: 12px;
+}
+.app-access-note pre {
+  white-space: pre-wrap;
+}

@@ -1,3 +1,4 @@
+import { AppAccessNote, ProviderLogos } from './AppIdentity.js';
 import { BrandText } from './BrandText.js';
 import { GameTypes } from './GameTypes.js';
 import { useEffect, useState, type ReactNode } from 'react';
@@ -427,6 +428,7 @@ export function DilemmaPage({
         <div className="brand">
           <BrandText />
         </div>
+        <ProviderLogos />
         {navigation}
         <div className="header-actions">
           <div className="theme-toggle" role="group" aria-label="Color mode">
@@ -453,6 +455,7 @@ export function DilemmaPage({
         </div>
       </header>
       <main className="game-page pd-page" aria-busy={busy}>
+        <AppAccessNote />
         <div className="page-heading">
           <div>
             <span className="eyebrow">MAIN PROJECT · COOPERATION &amp; INCENTIVES</span>

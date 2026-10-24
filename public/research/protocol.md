@@ -21,10 +21,21 @@ the standard finite-PD equilibrium does not make cooperation against a committed
 TFT/Grim opponent an error. A geometric game's realised final round is not known
 to be final when actions are selected. Infrastructure stops are interruptions.
 
-Related primary studies include [Akata et al.](https://arxiv.org/abs/2305.16867),
-[Fontana et al.](https://arxiv.org/abs/2406.13605), and
-[Pal et al.](https://arxiv.org/abs/2601.09849). This is a targeted Nemotron extension,
-not a first demonstration of LLM cooperation.
+Four empirical papers complement Rasmusen's theoretical foundation.
+[Akata et al.](https://arxiv.org/abs/2305.16867v2) study finitely repeated games
+and opponent prediction before action, a precedent for procedure comparisons.
+[Fontana et al.](https://arxiv.org/abs/2406.13605v2) test responses to random
+opponents of varying hostility, validating rule/history comprehension and also
+examining temperature sensitivity. [Pal et al.](https://arxiv.org/abs/2601.09849v1)
+infer strategies from elicited decisions across possible histories and vary
+stopping probabilities, payoffs, horizons and framing; our observed trajectories
+do not similarly identify complete strategies or certify equilibrium.
+[Taylor and Bergen](https://arxiv.org/abs/2504.00285v2) measure action-message
+incongruence in cheap-talk games and its sensitivity to incentives and timing;
+their associations with reasoning performance are correlational. Our study has
+no inter-player communication and does not measure deception. Defection alone
+is not evidence of deception. This is a targeted Nemotron procedure comparison,
+not a first demonstration of LLM cooperation or a performance ranking across studies.
 
 ## Game and procedures
 
@@ -33,6 +44,17 @@ maximise its own expected cumulative points, not score difference. Neutral X/Y
 labels, both mappings, both display seats, full completed history and private
 simultaneous choices are used. No tools, communication, coaching, between-episode
 memory or forecast elicitation are included.
+
+Model references are NVIDIA's technical reports for
+[Nemotron 3 Nano](https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Nano-Technical-Report.pdf)
+and [Nemotron 3 Super](https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf),
+which describe hybrid Mamba-Transformer mixture-of-experts models trained for
+reasoning and agentic tasks. NVIDIA's
+[Nano](https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16) and
+[Super](https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16)
+model cards document thinking on/off controls (accessed 24 October 2026).
+These describe model families and public implementations; they do not authenticate
+the exact weights or serving configuration behind the hosted deployments.
 
 Exact hosted IDs:
 

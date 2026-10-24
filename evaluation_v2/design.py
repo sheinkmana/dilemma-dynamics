@@ -30,6 +30,8 @@ def indexed_source():
     for folder in ("evaluation_v2",):
         for p in sorted((ROOT / folder).glob("*.py")):
             files[str(p.relative_to(ROOT))] = hash_file(p)
+    for p in sorted((ROOT / "python_tests").glob("*.py")):
+        files[str(p.relative_to(ROOT))] = hash_file(p)
     files["docs/FINAL_EVALUATION_V2.md"] = hash_file(ROOT / "docs/FINAL_EVALUATION_V2.md")
     return dict(sorted(files.items()))
 
@@ -188,5 +190,5 @@ def verify(directory, check_runtime=True):
         "specSha256": spec["sha256"],
         "candidateEpisodes": {str(b): b * 148 for b in CANDIDATES},
         "additionalBudgetUsd": "40",
-        "inferenceRequests": 0,
+        "verificationProviderCalls": 0,
     }

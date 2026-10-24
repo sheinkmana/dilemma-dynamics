@@ -32,7 +32,8 @@ are private local derivatives; the JSONL ledger is authoritative.
 
 The exact game engine, observation builder, strict output validator, transport,
 reservations and bounded-retry implementation are reused. NumPy computes block
-bootstrap intervals. CSV/JSON use the standard library. The new path introduces
+bootstrap intervals. PyArrow produces verified numeric Parquet tables, Matplotlib
+renders the primary contrast figure, and CSV/JSON use the standard library. The new path introduces
 no additional dependency or unused framework. Historical launchers, archives and
 lockfiles retain their audit/compatibility purpose and are not deleted as dead code.
 
@@ -80,6 +81,10 @@ unlock hosted final inference.
 
 Four primary contrasts: Draft minus Direct normalised exact oracle loss within
 each model and temperature. Weight all 16 conditions and four strata equally.
+At every observed state, the exact gap is `V*(state) - Q*(state, action)`, with
+optimal continuation after that action. Geometric episode loss is
+`(1-delta) * sum(gaps)`; fixed-horizon loss is `sum(gaps)/H`. Continuation is
+already included in the oracle, so geometric outcomes are not discounted again.
 Use 50,000 deterministic stratified whole-block bootstrap draws. Report 98.75%
 marginal intervals, an approximate Bonferroni treatment of a four-comparison 5%
 family. Bootstrap coverage/power remain unestablished; do not promise significance.
@@ -162,6 +167,8 @@ key privately available in their shell:
 After interruption, the same command resumes under the original clock/caps.
 After final completion it can retry derived exports without generating replacements.
 Do not change the prepared environment with a dependency sync or uninstall.
+The launcher needs the key in the user's environment; it does not read `.env`,
+credential files or cloud profiles. A missing key starts no evaluation clock.
 
 Offline reconstruction and publication-readiness inspection:
 
@@ -186,3 +193,8 @@ Reproducibility means exact offline scoring/statistics from saved evidence,
 preserved source/dependency bytes, and a fully specified procedure for independent
 replication. Hosted temperature-zero inference is not promised byte-identical.
 Private raw responses, drafts, all session logs and tracking remain retained.
+
+Implementation references: [Inspect custom scorers](https://inspect.aisi.org.uk/custom-scorers.html),
+[Inspect log files](https://inspect.aisi.org.uk/eval-logs.html),
+[MLflow backend stores](https://mlflow.org/docs/latest/tracking/backend-stores/),
+and the [public provider catalog](https://tokenfactory.nebius.com/api/public/models_info).

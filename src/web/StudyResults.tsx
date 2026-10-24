@@ -1,3 +1,4 @@
+import { AppAccessNote, ProviderLogos } from './AppIdentity.js';
 import { BrandText } from './BrandText.js';
 import { GameTypes } from './GameTypes.js';
 import { publicAsset } from './assets.js';
@@ -38,6 +39,7 @@ export function StudyResults({
         <div className="brand">
           <BrandText />
         </div>
+        <ProviderLogos />
         {navigation}
         <div className="header-actions">
           <div className="theme-toggle" role="group" aria-label="Color mode">
@@ -50,6 +52,7 @@ export function StudyResults({
         </div>
       </header>
       <main className="game-page results-page">
+        <AppAccessNote />
         <div className="results-intro">
           <p className="results-eyebrow">
             Repeated Prisoner’s Dilemma · two completed studies · 22–23 October 2026
