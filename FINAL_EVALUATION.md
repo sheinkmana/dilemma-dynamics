@@ -5,8 +5,9 @@
 The joint-temperature final evaluation launched on **24 October 2026**. Fresh
 hosted engineering passed, and the frozen resource-only rule selected **48
 matched blocks per temperature**: **7,104 episodes**, comprising 6,144 known-policy
-benchmark episodes and 960 autonomous dyads. The scientific run is in progress;
-this document contains its methods and operating instructions, not interim findings.
+benchmark episodes and 960 autonomous dyads. The scientific run is paused after
+a provider-overload stop; approved recovery is prepared separately. This document
+contains its methods and operating instructions, not interim findings.
 
 This is the sole intended primary evaluation for the report and app. Earlier
 exploratory observations are excluded. They motivated interleaving temperatures
@@ -17,6 +18,55 @@ The run directory is `output/preparation/final-joint-2026-10-24/`. Its specifica
 identity is `047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc`.
 `spec.json`, `selection.json`, `source-index.json`, `runtime.json`, `prices.json`
 and the stage ledgers are the operational records. Do not edit them.
+
+### Current interruption: 24 October
+
+The final stage stopped at **3,406/7,104 completed episodes**, exactly 1,703 at
+each temperature. One Super draft request received HTTP 529, with the provider
+message `System is overloaded`, on all three admitted attempts. The canonical
+ledger chain, frozen source/runtime and 3,406 native Inspect scored samples
+verify. No completed result has been lost or regenerated.
+
+Recorded engineering usage is $0.63490812 and final usage is $7.54404396.
+Another $0.22351224 remains conservatively reserved; it is not established as
+free or as an invoiced charge. The original $40 ceiling and campaign deadline
+remain in effect. No diagnostic calls used paid inference.
+
+**Do not use the ordinary launch command for this stop.** A logical request has
+exhausted its three attempts, and interrupted decisions' 600-second deadlines
+have expired. A restart cannot clear either limit. Use the approved recovery
+route below, rather than the original launcher.
+
+The user approved a separately identified recovery amendment on 24 October.
+It retains every successful response, failed attempt, reservation and scheduled
+observation; admits at most six total attempts per logical request and one
+durable 30-minute recovery window per decision; and uses a shared five-minute
+overload cooldown, two sample workers and four concurrent requests. Individual
+HTTP attempts remain capped at ten minutes. All retries count toward the
+original $0.50 exposure ceiling. No deadline is renewed on another restart.
+The original global deadline, $34 final allocation and $40 campaign ceiling
+remain fixed. Prompts, models, seeds, scoring and temperatures stay fixed.
+
+`evaluation_recovery/` reuses the frozen gateway, simultaneous-game coordinator,
+exact scorer, Inspect and local MLflow. It appends an explicit amendment event
+and decision-admission records; it never edits the original ledger prefix or
+source. Its receipt and independently archived source are in
+`output/preparation/final-joint-recovery-2026-10-24/`. Native session logs remain
+under the original `final/inspect/`. The same local tracker records amendment
+source, limits, sessions, completion and inherited accounting.
+The immutable amendment identity is
+`6276f6ff189c399a67dba8dc248a8fc8a5031e2e47cd96c3909e99441d604aa8`.
+Its 15 offline checks cover exhausted-attempt recovery, saved-response/draft
+replay, both temperatures' native scores, shared cooldowns, inherited exposure,
+unchanged observations, deadline/cap refusal and local MLflow. Twenty original
+recovery/overload regressions also pass. Preparation made no inference calls
+and did not start a new clock or activate the amendment.
+
+Disclose the interruption and transport amendment in the sole final report.
+The zero-unresolved-reservations publication gate remains unchanged and still
+requires accounting reconciliation. A verified private backup of evidence,
+native logs and SQLite is under
+`output/recovery-review/final-joint-overload-2026-10-24/`.
 
 ## Questions and treatments
 
@@ -190,12 +240,14 @@ Require valid protocol/usage, draft-reasoning telemetry on both models and force
 32-token exhaustion probes. Synthetic mocks cannot unlock hosted final inference.
 Engineering observations never enter scientific estimates.
 
-The shared ledger reserves both seats and both phases before transmission. Four
-sample workers share an eight-request semaphore. Recovery allows at most three
-attempts for admitted transient transport/HTTP failures, including 529, with
-15/45-second backoffs. Every ambiguous transmission retains its full reservation.
+The shared ledger reserves both seats and both phases before transmission. The
+original segment used four sample workers/eight requests and three admitted
+attempts with 15/45-second backoffs. The approved recovery uses two workers/four
+requests, six total attempts and a shared five-minute 529 cooldown. Every
+ambiguous transmission retains its full reservation.
 Durable successful responses are replayed; invalid successful content or unknown
-usage cannot be regenerated. Resume retains the original observation and deadline.
+usage cannot be regenerated. Recovery retains the original observations and
+global deadline; its explicitly amended decision admissions persist across resumes.
 
 ## Budget and unattended operation
 
@@ -227,18 +279,19 @@ is required, but interruptions still need explicit recovery.
 
 ## Commands and reproducibility
 
-The current directory is already prepared and launched. **Do not prepare it
-again or start a second concurrent launch.** Read-only preparation verification:
+The original and recovery directories are already prepared. **Do not prepare
+them again or start concurrent launches.** Read-only recovery verification also
+checks the original frozen source, runtime, ledger prefix, schedule and clocks:
 
 ```sh
-.venv/bin/python -m evaluation_v2 verify output/preparation/final-joint-2026-10-24
+.venv/bin/python -m evaluation_recovery verify output/preparation/final-joint-recovery-2026-10-24
 ```
 
-If the process has stopped and supported resume is needed, use the same command
-from a shell with `NEBIUS_API_KEY` privately available:
+To start the approved recovery, use a shell with `NEBIUS_API_KEY` privately
+available. The same command supports later resumes within its persisted limits:
 
 ```sh
-.venv/bin/python -m evaluation_v2 launch output/preparation/final-joint-2026-10-24
+.venv/bin/python -m evaluation_recovery launch output/preparation/final-joint-recovery-2026-10-24
 ```
 
 This makes paid calls only for missing admitted work under the original caps and
@@ -247,8 +300,8 @@ clock. It does not read `.env` or credential files. Never paste keys into chat.
 After completion or interruption, reconstruct and check publication readiness:
 
 ```sh
-.venv/bin/python -m evaluation_v2 analyse output/preparation/final-joint-2026-10-24
-.venv/bin/python -m evaluation_v2 release-check output/preparation/final-joint-2026-10-24
+.venv/bin/python -m evaluation_recovery analyse output/preparation/final-joint-recovery-2026-10-24
+.venv/bin/python -m evaluation_recovery release-check output/preparation/final-joint-recovery-2026-10-24
 ```
 
 Native logs from every session are retained; a resumed session may contain
@@ -256,6 +309,8 @@ checkpoint-only samples while earlier sessions hold original model events.
 Derived CSVs, Parquet, scores and report text are regenerated and compared.
 Exports stage atomically. A complete settled final can repair derived exports
 without another provider completion or a renewed clock.
+The analysis amendment record binds the derived export to both source packets;
+retain it with the original export rather than presenting the base source alone.
 
 The frozen source includes the original preparation protocol at
 `docs/FINAL_EVALUATION_V2.md`. It is an ignored compatibility input rather than a

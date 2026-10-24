@@ -8,8 +8,11 @@ compare bounded decision procedures in NVIDIA Nemotron Nano and Super.
 
 ![Dilemma Dynamics](docs/dilemma-dynamics-replay-2026-10-24.jpg)
 
-The final evaluation is running: **7,104 episodes across temperatures 0 and 1**,
+The final evaluation is paused after a provider-overload stop: **7,104 scheduled
+episodes across temperatures 0 and 1**, with **3,406 completed and preserved**,
 with native Inspect logs, local MLflow tracking and exact offline scoring.
+An approved bounded recovery is prepared; its launch command is in
+[FINAL_EVALUATION.md](FINAL_EVALUATION.md).
 No final findings are claimed yet. Bundled recordings and Results are earlier
 development snapshots; the new verified evaluation will replace them together.
 See [FINAL_EVALUATION.md](FINAL_EVALUATION.md) for the design, execution and
@@ -112,11 +115,12 @@ Exact roles, locked versions and mathematical definitions are in
 | `src/server/` | Local API, provider calls, session persistence and spending controls. |
 | `src/dilemma/`, `src/games/` | Rules, observations, analysis and board-game solvers. |
 | `evaluation_v2/` | Current joint-temperature final evaluation and native tracking. |
+| `evaluation_recovery/` | Approved bounded recovery with separately frozen authority and source. |
 | `python/gamefield_research/` | Exact scoring, schedules and audited transport/recovery. |
 | `fixtures/` | Frozen engineering decisions, reference checks and reviewed prices. |
 | `public/research/` | Bundled actions, numeric data, figures and TeX/PDF notes. |
 | `tools/` | Offline verification, frozen-protocol restoration and build checks. |
-| `tests/`, `python_tests/` | Application and network-free research checks. |
+| `tests/`, `python_tests/`, `recovery_tests/` | Application and network-free research/recovery checks. |
 | `package-lock.json`, `uv.lock` | Reproducible JavaScript and Python dependency resolutions. |
 
 The `gamefield_research`, `gamefield-study` and `GAMEFIELD_*` compatibility names
@@ -140,7 +144,7 @@ byte-preserved protocol input before the offline checks:
 ```sh
 uv sync --frozen --all-extras
 uv run python tools/restore_frozen_protocol.py
-uv run python -m pytest -q
+uv run python -m pytest python_tests recovery_tests -q
 uv run python tools/verify_public_results.py
 ```
 

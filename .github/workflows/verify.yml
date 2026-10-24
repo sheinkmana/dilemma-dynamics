@@ -14,7 +14,8 @@ jobs:
       - run: uv sync --frozen --all-extras
       - run: uv run python tools/restore_frozen_protocol.py
       - run: uv run ruff check python python_tests tools
-      - run: uv run python -m pytest -q
+      - run: uv run ruff check --config "include=['**/*.py']" evaluation_recovery recovery_tests
+      - run: uv run python -m pytest python_tests recovery_tests -q
       - run: uv run python tools/verify_public_results.py
       - run: docker build -f deploy/Dockerfile -t dilemma-dynamics-research:test .
       - run: docker run --rm --network none dilemma-dynamics-research:test --help

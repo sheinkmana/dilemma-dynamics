@@ -4,47 +4,54 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[hidelinks]{hyperref}
-\hypersetup{pdftitle={Dilemma Dynamics: final evaluation technical notes},pdfauthor={Alisa Sheinkman}}
+\hypersetup{pdftitle={Dilemma Dynamics: cooperation, deliberation and repeated-game incentives},pdfauthor={Alisa Sheinkman}}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{6pt}
 \setlength{\emergencystretch}{3em}
 \raggedbottom
 \newcommand{\C}{\mathrm C}
 \newcommand{\D}{\mathrm D}
-\title{Dilemma Dynamics\\\large Final evaluation: mathematical and engineering notes}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prb}{\mathbb P}
+\title{Dilemma Dynamics\\\large Cooperation, deliberation and repeated-game incentives}
 \author{Alisa Sheinkman}
-\date{24 October 2026}
+\date{Technical notes for the final evaluation, 24 October 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
-The replacement final evaluation compares Direct and bounded Draft procedures
-in two hosted Nemotron models at temperatures 0 and 1. Its frozen selection rule
-chose 48 matched blocks per temperature: 7,104 episodes in total. The campaign
-is in progress. These notes specify the payoff references, estimands and evidence
-boundaries; they contain no scientific results. The maintained operational
-specification is \texttt{FINAL\_EVALUATION.md} in the repository root.
+Cooperation can reward patience, but it can also be a costly mistake. Does an AI
+that drafts before acting better recognise which situation it faces? Dilemma
+Dynamics studies this question in repeated Prisoner's Dilemma games, where the
+immediate gain from defection competes with the future value of reciprocity.
+We compare immediate action with a bounded private draft in NVIDIA's Nemotron
+Nano and Super at two sampling temperatures. Against disclosed opponent policies,
+exact dynamic programming measures the payoff given up at each choice.
+Autonomous pairings reveal how cooperation begins, breaks down and returns.
+Matched game schedules, interleaved temperatures and durable event logs connect
+aggregate comparisons to individual decisions. The final evaluation is underway;
+these notes develop its theoretical motivation, experimental design and
+reproducible analysis.
 \end{abstract}
 
-\section{What is being compared?}
-The two models use these exact IDs under the provider's \texttt{nvidia/} namespace:
-\begin{itemize}
-\item Nano: \texttt{NVIDIA-Nemotron-3-Nano-30B-A3B}
-\item Super: \texttt{nemotron-3-super-120b-a12b}
-\end{itemize}
-Direct makes one thinking-off action request, capped at 128 completion
-tokens. Draft makes a thinking-on request capped at 1,024 tokens, then a separate
-thinking-off action request capped at 128 tokens. The current draft conditions
-that action; earlier drafts are not carried forward. Each phase uses its episode's
-temperature and top-\(p=1\).
+\section{The question and the intervention}
+The experiment asks whether a short deliberation procedure helps a model respond
+to an opponent's incentives. Its two hosted models are Nemotron Nano and Super
+\cite{nano,super}. The exact provider IDs, under the \texttt{nvidia/} namespace, are
+\texttt{NVIDIA-Nemotron-3-Nano-30B-A3B} and
+\texttt{nemotron-3-super-120b-a12b}.
 
-The treatment changes computation, request count, thinking controls and conditioning
-together. An observed difference would concern these bounded procedures, not an
-equal-cost isolation of reasoning. Generated drafts are not verified beliefs or
-faithful causal explanations of the selected action.
+\emph{Direct} makes one thinking-off action request, capped at 128 completion
+tokens. \emph{Draft} makes a thinking-on request capped at 1,024 tokens, then a
+separate thinking-off action request capped at 128 tokens \cite{cards}.
+Both receive completed game history. Only the current decision's draft is added
+to its action request. Each episode is assigned a sampling temperature
+\(\tau\in\{0,1\}\); all its request phases use that value. The nucleus-sampling
+setting is fixed at top-\(p=1\).
+Each model--procedure combination is an experimental \emph{arm}.
 
-Players maximise expected own cumulative payoff. Decisions remain sealed until
-joint reveal; each player sees completed public history. Neutral X/Y labels are
-mapped to the following actions in both mappings and display seats:
+Players maximise expected own cumulative points. Choices remain sealed until
+joint reveal. Neutral X/Y labels use both mappings and display seats. In canonical
+action labels, C means cooperate and D means defect:
 \begin{center}
 \begin{tabular}{lcc}
 \toprule
@@ -55,242 +62,443 @@ Defect & $(5,0)$ & $(1,1)$\\
 \bottomrule
 \end{tabular}
 \end{center}
-Entries are (own payoff, other payoff). Cooperation is an outcome of interest,
-not the scoring objective. Against an always-cooperating opponent, defecting can
-improve payoff while reducing cooperation.
+Each pair lists (own points, other points). Write \(R=3\) for the mutual-cooperation
+reward, \(S=0\) for cooperating against defection, \(T=5\) for defecting against
+cooperation and \(P=1\) for mutual defection. These satisfy \(T>R>P>S\).
 
 \clearpage
-\section{Committed opponents and exact references}
-Track A discloses the opponent's complete policy: AllC always cooperates; AllD
-always defects; Tit-for-Tat (TFT) cooperates first and then copies the subject's
-previous action; Grim cooperates until a subject defection, then defects forever.
-Each is tested at continuation probabilities \(\delta\in\{.4,.6,.9\}\). One-round
-AllC/AllD and announced ten-round TFT/Grim give 16 conditions.
+\section{Related literature and theoretical foundations}
+Rasmusen's \emph{Games and Information} \cite{rasmusen} supplies the organising
+ideas: strategies specify responses to histories, best responses maximise payoff
+against a given opponent, and equilibrium requires compatible best responses.
+Its treatment of finite and infinite repetition explains how the prospect of
+another encounter changes present incentives. Its discussions of incomplete
+information and the Axelrod tournament also motivate studying simple commitments
+alongside adaptive players. Here those ideas lead to two complementary tracks:
+exact payoff comparisons against disclosed policies, and observed interaction
+between models whose policies emerge during play.
 
-Let \(s\) encode the disclosed opponent's relevant memory, \(r(s,a)\) be own
-payoff and \(f(s,a)\) the next state after action \(a\). In the geometric game,
-\begin{align*}
-Q^*(s,a)&=r(s,a)+\delta V^*(f(s,a)),\\
-V^*(s)&=\max_{a\in\{\C,\D\}}Q^*(s,a).
-\end{align*}
-The implementation uses rational arithmetic and checks a candidate value function
-against every Bellman inequality. A certified best response to a committed policy
-is distinct from an equilibrium between two strategic players.
+Akata et al.\ \cite{akata} study finitely repeated games with language models,
+programmed strategies and human players. Their social chain-of-thought procedure
+encourages a model to anticipate the other player's behaviour and improves
+coordination in their experiments. This provides a close precedent for comparing
+decision procedures. Dilemma Dynamics uses a bounded draft with a separate final
+action request, making the procedure's token limits and request sequence explicit.
 
-For a known finite horizon, use backward induction with \(V^*_0(s)=0\):
+Fontana, Pierri and Aiello \cite{fontana} examine Llama2, Llama3 and GPT3.5 in
+100-round Prisoner's Dilemma interactions against random opponents with different
+cooperation probabilities. They check understanding of the rules and history and
+find substantial variation in responses to opponent hostility. Their work
+motivates our engineering checks and opponent-specific reporting. The present
+benchmark adds an exact own-payoff reference for each disclosed commitment,
+allowing cooperation and decision quality to be examined separately.
+
+Pal et al.\ \cite{pal} infer strategies from decisions across possible recent
+histories, vary continuation probabilities, payoffs, horizons and framing, and
+assess equilibrium properties. Their approach emphasises the value of observing
+responses to histories that ordinary play may rarely visit. Our autonomous track
+records realised trajectories; its cooperation, breakdown and recovery statistics
+describe the interaction paths actually sampled.
+
+Taylor and Bergen \cite{taylor} study action--message incongruence in games with
+a communication phase. They vary the incentives and timing of messages and
+report associations between reasoning performance and misrepresentation.
+This places the present intervention in a wider behavioural context: payoff
+competence, cooperation and truthful communication are distinct properties of
+an agent. Our sealed-action design concentrates on the first two.
+
+Together, these studies motivate a question about \emph{when} deliberation helps:
+a change in average score may combine better exploitation of an unresponsive
+opponent, better preservation of reciprocity and different behaviour under
+uncertainty. The disclosed-policy track exposes those components, while matched
+temperature comparisons test their sensitivity to the sampling setting.
+
+\clearpage
+\section{Repetition and the value of a future encounter}
+An \emph{episode} is one complete interaction between two players. Round number
+is \(t=1,2,\ldots\), and \(N\) denotes the total number of rounds in that episode.
+In a fixed-horizon episode, \(N=H\), where the positive integer \(H\) is announced
+before play. In a geometric episode, continuation probability \(\delta\) satisfies
+\(0\leq\delta<1\). After each completed round, the game continues with probability
+\(\delta\) and ends with probability \(1-\delta\), independently of the actions.
+
+One equivalent construction draws an independent uniform variable
+\(U_t\sim\operatorname{Uniform}(0,1)\) after round \(t\), continuing precisely when
+\[
+U_t<\delta.
+\]
+The realised length then has distribution and mean
+\begin{equation}
+\Prb(N=n)=(1-\delta)\delta^{n-1},\qquad
+\Prb(N\geq t)=\delta^{t-1},\qquad
+\E[N]=\frac{1}{1-\delta},\quad n,t\geq1.
+\label{eq:stopping}
+\end{equation}
+For \(\delta=0\), the game lasts one round. The first survival probability is one.
+Thus \(\delta=.9\) produces ten expected rounds, with a hidden last round; an
+announced ten-round horizon gives players different information. The executable
+scheduler uses seeded, exact rational draws for the specified probabilities.
+Matched treatments reuse the same environment draws.
+
+\subsection{Committed responses}
+The disclosed opponents are AllC (always C), AllD (always D), Tit-for-Tat (C first,
+then the subject's preceding action) and Grim (C until a subject defection,
+then D forever). This makes the consequences of a current action computable.
+Rasmusen's distinction between a commitment and strategic equilibrium is useful
+here \cite[Sections 4.1 and 5.1--5.2]{rasmusen}.
+
+Against untriggered Grim, cooperation forever has value \(R/(1-\delta)\).
+Defecting now, followed by the best response to permanent punishment, has value
+\(T+\delta P/(1-\delta)\). Cooperation is weakly preferable exactly when
+\begin{equation}
+\frac{R}{1-\delta}\geq T+\frac{\delta P}{1-\delta}
+\quad\Longleftrightarrow\quad
+\delta\geq\frac{T-R}{T-P}=\frac12.
+\label{eq:grim}
+\end{equation}
+All four payoff symbols were defined with the matrix; \(\delta\) is the chance
+of another round. Equality allows both initial choices to be optimal.
+
+Against initially cooperating Tit-for-Tat, three continuation patterns determine
+the optimal initial value: cooperate forever, defect forever, or alternate D,C.
+Their respective values are
+\[
+\frac{3}{1-\delta},\qquad 5+\frac{\delta}{1-\delta},\qquad
+\frac{5}{1-\delta^2}.
+\]
+The alternating pattern earns 5,0 repeatedly. Comparing all three shows that
+initial cooperation is optimal for \(\delta\geq2/3\). The tested probabilities
+.4, .6 and .9 therefore span different incentive regimes.
+
+\clearpage
+\section{Exact payoff references and decision loss}
+Track A tests each disclosed policy at all three continuation probabilities.
+One-round AllC/AllD and announced ten-round Tit-for-Tat/Grim complete 16 conditions.
+For any condition, let \(s\) be the opponent's relevant memory state,
+\(a\in\{\C,\D\}\) the subject's action, \(r(s,a)\) the resulting own payoff and
+\(f(s,a)\) the next opponent state. Let \(V^*(s)\) be the maximum achievable
+expected total own payoff from state \(s\); \(Q^*(s,a)\) fixes the current action
+and allows optimal choices thereafter. In a geometric episode,
+\begin{equation}
+Q^*(s,a)=r(s,a)+\delta V^*(f(s,a)),\qquad
+V^*(s)=\max_{a\in\{\C,\D\}}Q^*(s,a).
+\label{eq:bellman}
+\end{equation}
+The implementation uses rational arithmetic. It certifies a candidate value
+function by checking \(V^*(s)\geq r(s,a)+\delta V^*(f(s,a))\) for every state and
+action, with equality for at least one action in each state.
+
+For a finite game, let \(h\) be rounds remaining, including the current one.
+Backward induction starts at \(V^*_0(s)=0\) and applies
 \[
 Q^*_h(s,a)=r(s,a)+V^*_{h-1}(f(s,a)),\qquad
 V^*_h(s)=\max_a Q^*_h(s,a).
 \]
-Here \(h\) is rounds remaining, including the current round. In the announced
-ten-round TFT or Grim condition, nine cooperations followed by a final defection
-earn \(9\cdot3+5=32\) own points and are optimal from the initial state.
-This conclusion uses the opponent's commitment, rather than a claim of rational
-cooperation between two unconstrained finite-game players.
+Against committed ten-round Tit-for-Tat or Grim, the optimal initial path is nine
+C moves followed by D, earning \(9R+T=32\) points. The standard finite-game
+backward-induction argument in which both players remain free to optimise uses
+a different opponent model \cite[Section 5.1]{rasmusen}.
 
-\subsection*{Why these continuation probabilities?}
-For Grim's untriggered initial state, perpetual cooperation gives
-\(3/(1-\delta)\); defecting immediately gives \(5+\delta/(1-\delta)\).
-Cooperation is optimal initially when \(\delta\geq1/2\).
-
-For TFT, the profitable alternative is not always permanent defection. The
-cycle D,C against an initially cooperating TFT earns 5,0 repeatedly, with value
-\(5/(1-\delta^2)\). Comparing this with \(3/(1-\delta)\) gives the initial
-cooperation threshold \(\delta\geq2/3\); the engine verifies all alternatives
-and subsequent states. Equality permits multiple optimal actions.
-Thus .4, .6 and .9 span distinct incentive regimes.
-
-The geometric stopping draw is hidden at decision time. Its expected length is
-\(1/(1-\delta)\), so \(\delta=.9\) means ten expected rounds, not an announced
-ten-round endpoint. Models cannot condition on the realised final round.
-
-\clearpage
-\section{Loss and interaction outcomes}
-For each revealed committed-policy decision, define the nonnegative action gap
+At a revealed decision, \(s_t\) is the pre-action opponent state and \(a_t\) the
+chosen action. Its nonnegative payoff gap is
 \[
 g_t=V^*(s_t)-Q^*(s_t,a_t),
 \]
-using remaining-horizon values for a fixed game. Optimal continuation is allowed
-after the chosen action. The gap therefore measures the achievable expected
-own payoff given up at that decision, rather than comparing against a particular
-reference trajectory.
-
-For a realised geometric episode of length \(T\), or a fixed episode of length
-\(H\), report
-\[
-L_{\rm geometric}=(1-\delta)\sum_{t=1}^{T}g_t,\qquad
+with the corresponding remaining-horizon values in a finite episode. Episode
+losses are
+\begin{equation}
+L_{\rm geometric}=(1-\delta)\sum_{t=1}^{N}g_t,\qquad
 L_{\rm fixed}=\frac{1}{H}\sum_{t=1}^{H}g_t.
-\]
-No additional factor \(\delta^{t-1}\) belongs in the realised geometric sum:
-termination already supplies survival weighting in expectation, and continuation
-is already included in \(Q^*\). For example, C against AllC in a one-round game
-has gap \(5-3=2\), while D has gap zero. Loss is in normalised payoff points,
-not percentage accuracy or cooperation rate.
+\label{eq:loss}
+\end{equation}
+Zero gap means that the current action preserves optimal achievable payoff.
+For example, C against AllC in a one-round game gives up \(T-R=2\) points;
+D has gap zero. Loss is expressed in normalised own-payoff points.
 
-\subsection*{Autonomous interaction is a different target}
-Track B tests all ten unordered pairings of the four model--procedure arms,
-including self-play, at \(\delta=.9\). Neither agent receives an opponent policy.
-There is no identified exact best-response oracle for these adaptive opponents.
-The public analysis instead reports:
-\begin{itemize}
-\item first-round mutual cooperation and joint-action counts;
-\item mutual cooperation per observed round and per episode;
-\item normalised joint return, \((1-\delta)\sum_{t=1}^{T}(r_{1t}+r_{2t})\);
-\item breakdown and recovery counts with their opportunity denominators.
-\end{itemize}
-The joint return is not mean payoff per observed round. Long episodes contribute
-more to pooled round rates; rounds in the same dyad are dependent. A high
-cooperation rate does not by itself demonstrate equilibrium, robustness to
-exploitation, or superior own-payoff decisions.
+Equation~\eqref{eq:stopping} explains the geometric weighting: survival to round
+\(t\) already occurs with probability \(\delta^{t-1}\). The expectation of the
+realised sum in \eqref{eq:loss} therefore includes that survival factor. Applying
+it again to each recorded gap would count stopping twice.
 
-\subsection*{Incomplete observations}
-Every scheduled episode has a status. Missing actions are not imputed as
-cooperation, defection or zero loss. Dynamic programming bounds feasible loss
-along the remaining scheduled length, conditional on any committed prefix.
-These finite-schedule bounds describe missingness exposure; they are not
-population confidence intervals. Complete-block estimates remain conditional
-on completion. An incomplete campaign cannot pass the release gate.
+Track B tests all ten unordered pairings of the four arms, including self-play,
+at \(\delta=.9\). Here outcomes of interest are cooperation and joint return.
+For player \(i\in\{1,2\}\), write \(r_{i,t}\) for points in round \(t\). A dyad's
+normalised joint return is \((1-\delta)\sum_{t=1}^{N}(r_{1,t}+r_{2,t})\).
+We report first-round mutual cooperation, cooperation per observed round and
+per episode, and breakdown/recovery counts with opportunity denominators.
+Long episodes receive more weight in a pooled round rate; rounds in one dyad
+share a history and are statistically dependent.
 
 \clearpage
-\section{Replication, estimands and uncertainty}
-A fresh master seed fixes environment draws and randomised order. Each of 48
-blocks per temperature contains 64 Track A episodes and ten Track B dyads.
-The resulting counts are 6,144 benchmark episodes and 960 autonomous dyads
-across both temperatures. Each of the four label/seat strata contains 12 blocks.
+\section{Replication and statistical comparisons}
+A block groups the related experimental conditions and arms. Each block has
+64 Track A episodes (16 conditions for each of four arms) and ten Track B dyads
+per temperature. The frozen resource-only selection chose 48 blocks at each
+temperature: 6,144 benchmark episodes and 960 autonomous dyads, or 7,104 episodes
+in total. Four strata, defined by action-label mapping and display seat, each
+contain 12 blocks per temperature.
 
-Corresponding arms and temperatures share the block's environment schedule;
-temperature counterparts are adjacent in randomised order. This pairing controls
-stopping and presentation differences and reduces time-window confounding.
-It does not match provider sampling noise or freeze backend weights.
+A fresh master seed fixes game schedules and order. Arms within a block share
+environment draws, and corresponding temperature episodes are adjacent in a
+frozen randomised order. This pairing controls stopping and presentation
+variation while spreading both temperatures through the same service window.
+Nested 24/32/48-block candidates were frozen before engineering; measured token
+use and latency selected the largest fitting candidate before scientific
+inference. Selection uses resource telemetry alone.
 
-Nested 24/32/48-block candidates were frozen before engineering. The largest
-candidate fitting measured token and latency forecasts was selected before
-scientific inference, using resource telemetry alone. The rule cannot read
-cooperation, correctness, loss or draft arguments. There is no outcome-based
-extension, favourable-seed search or superiority stopping rule.
-
-Let \(L_{m,p,\tau,b,c}\) be Track A episode loss for model \(m\), procedure
-\(p\), temperature \(\tau\), block \(b\) and condition \(c\). Define
+\subsection{Primary drafting effects}
+Write \(L_{m,k,\tau,b,c}\) for Track A loss in model \(m\in\{\mathrm{Nano},\mathrm{Super}\}\),
+procedure \(k\in\{\mathrm{Direct},\mathrm{Draft}\}\), temperature \(\tau\in\{0,1\}\),
+block \(b\) and condition \(c\in\{1,\ldots,16\}\). The block's condition mean is
 \[
-\bar L_{m,p,\tau,b}=\frac1{16}\sum_{c=1}^{16}L_{m,p,\tau,b,c}.
+\bar L_{m,k,\tau,b}=\frac1{16}\sum_{c=1}^{16}L_{m,k,\tau,b,c}.
 \]
-The four primary estimands are Draft minus Direct loss within each model and
-temperature, averaging blocks within strata and weighting the four strata equally:
-\[
-\Delta_{m,\tau}=\frac14\sum_{s=1}^{4}\frac1{|B_s|}
-\sum_{b\in B_s}\bigl(\bar L_{m,\mathrm{Draft},\tau,b}
--\bar L_{m,\mathrm{Direct},\tau,b}\bigr).
-\]
-Negative differences favour Draft. Conditions receive equal weight; long episodes
-do not dominate the benchmark merely by containing more rounds.
+For the contrast under consideration, let \(\mathcal B_j\) be the set of blocks
+in stratum \(j\in\{1,2,3,4\}\) with complete observations for both procedures;
+\(|\mathcal B_j|\) denotes its size. The drafting effect is
+\begin{equation}
+\Delta_{m,\tau}=\frac14\sum_{j=1}^{4}\frac1{|\mathcal B_j|}
+\sum_{b\in\mathcal B_j}\left(\bar L_{m,\mathrm{Draft},\tau,b}
+-\bar L_{m,\mathrm{Direct},\tau,b}\right).
+\label{eq:primary}
+\end{equation}
+Negative values favour Draft. All conditions and strata have equal weight.
+The completed design has \(|\mathcal B_j|=12\) in every stratum.
+The point estimate requires at least one complete paired block in every stratum.
 
-Use 50,000 deterministic PCG64 whole-block bootstrap draws, resampling within
-strata. Primary marginal intervals are 98.75\%: a Bonferroni allocation of a 5\%
-family across four contrasts, subject to approximate bootstrap coverage.
-At least five complete within-model blocks per stratum are required for an
-interval. Neither coverage nor power is guaranteed by this threshold.
+There are four primary contrasts, one for each model and temperature. Use
+50,000 deterministic PCG64 bootstrap replicates, resampling whole blocks within
+strata. For family error level \(\alpha=.05\) and \(K=4\) contrasts, each marginal
+interval has nominal coverage \(1-\alpha/K=.9875\). Its bootstrap quantiles are
+\(\alpha/(2K)=.00625\) and \(1-\alpha/(2K)=.99375\). This Bonferroni allocation
+uses approximate bootstrap coverage. At least five complete paired blocks per
+stratum are required to construct an interval.
 
-Six secondary estimands compare temperature 0 minus 1 for each arm and the
-change in Draft-minus-Direct for each model. The same resampled block indices
-must be used jointly across temperatures. Secondary 95\% intervals are nominal,
-not a multiplicity-controlled discovery family. Condition breakdowns, truncation,
-cost, latency and provider drift are exploratory; associations do not identify
-why drafting works or what a larger budget would cause.
+\subsection{Temperature comparisons and missingness}
+Six secondary contrasts compare temperature 0 minus 1 for each of the four arms,
+and \(\Delta_{m,0}-\Delta_{m,1}\) for each model. A positive value of the latter
+means a smaller drafting advantage at zero. Resampling uses the same matched
+block indices jointly across temperatures; secondary 95\% intervals are nominal.
+
+Every scheduled episode retains a status. Estimates from complete blocks are
+conditional on their completion. Dynamic programming bounds feasible loss over
+the remaining scheduled rounds, given any committed prefix. These bounds describe
+the finite schedule's missingness exposure. The release gate requires completion
+of both temperatures before the public report and app change over.
 
 \clearpage
-\section{Evidence, infrastructure and reproducibility}
-The existing local CPU coordinates remote Nebius Token Factory inference.
-There is no training, local model hosting, GPU allocation or hosted tracker.
-Inspect AI supplies native samples, model events and custom scored outcomes.
-An audited gateway owns HTTP transmission, reservations and recovery. Native
-joint-reveal events are linked to the canonical event chain by hashes.
+\section{Evidence, execution and interpretation}
+The local CPU coordinates remote Nebius Token Factory inference. Inspect AI
+provides native samples, model events and custom scored outcomes \cite{inspect}.
+The audited gateway owns HTTP transmission, reservations and recovery; native
+joint-reveal events carry hashes linking them to the canonical event chain.
+MLflow Skinny records run identities, parameters, metrics and artifacts in local
+SQLite \cite{mlflow}. NumPy supplies the bootstrap, PyArrow numeric Parquet
+exports and Matplotlib the primary comparison figure.
 
-MLflow Skinny records real local run identities, parameters, metrics and artifacts
-in SQLite. It is a reconstructable projection of the canonical ledger; it does
-not make model calls reproducible or replace raw evidence. NumPy provides the
-bootstrap, PyArrow the numeric Parquet exports and Matplotlib the primary figure.
-The lockfile and runtime manifest record dependency versions and installed state.
+The evidence packet retains append-only requests and revealed rounds, native
+Inspect logs, accounting, statuses and exports. Offline reconstruction produces
+episode histories, decision/request tables, condition means, contrasts and
+checksums. The dependency lock and runtime manifest record the installed state;
+source archives preserve the executed implementation. Private responses and
+drafts remain local.
 
-Each stage retains append-only request and reveal events, native Inspect logs,
-accounting, statuses and exports. The offline analysis produces episode histories,
-decision/request tables, condition means, contrasts and checksum manifests.
-Private responses and drafts stay outside the public package. Checksums detect
-changed bytes; they do not authenticate provider identity, billing or model weights.
-
-\subsection*{Failure handling and limits}
+\subsection{Bounded recovery}
 The additional campaign ceiling is \$40: \$2 engineering, \$34 final inference,
-\$2 other-charge reserve and \$2 contingency. Retry exposure is included within
-stage allocations, not added above them. Reservations precede transmission;
-ambiguous requests retain their exposure. Durable valid responses are replayed,
-while invalid successful responses are not regenerated to obtain better outputs.
-The campaign deadline is 36 hours with a separate watchdog and shutdown margin.
+\$2 other-charge reserve and \$2 contingency. Retry exposure is included in stage
+allocations. Reservations precede transmission, and ambiguous requests retain
+their exposure. Durable valid responses are replayed. A successful but invalid
+response stays in the record and ends its admitted scientific observation.
 
-Resume preserves seeds, schedule, prompts, claims, limits and original clock.
-An interrupted attempt is never quietly renamed into a new campaign. Earlier
-experiments motivated interleaving and bounded recovery, but are excluded from
-this replacement evaluation. Prior outcome inspection informed the design;
-this is not an outcome-naive first study.
+A provider-overload interruption led to an explicitly approved transport
+amendment: six total attempts per logical request, one durable 30-minute recovery
+window per decision, a shared five-minute overload cooldown, and two sample
+workers sharing four request slots. The original campaign deadline remains
+36 hours, with its watchdog and shutdown margin. The original source and ledger
+prefix remain intact; a separate frozen receipt records the amendment.
 
-\subsection*{Publication boundary}
-Only the completed verified replacement becomes the primary report and app
-evaluation. Both temperatures, native log coverage, resolved final reservations,
-MLflow export and reproducible derived artifacts must pass release checks before
-Results, replay and downloads switch together. Interim samples are not final
-claims. There is no established general model ranking, latent-belief validity,
-educational benefit or real-world negotiation performance.
+\subsection{Reading the eventual findings}
+The primary effects compare complete bounded procedures: Draft adds computation,
+a request, thinking controls and conditioning. Opponent breakdowns explain which
+incentive regimes contribute to an average effect. Autonomous pairings add a
+separate view of the cooperation paths those procedures generate.
 
-Exact offline reconstruction from saved evidence is the reproducibility target.
-An independently repeated hosted request may differ even at temperature zero.
-The repository's \texttt{FINAL\_EVALUATION.md} provides commands and concrete
-artifact names; \texttt{AGENTS.md} protects the running campaign's frozen inputs.
+Interpretation remains specific to the tested models, prompts, budgets and
+hosted service window. Backend weights and sampling may change even when the
+requested model name stays fixed, including at temperature zero. Bootstrap
+intervals have approximate coverage; secondary and exploratory comparisons need
+corresponding caution. Draft-content review supports qualitative questions about
+the generated text, while behavioural conclusions use revealed actions and exact
+scores. Broader claims about model rankings, latent beliefs or learning outcomes
+would require additional experiments.
+
+The public report, replay and downloads will use the completed verified final
+campaign together. Publication checks require native sample coverage, resolved
+final reservations, MLflow export and reproducible derived artifacts.
+\texttt{FINAL\_EVALUATION.md} gives the operational commands and source identities;
+\texttt{AGENTS.md} records the execution safeguards.
 
 \clearpage
-\section{Separate app mathematics}
-The interactive app also exposes model forecasts and small competitive board
-games. These features are outside the scientific Direct/Draft treatment.
+\appendix
+\section{Probabilities and the app's forecast inequality}
+The optional app protocol asks for an opponent-action forecast and two conditional
+future-payoff forecasts. These are elicited separately from the final evaluation's
+action-only scientific requests. Their algebra helps explain the difference
+between immediate temptation and future incentives.
 
-\subsection*{Forecasts and counterfactuals}
-When requested by the optional app protocol, forecasts are generated reports.
-Observed outcomes can be checked against those reports, but a reported
-probability is not direct access to a model's latent belief. Deterministic policy
-demos must not invent such telemetry. A one-step counterfactual holds the
-opponent's sealed current action fixed; it is not evidence that a different
-history would leave a strategic opponent unchanged. Verified game arithmetic
-and narrative interpretation should be displayed separately.
+Let \(\mathcal H_t\) be the completed history available before round \(t\), and
+let \(p_t\in[0,1]\) be the reported probability that the opponent cooperates in
+that round. Thus \(p_t\) concerns the opponent's \emph{current action}; \(\delta\)
+concerns whether a \emph{later round exists}. The simultaneous protocol keeps
+the opponent's current choice sealed while the subject chooses.
 
-\subsection*{Tic-tac-toe}
-The small finite game admits exhaustive minimax. With utility expressed for the
-player to move, a terminal state's value is its game result, and nonterminal
-values satisfy the zero-sum recursion
+Let \(F_{a,t}\) be the reported expected own total from the next round onward,
+conditional on continuation and on choosing \(a\in\{\C,\D\}\) now. It includes
+future opponent responses and subsequent stopping. Whenever no further round
+is possible, define \(F_{a,t}=0\). The probability of reaching the next round is
 \[
-V(s)=\max_{a\in A(s)}[-V(f(s,a))].
+\rho_t=\begin{cases}
+\delta, & \text{geometric game},\\
+1, & \text{fixed game with }t<H,\\
+0, & \text{fixed game with }t=H.
+\end{cases}
 \]
-Draws have value zero. A legal losing action is distinct from a malformed move;
-search values, legality and model explanations should not be conflated.
+The conditional future totals have bounds
+\[
+0\leq F_{a,t}\leq
+\begin{cases}
+5/(1-\delta),&\text{geometric game},\\
+5(H-t),&\text{fixed game},
+\end{cases}
+\]
+because five is the maximum own payoff per round. In the geometric case,
+conditioning on the next round means the remaining expected length is again
+\(1/(1-\delta)\).
 
-\subsection*{Dots \& Boxes}
-The state contains claimed edges, box ownership, current scores and the player
-to move. Claiming at least one box grants another move. Consequently a negamax
-recursion retains the sign when the same player moves again and reverses it
-when the turn passes. Exact search is practical only for sufficiently small
-remaining states; incomplete searches must be marked unknown.
+Write \(\widehat Q_t(a)\) for expected own payoff according to these submitted
+forecasts. With the payoff matrix in Section~1,
+\begin{align*}
+\widehat Q_t(\C)&=p_tR+(1-p_t)S+\rho_tF_{\C,t}
+=3p_t+\rho_tF_{\C,t},\\
+\widehat Q_t(\D)&=p_tT+(1-p_t)P+\rho_tF_{\D,t}
+=1+4p_t+\rho_tF_{\D,t}.
+\end{align*}
+Cooperation is weakly preferred according to the forecasts precisely when
+\begin{equation}
+\rho_t\bigl(F_{\C,t}-F_{\D,t}\bigr)\geq1+p_t.
+\label{eq:forecast}
+\end{equation}
+The right side is the immediate gain from defection, between one and two points;
+the left side is cooperation's forecast future advantage, weighted by the chance
+of reaching that future. Equality means a tie. At an announced final round,
+\(\rho_t=0\), so the immediate incentive favours D for every \(p_t\in[0,1]\).
 
-Supported long-chain and loop references cover restricted endgames. A local
-box sacrifice can preserve control and improve final score, but a heuristic
-explanation is not an exact proof outside the reference's assumptions. These
-visible sequential games have competitive fixed-total scoring, so their tactical
-sacrifices do not establish the mutual-gain incentives of the repeated dilemma.
+This check measures consistency between an action and submitted forecasts.
+Forecast accuracy can then be studied against outcomes that were actually
+observed. A one-step counterfactual holds the other player's sealed current
+action fixed; a longer alternative history requires specifying how that opponent
+would respond.
 
-\subsection*{Implementation references}
-The Python package contains rational scoring and certification. The TypeScript
-game modules contain the interactive rules, search and analysis. Tests exercise
-known states and invariants without hosted inference. The original compatibility
-names \texttt{gamefield\_research} and \texttt{gamefield-study} are retained to
-preserve execution and provenance.
+\clearpage
+\section{Competitive board-game calculations}
+The app's visible sequential board games provide additional examples of tactics
+and exact search. They use separate rules and analyses from the cooperation
+study.
 
-\smallskip
-Documentation for the underlying interfaces:
-\href{https://inspect.aisi.org.uk/eval-logs.html}{Inspect evaluation logs};
-\href{https://inspect.aisi.org.uk/custom-scorers.html}{Inspect custom scorers};
-\href{https://mlflow.org/docs/latest/tracking/}{MLflow tracking}.
+\subsection{Tic-tac-toe}
+Let \(x\) denote a board state including the player to move, \(A(x)\) its legal
+moves and \(f(x,a)\) the state after move \(a\). Let \(G(x)\) be optimal game value
+from the current player's perspective. Terminal values are win \(+1\), draw 0
+and loss \(-1\), according to that same perspective. Because each move passes
+the turn, a nonterminal state satisfies
+\[
+G(x)=\max_{a\in A(x)}[-G(f(x,a))].
+\]
+The game is small enough for exhaustive minimax. Legality, search value and the
+player's explanation can therefore be checked separately.
+
+\subsection{Dots \& Boxes}
+Here \(x\) includes drawn edges, box ownership and the player to move. Write
+\(g(x,a)\) for the number of boxes captured by drawing edge \(a\), and \(W(x)\)
+for optimal remaining-box difference from the current player's perspective.
+An edge that captures a box grants another turn. Thus
+\[
+W(x)=\max_{a\in A(x)}\left[g(x,a)+\sigma(x,a)W(f(x,a))\right],\qquad
+\sigma(x,a)=\begin{cases}+1,&g(x,a)>0,\\-1,&g(x,a)=0.\end{cases}
+\]
+At a terminal state, \(W(x)=0\), since no boxes remain. The difference in boxes
+already owned is added separately to obtain the final score difference.
+The positive sign preserves perspective after an extra turn; the negative sign
+switches it when the turn passes.
+
+Exact edge search is used within explicit state and computation limits, with
+incomplete searches labelled unknown. Restricted long-chain/loop endgames also
+admit specialised references. A box sacrifice can preserve control and increase
+the eventual score; its value depends on the remaining position and the validity
+of that reference's assumptions.
+
+Both board games have competitive outcomes: a gain in the score difference is a
+loss for the other player. The repeated dilemma adds the possibility that future
+mutual cooperation improves both players' returns. This makes it useful to
+present tactical foresight and cooperation incentives as separate examples.
+
+\clearpage
+\begin{thebibliography}{10}
+\raggedright
+\bibitem{rasmusen}
+Eric Rasmusen. \emph{Games and Information: An Introduction to Game Theory}.
+4th ed., Blackwell Publishing, 2007. Relevant discussions: Sections 1.2, 4.1,
+5.1--5.2 and 6.4--6.5. Research preparation also used the supplied fourth-edition
+draft with chapter headers dated 2005.
+\href{https://rasmusen.org/GI/}{Author's book materials}.
+
+\bibitem{akata}
+Elif Akata, Lion Schulz, Julian Coda-Forno, Seong Joon Oh, Matthias Bethge and
+Eric Schulz. \emph{Playing repeated games with large language models}.
+\emph{Nature Human Behaviour}, 2025.
+\href{https://doi.org/10.1038/s41562-025-02172-y}{doi:10.1038/s41562-025-02172-y}.
+\href{https://arxiv.org/abs/2305.16867v2}{arXiv:2305.16867v2}, revised 7 May 2025.
+
+\bibitem{fontana}
+Nicol\`o Fontana, Francesco Pierri and Luca Maria Aiello.
+\emph{Nicer Than Humans: How do Large Language Models Behave in the Prisoner's Dilemma?}
+\href{https://arxiv.org/abs/2406.13605v2}{arXiv:2406.13605v2}, 19 September 2024.
+
+\bibitem{pal}
+Saptarshi Pal, Abhishek Mallela, Christian Hilbe, Lenz Pracher, Chiyu Wei,
+Feng Fu, Santiago Schnell and Martin A. Nowak.
+\emph{Strategies of cooperation and defection in five large language models}.
+\href{https://arxiv.org/abs/2601.09849v1}{arXiv:2601.09849v1}, 14 January 2026.
+
+\bibitem{taylor}
+Samuel M. Taylor and Benjamin K. Bergen.
+\emph{When Do Large Language Models Exhibit Unsolicited Deception?}
+\emph{Transactions of the Association for Computational Linguistics},
+14:1936--1962, 2026. \href{https://doi.org/10.1162/TACL.a.786}{doi:10.1162/TACL.a.786}.
+\href{https://arxiv.org/abs/2504.00285v2}{arXiv:2504.00285v2}, revised 9 September 2026.
+
+\bibitem{nano}
+NVIDIA. \emph{Nemotron 3 Nano: Open, Efficient Mixture-of-Experts Hybrid
+Mamba-Transformer Model for Agentic Reasoning}.
+\href{https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Nano-Technical-Report.pdf}{Technical report}, 23 December 2025.
+
+\bibitem{super}
+NVIDIA. \emph{Nemotron 3 Super: Open, Efficient Mixture-of-Experts Hybrid
+Mamba-Transformer Model for Agentic Reasoning}.
+\href{https://research.nvidia.com/labs/nemotron/files/NVIDIA-Nemotron-3-Super-Technical-Report.pdf}{Technical report}, 3 April 2026 revision.
+
+\bibitem{cards}
+NVIDIA. \emph{Nemotron 3 model cards and inference documentation}:
+\href{https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B-BF16}{Nano 30B-A3B-BF16};
+\href{https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-BF16}{Super 120B-A12B-BF16}.
+Thinking controls; accessed 24 October 2026.
+
+\bibitem{inspect}
+UK AI Security Institute. \emph{Inspect AI: Log Files}.
+\url{https://inspect.aisi.org.uk/eval-logs.html}. Accessed 24 October 2026.
+
+\bibitem{mlflow}
+MLflow contributors. \emph{MLflow Tracking documentation}.
+\url{https://mlflow.org/docs/latest/tracking/}. Accessed 24 October 2026.
+\end{thebibliography}
 \end{document}
