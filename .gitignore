@@ -17,7 +17,7 @@ output/
 mlruns/
 
 # Local study operations and immutable private evidence (retain on disk).
-/AGENTS.md
+/docs/FINAL_EVALUATION_V2.md
 /archive/
 /docs/research/
 /docs/COOPERATION_FINAL_EVALUATION_PREPARATION.md

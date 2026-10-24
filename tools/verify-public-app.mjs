@@ -4,6 +4,9 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const directory = 'dist/web/assets';
+if (!readFileSync('dist/web/FINAL_EVALUATION.md').equals(readFileSync('FINAL_EVALUATION.md'))) {
+  throw new Error('Public evaluation download differs from the maintained guide.');
+}
 const scripts = readdirSync(directory).filter((name) => name.endsWith('.js'));
 if (!scripts.length) throw new Error('Build the public app before verifying it.');
 for (const name of scripts) {

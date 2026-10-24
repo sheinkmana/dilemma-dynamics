@@ -55,29 +55,28 @@ export function StudyResults({
         <AppAccessNote />
         <div className="results-intro">
           <p className="results-eyebrow">
-            Repeated Prisoner’s Dilemma · two completed studies · 22–23 October 2026
+            Repeated Prisoner’s Dilemma · replacement final evaluation running
           </p>
-          <h1>Drafting narrowed the gap to the payoff benchmark.</h1>
+          <h1>Final evaluation in progress.</h1>
           <p className="results-lead">
-            A capped draft followed by a separate action request reduced average benchmark loss for
-            both Nemotron models at temperatures 1 and 0, across 3,552 completed episodes. The
-            benefit depended on the opponent; drafting worsened performance against Tit-for-Tat on
-            average.
+            The new evaluation schedules 7,104 episodes across temperatures 0 and 1 with matched,
+            interleaved conditions. Its verified results, replay and downloads will be released
+            together after completion.
           </p>
           <p className="results-caveat">
-            Descriptive amended study. These findings apply to the tested procedures and schedule;
-            they do not establish universal reasoning superiority or a general model ranking.
+            The tables and recordings currently bundled below are development snapshots from
+            22–23 October. They are excluded from the replacement evaluation and are not its final
+            findings.
           </p>
           <div className="results-downloads">
             <a href="#replay">Replay recorded Nemotron decisions →</a>
             <a href={publicAsset('/research/paper/report.pdf')} download>
-              Report (PDF) ↓
+              Technical notes (PDF) ↓
             </a>
             <a href={publicAsset('/research/paper/main.tex')} download>
               LaTeX source ↓
             </a>
-            <a href={publicAsset('/research/protocol.md')}>Methods &amp; amendments</a>
-            <a href={publicAsset('/research/README.md')}>Data &amp; reproduction</a>
+            <a href={publicAsset('/FINAL_EVALUATION.md')}>Evaluation &amp; reproduction</a>
           </div>
         </div>
 

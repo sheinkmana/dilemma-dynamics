@@ -966,24 +966,19 @@ a:hover {
   }
 }
 
-/* Small, locally hosted provider marks keep both builds visually aligned. */
+/* Use the supplied hackathon artwork at its original proportions in both builds. */
 .app-header {
   flex-wrap: wrap;
 }
-.technology-logos {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-shrink: 0;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  background: #fff;
+.hackathon-banner {
+  width: 450px;
+  max-width: 100%;
+  min-width: 0;
 }
-.technology-logos img {
+.hackathon-banner img {
   display: block;
-  object-fit: contain;
-  flex-shrink: 0;
+  width: 100%;
+  height: auto;
 }
 .app-access-note {
   margin-bottom: 24px;

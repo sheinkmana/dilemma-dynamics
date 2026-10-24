@@ -1,7 +1,7 @@
 """Verify public scores and estimates offline; no model or provider calls.
 
 The public action data cannot authenticate privately retained raw responses,
-request/transport accounting, or provider billing. See public/research/README.md.
+request/transport accounting, or provider billing. See FINAL_EVALUATION.md.
 """
 
 import csv

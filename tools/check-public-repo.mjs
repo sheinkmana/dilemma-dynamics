@@ -14,7 +14,14 @@ const files = [
 ];
 const failures = [];
 const privatePath =
-  /^(?:AGENTS\.md$|archive\/|data\/|output\/|docs\/research\/|\.env(?:\.|$)(?!example$))|(?:\.sqlite(?:-wal|-shm)?|\.db|\.tar\.gz|\.zip)$|^[^/]+\.pdf$|^research\/paper-extracted\.txt$/i;
+  /^(?:archive\/|data\/|output\/|docs\/research\/|\.env(?:\.|$)(?!example$))|(?:\.sqlite(?:-wal|-shm)?|\.db|\.tar\.gz|\.zip)$|^[^/]+\.pdf$|^research\/paper-extracted\.txt$/i;
+const maintainedMarkdown = new Set(['README.md', 'AGENTS.md', 'FINAL_EVALUATION.md']);
+for (const name of files.filter((name) => name.endsWith('.md') && existsSync(name))) {
+  if (!maintainedMarkdown.has(name)) failures.push(`${name}: redundant maintained Markdown`);
+}
+for (const name of maintainedMarkdown) {
+  if (!files.includes(name) || !existsSync(name)) failures.push(`${name}: required guide absent`);
+}
 const patterns = [
   ['personal folder path', /\/(?:Users|home)\/[a-zA-Z0-9_.-]+\//],
   ['account resource ID', /(?:project|tenant|vpcsubnet|computefilesystem)-e00[a-z0-9]{8,}/],

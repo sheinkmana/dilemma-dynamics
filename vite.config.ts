@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { createHash } from 'node:crypto';
-import { readdirSync, readFileSync, unlinkSync } from 'node:fs';
+import { copyFileSync, readdirSync, readFileSync, unlinkSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 // A TeX preview may leave temporary files beside the public report while Vite
@@ -26,6 +26,7 @@ function curateResearchExport() {
       .digest('hex');
     if (actual !== expected) throw new Error(`Public research checksum mismatch: ${name}`);
   }
+  copyFileSync('FINAL_EVALUATION.md', 'dist/web/FINAL_EVALUATION.md');
 }
 
 export default defineConfig(({ mode }) => ({

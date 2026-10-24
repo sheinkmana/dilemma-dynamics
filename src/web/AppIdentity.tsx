@@ -2,9 +2,13 @@ import { publicAsset } from './assets.js';
 
 export function ProviderLogos() {
   return (
-    <div className="technology-logos" aria-label="Technology used: Nebius and NVIDIA">
-      <img src={publicAsset('brands/nebius.svg')} alt="Nebius" width="80" height="22" />
-      <img src={publicAsset('brands/nvidia.svg')} alt="NVIDIA" width="108" height="20" />
+    <div className="hackathon-banner" aria-label="Nebius x NVIDIA Global AI Hackathon">
+      <img
+        src={publicAsset('brands/nebius-nvidia-hackathon.png')}
+        alt="Nebius x NVIDIA Global AI Hackathon — Build the next frontier of AI on open infrastructure"
+        width="1200"
+        height="160"
+      />
     </div>
   );
 }

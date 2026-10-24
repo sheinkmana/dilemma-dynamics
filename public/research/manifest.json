@@ -1,8 +1,7 @@
 {
   "schemaVersion": 1,
-  "scope": "Public derived package; hashes do not authenticate privately retained provider evidence.",
+  "scope": "Bundled development action data pending replacement by the completed joint final evaluation; technical notes describe the new protocol. Hashes do not authenticate private provider evidence.",
   "files": {
-    "README.md": "b3dcc186115ee1f5eeb60b4ce186fdc290282ed19625a3f7585c038f711b799d",
     "block-contrasts.csv": "17a5da7a1388cbbe330231fda05a30f8314d0305a947b4ddaec993b55e4f6ab7",
     "condition-losses.csv": "58077e0c56968a67c6560589e9bdb5be0206c13f763576b6ff9e1dd5c1ee2551",
     "crossplay.csv": "acc70fe3fa637d62299604974863f69dcf2b7f4428776e066800b996d9889bea",
@@ -15,11 +14,10 @@
     "figures/primary-results.svg": "a144b14d94386be3e2e8a0db6e11fa3a71ba5b65f03515fbe19da234eff5c3a3",
     "figures/temperature-comparison.png": "b731a4f12c57a2a0f3a91e3d43c9f35ec329c6e10c804c79685869806e20695c",
     "figures/temperature-comparison.svg": "8e1ea505560f0ef04753519eb19bbbe8ec5133a8228d8f922cf0dceba0c5fd52",
-    "paper/main.tex": "e8586d5ce89640b214231138134cb1044d481d02e88f0e25ff7e719c29139a52",
-    "paper/report.pdf": "6c8c8056edca2d5d398bcea2e97d6f31d0612cdecab9c06f6bb657bdcd66fd00",
+    "paper/main.tex": "34a7a0b76fe1ed768c0ab83946d06965756c671207e8fe3b8758270052daefa4",
+    "paper/report.pdf": "da4be8c630ba7f43437c768335aea017e477a9710bd30f0e643c63016393fd3a",
     "plan.json": "9db175f9a41e60fdbb7f61684caf35f1437f15a15f0c7a0a87be6a8f621188d4",
     "policy-effects.csv": "8d57b46f0dae90a74cac984348c30dd81b654369525fa6c5b0c3be6a790584a7",
-    "protocol.md": "8e489db772850df9e60dc0599ec7035be137abe0d6ce0af64bab58b5c590f435",
     "summary.json": "c5c613230898a32c0a21b33a526483c8624d387060251279f359d7f97317eb31",
     "temperature-comparison.csv": "07117fbf069f60f92403e82228795f383c6c6d11456540701c8fb9b8e255dd53",
     "temperature-comparison.json": "f787bcb8b47b46371393227c41f29e20d30b44ad474e1e5334ecdd3e5f0e8773",
