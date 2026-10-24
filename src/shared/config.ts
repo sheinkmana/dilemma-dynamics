@@ -21,7 +21,7 @@ export function isActionOnly(config: MatchConfig): boolean {
 }
 
 export const playerSchema = z.object({
-  kind: z.enum(['random', 'heuristic', 'solver', 'nebius']),
+  kind: z.enum(['human', 'random', 'heuristic', 'solver', 'nebius']),
   name: z.string().trim().min(1).max(80),
   model: z.string().max(200).default(''),
   knowledge: z.enum(['rules', 'examples', 'strategy']).default('rules'),

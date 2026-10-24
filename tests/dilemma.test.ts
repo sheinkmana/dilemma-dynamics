@@ -575,3 +575,123 @@ test('reserved decisions use their frozen prices even if discovery changes in fl
   assert.equal(attempts[1].costUsd, (100 * 0.3 + 20 * 0.9) / 1e6);
   store.close();
 });
+
+function humanConfig(opponent: 'model' | 'demo-reciprocal' = 'model'): DilemmaConfig {
+  return config({
+    mode: 'interactive',
+    players: [
+      { kind: 'human', name: 'You', model: '' },
+      { kind: opponent, name: 'Opponent', model: opponent === 'model' ? nano : '' },
+    ],
+  });
+}
+
+test('human Dilemma preserves simultaneous privacy, rejects duplicate choices and stops after joint reveal', async () => {
+  const gate = deferred<Response>();
+  const { runner, remote, store } = await setup((n) =>
+    n === 1 ? gate.promise : response('ACTION: Y'),
+  );
+  try {
+    const s = runner.create(humanConfig());
+    const running = runner.start(s.id);
+    assert.equal(runner.get(s.id).pendingRound, 1);
+    runner.submitChoice(s.id, 0, 1, 'D');
+    assert.throws(() => runner.submitChoice(s.id, 0, 1, 'C'), /already been submitted/);
+    assert.throws(() => runner.submitChoice(s.id, 1, 1, 'C'), /stale/);
+    assert.equal(runner.get(s.id).rounds.length, 0);
+    assert.deepEqual(runner.get(s.id).scores, [0, 0]);
+    assert.deepEqual(runner.get(s.id).received, [true, false]);
+    const audit = runner.audit(s.id);
+    assert.ok(
+      audit.every((a) => !('raw' in a)),
+      'Uncommitted human and model responses stay private',
+    );
+    assert.ok(!JSON.stringify(remote.requests[0]).includes('Chosen by the human'));
+    assert.deepEqual(JSON.parse(remote.requests[0].messages[1].content).completedHistory, []);
+    gate.resolve(response('ACTION: X'));
+    await running;
+    await runner.idle();
+    const revealed = runner.get(s.id);
+    assert.equal(revealed.status, 'paused');
+    assert.deepEqual(revealed.rounds[0].actions, ['D', 'C']);
+    assert.deepEqual(revealed.scores, [5, 0]);
+    assert.equal(remote.count(), 1);
+    await runner.start(s.id);
+    assert.equal(runner.get(s.id).rounds.length, 1);
+    assert.deepEqual(runner.get(s.id).received, [false, true]);
+    runner.submitChoice(s.id, 0, 2, 'C');
+    await runner.idle();
+    const final = runner.get(s.id);
+    assert.equal(final.status, 'completed');
+    assert.deepEqual(final.rounds[1].actions, ['C', 'D']);
+    assert.deepEqual(final.scores, [5, 5]);
+    assert.equal(remote.count(), 2);
+    assert.deepEqual(final.rounds[0].forecasts, [null, null]);
+    assert.equal(store.dilemmaAttempts(s.id).filter((a) => a.model === 'local/human').length, 2);
+  } finally {
+    store.close();
+  }
+});
+
+test('human Dilemma pause and restart retain a sealed model choice without another request', async () => {
+  const { runner, remote, store, board } = await setup(() => response('ACTION: X'));
+  try {
+    const s = runner.create(humanConfig());
+    await runner.start(s.id);
+    assert.equal(remote.count(), 1);
+    runner.pause(s.id);
+    assert.equal(runner.get(s.id).status, 'paused');
+    assert.throws(() => runner.submitChoice(s.id, 0, 1, 'C'), /Resume/);
+    // A new app runner reads the same persisted pending round, as after a restart.
+    const resumed = new DilemmaRunner(board);
+    await resumed.start(s.id);
+    assert.equal(remote.count(), 1);
+    assert.deepEqual(resumed.get(s.id).received, [false, true]);
+    resumed.submitChoice(s.id, 0, 1, 'C');
+    await resumed.idle();
+    assert.equal(remote.count(), 1);
+    assert.deepEqual(resumed.get(s.id).rounds[0].actions, ['C', 'C']);
+    resumed.stop(s.id);
+    assert.throws(() => resumed.submitChoice(s.id, 0, 2, 'D'), /Resume/);
+  } finally {
+    store.close();
+  }
+});
+
+test('human versus a reciprocal Dilemma bot uses completed history and makes no model requests', async () => {
+  const { runner, remote, store } = await setup(() => {
+    throw new Error('Unexpected inference');
+  });
+  try {
+    const s = runner.create(humanConfig('demo-reciprocal'));
+    await runner.start(s.id);
+    runner.submitChoice(s.id, 0, 1, 'D');
+    await runner.idle();
+    await runner.start(s.id);
+    runner.submitChoice(s.id, 0, 2, 'C');
+    await runner.idle();
+    assert.deepEqual(
+      runner.get(s.id).rounds.map((r) => r.actions),
+      [
+        ['D', 'C'],
+        ['C', 'D'],
+      ],
+    );
+    assert.equal(remote.count(), 0);
+    assert.equal(runner.get(s.id).spentUsd, 0);
+    assert.throws(
+      () => configSchema.parse({ ...humanConfig(), protocol: 'forecasts' }),
+      /actions only/,
+    );
+    assert.throws(
+      () =>
+        configSchema.parse({
+          ...humanConfig(),
+          players: [humanConfig().players[0], humanConfig().players[0]],
+        }),
+      /exactly one/,
+    );
+  } finally {
+    store.close();
+  }
+});

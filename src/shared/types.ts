@@ -48,7 +48,7 @@ export interface Component {
   actions: string[];
 }
 export interface PlayerConfig {
-  kind: 'random' | 'heuristic' | 'solver' | 'nebius';
+  kind: 'human' | 'random' | 'heuristic' | 'solver' | 'nebius';
   name: string;
   model: string;
   knowledge: 'rules' | 'examples' | 'strategy';
@@ -93,7 +93,7 @@ export interface MoveRecord {
   retained: boolean;
   state: GameState;
   explanation: string;
-  explanationSource: 'model' | 'baseline';
+  explanationSource: 'model' | 'baseline' | 'human';
   attemptId: string;
   latencyMs: number;
   firstTokenMs: number | null;

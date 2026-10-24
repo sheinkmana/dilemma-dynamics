@@ -9,6 +9,8 @@ export class Experiments {
   constructor(public runner: Runner) {}
   create(input: unknown) {
     const config = experimentSchema.parse(input);
+    if (config.match.players.some((p) => p.kind === 'human'))
+      throw new Error('Experiments require automated players. Use a regular match for human play.');
     this.runner.validate(config.match);
     if (config.kind === 'positions' && config.match.game !== 'dots-boxes')
       throw new Error('Held-out positions currently cover Dots and Boxes only.');

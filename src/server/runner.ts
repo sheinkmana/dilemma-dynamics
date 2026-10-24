@@ -174,7 +174,7 @@ export class Runner extends EventEmitter {
       this.save(m);
     } else {
       const m = this.store.getMatch(id);
-      if (['ready', 'interrupted'].includes(m.status)) {
+      if (['ready', 'interrupted', 'running'].includes(m.status)) {
         m.status = 'paused';
         m.message = 'Paused.';
         this.save(m);
@@ -190,6 +190,62 @@ export class Runner extends EventEmitter {
       m.message = 'Stopped by user. An in-flight request may still be billed.';
       this.save(m);
     }
+  }
+  submitMove(id: string, player: Player, ply: number, action: string) {
+    const m = this.store.getMatch(id);
+    if (m.status !== 'running' || this.active.get(id)?.pause)
+      throw new Error('Resume this game before playing a move.');
+    if (
+      m.state.player !== player ||
+      m.state.ply !== ply ||
+      m.config.players[player].kind !== 'human'
+    )
+      throw new Error('This move is stale or it is not your turn.');
+    const evaluation = evaluate(m.state);
+    // Validate before recording anything, including duplicate submissions.
+    const next = gameFor(m.state.game).apply(m.state, action);
+    const a = this.attempt(m, { model: 'local/human', messages: [] });
+    a.raw = action;
+    a.outcome = 'accepted';
+    a.finishedAt = now();
+    a.finishReason = 'stop';
+    m.moves.push({
+      index: m.moves.length + 1,
+      action,
+      player,
+      captured: next.captured,
+      retained: next.retained,
+      state: next.state,
+      explanation: 'Chosen by the human player.',
+      explanationSource: 'human',
+      attemptId: a.id,
+      latencyMs: 0,
+      firstTokenMs: null,
+      usage: null,
+      costUsd: 0,
+      costKind: 'local',
+      evaluation,
+      regret:
+        evaluation.status === 'exact' ? evaluation.value! - evaluation.actionValues[action] : null,
+    });
+    m.state = next.state;
+    m.outcome = next.outcome;
+    if (next.outcome || (m.config.maxMoves && m.moves.length >= m.config.maxMoves)) {
+      m.status = 'completed';
+      m.message = next.outcome?.reason ?? 'Configured move limit reached.';
+    } else m.message = 'Move played.';
+    this.store.finish(a, m);
+    this.publish(m);
+    const resume = () => {
+      if (this.store.getMatch(id).status !== 'running' || this.active.has(id)) return;
+      const control = { abort: new AbortController(), pause: false, promise: Promise.resolve() };
+      this.active.set(id, control);
+      control.promise = this.run(id, control, false).finally(() => this.active.delete(id));
+    };
+    const active = this.active.get(id);
+    if (active) void active.promise.then(resume);
+    else resume();
+    return this.store.getMatch(id);
   }
   async idle() {
     await Promise.all([...this.active.values()].map((c) => c.promise));
@@ -261,8 +317,13 @@ export class Runner extends EventEmitter {
           return;
         }
         const player = m.state.player!;
-        const p = m.config.players[player],
-          evaluation = evaluate(m.state);
+        const p = m.config.players[player];
+        if (p.kind === 'human') {
+          m.message = `${p.name}: choose an empty cell or an undrawn edge.`;
+          this.save(m);
+          return;
+        }
+        const evaluation = evaluate(m.state);
         let accepted = false;
         for (let retry = 0; retry <= m.config.repairAttempts; retry++) {
           m = this.store.getMatch(id);

@@ -28,7 +28,17 @@ export function registerDilemma(app: FastifyInstance, runner: DilemmaRunner) {
       const { id, action } = req.params;
       runner.get(id);
       if (action === 'start' || action === 'step') void runner.start(id, action === 'step');
-      else if (action === 'pause') runner.pause(id);
+      else if (action === 'choice') {
+        const b = z
+          .object({
+            seat: z.union([z.literal(0), z.literal(1)]),
+            round: z.number().int().positive(),
+            action: z.enum(['C', 'D']),
+          })
+          .strict()
+          .parse(req.body);
+        return runner.submitChoice(id, b.seat, b.round, b.action);
+      } else if (action === 'pause') runner.pause(id);
       else if (action === 'stop') runner.stop(id);
       else throw new Error('Unknown Dilemma session action.');
       return runner.get(id);

@@ -122,6 +122,16 @@ export async function createApp(
       throw new Error('Use the experiment controls while its scheduler is running.');
     if (action === 'start' || action === 'step') {
       void runner.start(id, action === 'step');
+    } else if (action === 'move') {
+      const b = z
+        .object({
+          player: z.union([z.literal(0), z.literal(1)]),
+          ply: z.number().int().min(0),
+          action: z.string(),
+        })
+        .strict()
+        .parse(req.body);
+      return runner.submitMove(id, b.player, b.ply, b.action);
     } else if (action === 'pause') runner.pause(id);
     else if (action === 'stop') runner.stop(id);
     else if (action === 'fork') {

@@ -266,3 +266,132 @@ test('downloaded HTML, JSON and JSONL contain browser decisions without executab
     /Replayed game position/,
   );
 });
+
+for (const game of ['tic-tac-toe', 'dots-boxes'] as const) {
+  for (const human of [0, 1] as const) {
+    test(`browser ${game} supports human seat ${human}, turn validation and saved progress`, async () => {
+      const f = fixture();
+      const config = simpleMatchConfig(game, structuredClone(defaultConfig.players));
+      config.rows = config.cols = 1;
+      config.players[human].kind = 'human';
+      const match = await f.runtime.request<MatchRecord>('/matches', config);
+      const path = `/matches/${match.id}`;
+      await f.runtime.request(`${path}/start`, {});
+      while (true) {
+        const before = await f.runtime.request<MatchRecord>(path);
+        if (before.status === 'completed') break;
+        if (before.state.player !== human) {
+          await assert.rejects(
+            f.runtime.request(`${path}/move`, {
+              player: human,
+              ply: before.state.ply,
+              action: 'C:0:0',
+            }),
+            /not your turn/,
+          );
+          f.tick();
+          continue;
+        }
+        assert.equal(f.callbacks.size, 0, 'A human turn must not schedule a bot move');
+        await assert.rejects(
+          f.runtime.request(`${path}/move`, {
+            player: human,
+            ply: before.state.ply,
+            action: 'invalid',
+          }),
+        );
+        assert.equal(
+          (await f.runtime.request<MatchRecord>(path)).moves.length,
+          before.moves.length,
+        );
+        const body = {
+          player: human,
+          ply: before.state.ply,
+          action: gameFor(game).legalActions(before.state)[0],
+        };
+        const after = await f.runtime.request<MatchRecord>(`${path}/move`, body);
+        assert.equal(after.moves.at(-1)?.explanationSource, 'human');
+        await assert.rejects(f.runtime.request(`${path}/move`, body));
+      }
+      const final = await f.runtime.request<MatchRecord>(path);
+      assert.equal(final.spentUsd, 0);
+      const reloaded = fixture(f.storage);
+      assert.deepEqual((await reloaded.runtime.request<MatchRecord>(path)).state, final.state);
+      assert.equal(reloaded.callbacks.size, 0);
+    });
+  }
+}
+
+test('browser human Dilemma reveals jointly, retains completed history and requires resume after reload', async () => {
+  const f = fixture();
+  const config = structuredClone(demo);
+  config.mode = 'interactive';
+  config.players[0] = { kind: 'human', name: 'You', model: '' };
+  const created = await createDemo(f.runtime, config);
+  const path = `/dilemma/sessions/${created.id}`;
+  await f.runtime.request(`${path}/start`, {});
+  assert.equal(f.callbacks.size, 0);
+  let current = await f.runtime.request<DilemmaSession>(path);
+  assert.equal(current.pendingRound, 1);
+  assert.equal(current.rounds.length, 0);
+  await assert.rejects(
+    f.runtime.request(`${path}/choice`, { seat: 1, round: 1, action: 'D' }),
+    /stale/,
+  );
+  const reload = fixture(f.storage);
+  assert.equal((await reload.runtime.request<DilemmaSession>(path)).status, 'paused');
+  await assert.rejects(
+    reload.runtime.request(`${path}/choice`, { seat: 0, round: 1, action: 'D' }),
+    /Resume/,
+  );
+  for (let i = 1; i <= 10; i++) {
+    await reload.runtime.request(`${path}/start`, {});
+    current = await reload.runtime.request<DilemmaSession>(`${path}/choice`, {
+      seat: 0,
+      round: i,
+      action: i % 2 ? 'D' : 'C',
+    });
+    assert.deepEqual(current.rounds.at(-1)?.actions, [
+      i % 2 ? 'D' : 'C',
+      i === 1 || i % 2 ? 'C' : 'D',
+    ]);
+    assert.deepEqual(current.received, [false, false]);
+    assert.equal(current.pendingRound, null);
+    await assert.rejects(
+      reload.runtime.request(`${path}/choice`, { seat: 0, round: i, action: 'C' }),
+    );
+  }
+  assert.equal(current.status, 'completed');
+  assert.equal(current.rounds.length, 10);
+  assert.equal(current.spentUsd, 0);
+  assert.equal(reload.callbacks.size, 0);
+});
+
+test('browser human Dots & Boxes retains the turn after a nonterminal capture', async () => {
+  const { runtime, callbacks } = fixture();
+  const config = simpleMatchConfig('dots-boxes', structuredClone(defaultConfig.players));
+  config.rows = 1;
+  config.cols = 2;
+  config.players.forEach((p) => (p.kind = 'human'));
+  let m = await runtime.request<MatchRecord>('/matches', config);
+  const path = `/matches/${m.id}`;
+  await runtime.request(`${path}/start`, {});
+  for (const action of ['H:0:0', 'H:0:1', 'H:1:0', 'H:1:1', 'V:0:0', 'V:0:1']) {
+    m = await runtime.request<MatchRecord>(`${path}/move`, {
+      player: m.state.player,
+      ply: m.state.ply,
+      action,
+    });
+  }
+  assert.equal(m.moves.at(-1)?.retained, true);
+  assert.equal(m.state.player, 1);
+  assert.deepEqual(m.state.scores, [0, 1]);
+  assert.equal(callbacks.size, 0);
+  m = await runtime.request<MatchRecord>(`${path}/move`, {
+    player: 1,
+    ply: m.state.ply,
+    action: 'V:0:2',
+  });
+  assert.equal(m.status, 'completed');
+  assert.deepEqual(m.state.scores, [0, 2]);
+});

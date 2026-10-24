@@ -12,6 +12,7 @@ import {
   RULES_VERSION,
 } from '../dilemma/rules.js';
 import type {
+  Action,
   Decision,
   DilemmaConfig,
   DilemmaSession,
@@ -160,7 +161,7 @@ export class DilemmaRunner extends EventEmitter {
     if (control) {
       control.pause = true;
       s.message = 'Pause requested; the current joint round will finish.';
-    } else if (s.status === 'ready') {
+    } else if (['ready', 'running', 'interrupted'].includes(s.status)) {
       s.status = 'paused';
       s.message = 'Paused before the first round.';
     } else return;
@@ -177,6 +178,66 @@ export class DilemmaRunner extends EventEmitter {
       'Stopped. Unresolved choices earned no points; incurred request costs remain recorded.';
     this.store.saveDilemma(s);
     this.publish(id);
+  }
+  submitChoice(id: string, seat: Seat, round: number, action: Action) {
+    this.store.transaction(() => {
+      const s = this.store.getDilemma(id),
+        p = this.store.pendingDilemma(id);
+      if (s.status !== 'running' || this.active.get(id)?.pause)
+        throw new Error('Resume the interaction before submitting your choice.');
+      if (
+        s.config.players[seat].kind !== 'human' ||
+        !p ||
+        p.index !== round ||
+        p.beforeHash !== beforeHash(s) ||
+        p.sealed[seat]
+      )
+        throw new Error('This choice is stale or has already been submitted.');
+      const a: AttemptRecord = {
+        id: randomUUID(),
+        dilemmaId: id,
+        matchId: null,
+        moveIndex: round - 1,
+        player: seat,
+        startedAt: now(),
+        finishedAt: now(),
+        model: 'local/human',
+        endpoint: s.endpoint,
+        stateHash: p.beforeHash,
+        promptHash: hash([]),
+        prompt: [],
+        request: {},
+        raw: action,
+        reasoning: '',
+        outcome: 'accepted',
+        usage: null,
+        reservedUsd: 0,
+        costUsd: 0,
+        costKind: 'local',
+        latencyMs: 0,
+        firstTokenMs: null,
+        finishReason: 'stop',
+        providerRequestId: null,
+      };
+      this.store.saveAttempt(a);
+      p.sealed[seat] = { decision: { action, forecast: null }, attemptId: a.id };
+      this.store.savePendingDilemma(id, p);
+      s.received[seat] = true;
+      s.message = 'Your choice is sealed. Waiting for the other player.';
+      this.store.refreshDilemmaCosts(s);
+      this.store.saveDilemma(s);
+    });
+    this.publish(id);
+    const resume = () => {
+      if (this.store.getDilemma(id).status !== 'running' || this.active.has(id)) return;
+      const control = { abort: new AbortController(), pause: false, promise: Promise.resolve() };
+      this.active.set(id, control);
+      control.promise = this.run(id, control, false).finally(() => this.active.delete(id));
+    };
+    const active = this.active.get(id);
+    if (active) void active.promise.then(resume);
+    else resume();
+    return this.get(id);
   }
   async idle() {
     await Promise.all([...this.active.values()].map((c) => c.promise));
@@ -377,7 +438,7 @@ export class DilemmaRunner extends EventEmitter {
           return;
         }
         const attempts = seats
-          .filter((seat) => !p!.sealed[seat])
+          .filter((seat) => !p!.sealed[seat] && s.config.players[seat].kind !== 'human')
           .map((seat) => {
             const player = s.config.players[seat],
               model = player.kind === 'model' ? this.model(player.model) : undefined;
@@ -454,10 +515,19 @@ export class DilemmaRunner extends EventEmitter {
           this.publish(id);
           return;
         }
+        if (!this.store.pendingDilemma(id)?.sealed.every(Boolean)) {
+          if (c.pause) {
+            s.status = 'paused';
+            s.message = 'Paused. Sealed choices are retained until you resume.';
+          } else s.message = 'Your turn: choose Cooperate or Defect. Choices reveal together.';
+          this.store.saveDilemma(s);
+          this.publish(id);
+          return;
+        }
         this.commit(id);
         s = this.store.getDilemma(id);
         if (s.status !== 'running') return;
-        if (step || c.pause) {
+        if (step || c.pause || s.config.mode === 'interactive') {
           s.status = 'paused';
           s.message = 'Paused at a joint-round boundary.';
           this.store.saveDilemma(s);

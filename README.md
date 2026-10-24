@@ -18,7 +18,9 @@ and their [TeX source](public/research/paper/main.tex).
 
 ## Explore the app
 
-1. **Dilemma:** open **Learn the game**, then run the free ten-round demo.
+1. **Dilemma:** open **Learn the game**, run the free ten-round demo, or choose
+   **Play as a human** to face a random or reciprocal bot. The local API app also
+   lets you choose Nemotron as your opponent.
    Both players choose privately and reveal together. Compare the immediate
    temptation to defect with the future value of cooperation.
 2. **Analysis:** inspect the completed history, payoff arithmetic and alternative
@@ -30,7 +32,9 @@ and their [TeX source](public/research/paper/main.tex).
 4. **Results:** inspect decision loss, opponent breakdowns, autonomous pairings,
    costs and downloadable evidence. During the current run, these are development
    data rather than the replacement final evaluation.
-5. **Board games:** try Dots & Boxes or Tic-tac-toe. These visible, sequential,
+5. **Board games:** try Dots & Boxes or Tic-tac-toe. Choose **You (human)** for
+   either seat, then click an empty cell or undrawn edge to play against a bot
+   or, in the local API app, Nemotron. These visible, sequential,
    competitive games explore tactics and search. They are separate from the
    cooperation study, where mutual cooperation can improve both players' returns.
 

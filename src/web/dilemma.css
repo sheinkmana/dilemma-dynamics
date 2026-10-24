@@ -1026,3 +1026,22 @@
     padding: 16px;
   }
 }
+
+.pd-play-mode,
+.pd-human-choice {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 1rem 0;
+}
+.pd-play-mode button[aria-pressed='true'] {
+  border-color: currentColor;
+  font-weight: 700;
+}
+.pd-human-choice {
+  padding: 1rem;
+}
+.pd-human-choice p {
+  flex-basis: 100%;
+}

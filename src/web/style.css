@@ -1005,3 +1005,28 @@ a:hover {
 .app-access-note pre {
   white-space: pre-wrap;
 }
+
+.human-edge-target {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 28;
+  pointer-events: stroke;
+  cursor: pointer;
+}
+.human-edge-target:hover,
+.human-edge-target:focus {
+  stroke: var(--accent, #88bbae);
+  stroke-opacity: 0.35;
+  outline: none;
+}
+.board [role='button']:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.board rect[role='button']:hover {
+  fill-opacity: 0.6;
+}
+.human-turn {
+  text-align: center;
+  padding: 0 1rem;
+}

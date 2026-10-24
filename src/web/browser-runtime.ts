@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { baselineMove } from '../players/baselines.js';
 import { gameFor } from '../games/registry.js';
 import { scenarioState } from '../games/scenarios.js';
@@ -53,7 +54,11 @@ export class BrowserRuntime {
             throw new Error('Invalid saved game');
           if (isDilemma(record)) {
             configSchema.parse(record.config);
-            if (record.config.mode !== 'demo' || !Array.isArray(record.rounds))
+            if (
+              !['demo', 'interactive'].includes(record.config.mode) ||
+              record.config.players.some((p) => p.kind === 'model') ||
+              !Array.isArray(record.rounds)
+            )
               throw new Error('Invalid local demo');
           } else {
             matchSchema.parse(record.config);
@@ -135,6 +140,21 @@ export class BrowserRuntime {
 
   private queue(path: string, step: boolean) {
     const record = this.get(path);
+    if (isDilemma(record) && record.config.mode === 'interactive') {
+      record.pendingRound = record.rounds.length + 1;
+      record.message = 'Your turn: choose Cooperate or Defect. Choices reveal together.';
+      this.save(record);
+      return;
+    }
+    if (
+      !isDilemma(record) &&
+      record.state.player !== null &&
+      record.config.players[record.state.player].kind === 'human'
+    ) {
+      record.message = 'Your turn: choose an empty cell or an undrawn edge.';
+      this.save(record);
+      return;
+    }
     const delay = isDilemma(record) ? record.config.delayMs : (record.config.moveDelayMs ?? 700);
     this.timers.set(
       path,
@@ -142,10 +162,13 @@ export class BrowserRuntime {
     );
   }
 
-  private move(record: MatchRecord) {
+  private move(record: MatchRecord, humanAction?: string) {
     const before = record.state;
     const player = before.player!;
-    const decision = baselineMove(before, record.config.players[player].kind, record.config.seed);
+    const decision =
+      humanAction === undefined
+        ? baselineMove(before, record.config.players[player].kind, record.config.seed)
+        : { action: humanAction, explanation: 'Chosen by the human player.' };
     const evaluation = evaluate(before);
     const result = gameFor(before.game).apply(before, decision.action);
     record.state = result.state;
@@ -159,7 +182,7 @@ export class BrowserRuntime {
       retained: result.retained,
       state: copy(result.state),
       explanation: decision.explanation,
-      explanationSource: 'baseline',
+      explanationSource: humanAction === undefined ? 'baseline' : 'human',
       attemptId: crypto.randomUUID(),
       latencyMs: 0,
       firstTokenMs: null,
@@ -181,11 +204,15 @@ export class BrowserRuntime {
     } else record.message = `Move ${record.moves.length} played.`;
   }
 
-  private round(record: DilemmaSession) {
+  private round(record: DilemmaSession, humanAction?: Action) {
     const index = record.rounds.length + 1;
     const previous = record.rounds.at(-1);
     // Choose both actions from the same completed history before revealing either.
     const actions = record.config.players.map((player, seat) => {
+      if (player.kind === 'human') {
+        if (!humanAction) throw new Error('Choose Cooperate or Defect first.');
+        return humanAction;
+      }
       if (player.kind === 'demo-reciprocal') return previous?.actions[1 - seat] ?? 'C';
       const draw = new Uint32Array(1);
       crypto.getRandomValues(draw);
@@ -215,6 +242,8 @@ export class BrowserRuntime {
       continuation: ended ? 'fixed-final' : 'continued',
       resolvedAt: now(),
     });
+    record.pendingRound = null;
+    record.received = [false, false];
     record.scores = scores;
     record.attempts += 2;
     record.message = ended
@@ -223,6 +252,9 @@ export class BrowserRuntime {
     if (ended) {
       record.status = 'completed';
       record.endReason = 'fixed-final';
+    } else if (record.config.mode === 'interactive') {
+      record.status = 'paused';
+      record.message = `Round ${index} revealed. Start the next round when ready.`;
     }
   }
 
@@ -274,8 +306,10 @@ export class BrowserRuntime {
       let record: Record;
       if (path === '/matches') {
         const config = matchSchema.parse(body);
-        if (config.players.some((p) => !['heuristic', 'random'].includes(p.kind)))
-          throw new Error('Only free simple and random bots are available in the browser.');
+        if (config.players.some((p) => !['human', 'heuristic', 'random'].includes(p.kind)))
+          throw new Error(
+            'Only free human players, simple and random bots are available in the browser.',
+          );
         const state = scenarioState(config.scenario, config.game, config.rows, config.cols);
         record = {
           ...common,
@@ -292,7 +326,8 @@ export class BrowserRuntime {
       } else {
         const config = configSchema.parse((body as { config?: unknown })?.config);
         if (
-          config.mode !== 'demo' ||
+          !['demo', 'interactive'].includes(config.mode) ||
+          config.players.some((p) => p.kind === 'model') ||
           config.horizon.kind !== 'fixed' ||
           config.horizon.rounds !== 10
         )
@@ -318,14 +353,47 @@ export class BrowserRuntime {
       return record;
     }
     const match = path.match(
-      /^(\/matches\/[^/]+|\/dilemma\/sessions\/[^/]+)(?:\/(start|step|pause|stop))?$/,
+      /^(\/matches\/[^/]+|\/dilemma\/sessions\/[^/]+)(?:\/(start|step|pause|stop|move|choice))?$/,
     );
     if (!match) throw new Error('This operation is unavailable in the browser app.');
     const [, key, action] = match;
     const record = this.get(key);
     if (!action && body === undefined) return record;
     if (body === undefined || !action) throw new Error('Unsupported browser operation.');
-    if (action === 'start' || action === 'step') {
+    if (action === 'move' || action === 'choice') {
+      if (record.status !== 'running') throw new Error('Resume before playing.');
+      if (action === 'move' && !isDilemma(record)) {
+        const b = z
+          .object({
+            player: z.union([z.literal(0), z.literal(1)]),
+            ply: z.number().int(),
+            action: z.string(),
+          })
+          .strict()
+          .parse(body);
+        if (
+          record.state.player !== b.player ||
+          record.state.ply !== b.ply ||
+          record.config.players[b.player].kind !== 'human'
+        )
+          throw new Error('This move is stale or it is not your turn.');
+        this.move(record, b.action);
+      } else if (action === 'choice' && isDilemma(record)) {
+        const b = z
+          .object({
+            seat: z.union([z.literal(0), z.literal(1)]),
+            round: z.number().int().positive(),
+            action: z.enum(['C', 'D']),
+          })
+          .strict()
+          .parse(body);
+        if (record.config.players[b.seat].kind !== 'human' || record.pendingRound !== b.round)
+          throw new Error('This choice is stale or has already been submitted.');
+        this.round(record, b.action);
+      } else throw new Error('Unsupported player action.');
+      this.save(record);
+      if (record.status === 'running') this.queue(key, false);
+    } else if (action === 'start' || action === 'step') {
       if (record.status === 'running') return record;
       if (!['ready', 'paused', 'interrupted'].includes(record.status))
         throw new Error('Start a new game; this game has ended.');

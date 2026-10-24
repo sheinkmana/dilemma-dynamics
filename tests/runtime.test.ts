@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Store } from '../src/server/store.js';
 import { Nebius, ProviderError } from '../src/server/provider.js';
+import { gameFor } from '../src/games/registry.js';
 import { Runner } from '../src/server/runner.js';
 import { Experiments } from '../src/server/experiments.js';
 import {
@@ -697,4 +698,105 @@ test('restart preserves completed match snapshots and stable library ordering', 
   assert.deepEqual(store.getMatch(older.id), saved);
   store.close();
   rmSync(dir, { recursive: true, force: true });
+});
+
+for (const game of ['tic-tac-toe', 'dots-boxes'] as const) {
+  test(`server ${game} waits for human moves, rejects stale inputs and completes with a bot`, async () => {
+    const store = new Store(':memory:');
+    const runner = new Runner(
+      store,
+      new Nebius('https://example.test/v1/', '', (async () => {
+        throw new Error('Human/bot play must not call a provider');
+      }) as typeof fetch),
+    );
+    try {
+      const config = simpleMatchConfig(game, structuredClone(defaultConfig.players));
+      config.players[1].kind = 'human';
+      config.rows = config.cols = 1;
+      config.moveDelayMs = 0;
+      const m = runner.create(config);
+      await runner.start(m.id);
+      while (store.getMatch(m.id).status === 'running') {
+        const before = store.getMatch(m.id);
+        assert.equal(before.state.player, 1);
+        const action = gameFor(game).legalActions(before.state)[0];
+        assert.throws(() => runner.submitMove(m.id, 0, before.state.ply, action), /not your turn/);
+        assert.throws(() => runner.submitMove(m.id, 1, before.state.ply, 'invalid'));
+        runner.submitMove(m.id, 1, before.state.ply, action);
+        const after = store.getMatch(m.id);
+        assert.throws(() => runner.submitMove(m.id, 1, before.state.ply, action));
+        await runner.idle();
+      }
+      const final = store.getMatch(m.id);
+      assert.equal(final.status, 'completed');
+      assert.equal(final.spentUsd, 0);
+      assert.ok(final.moves.some((m) => m.explanationSource === 'human'));
+      assert.throws(
+        () =>
+          new Experiments(runner).create({ kind: 'paired', pairs: 1, match: config, maxUsd: 1 }),
+        /automated players/,
+      );
+    } finally {
+      store.close();
+    }
+  });
+}
+
+test('human versus mocked Nemotron calls the provider only on the model turn', async () => {
+  const store = new Store(':memory:');
+  let calls = 0;
+  const provider = mock((_n, body) => {
+    calls++;
+    return response(`ACTION: ${legalAction(body)}`, '', true);
+  });
+  const runner = new Runner(store, provider);
+  try {
+    await runner.discover();
+    const config = simpleMatchConfig('tic-tac-toe', [
+      { ...defaultConfig.players[0], kind: 'human', name: 'You' },
+      { ...defaultConfig.players[1], kind: 'nebius', name: 'Mock Nano', model },
+    ]);
+    config.moveDelayMs = 0;
+    const m = runner.create(config);
+    await runner.start(m.id);
+    assert.equal(calls, 0);
+    runner.pause(m.id);
+    assert.throws(() => runner.submitMove(m.id, 0, 0, 'C:0:0'), /Resume/);
+    await runner.start(m.id);
+    runner.submitMove(m.id, 0, 0, 'C:0:0');
+    await runner.idle();
+    assert.equal(calls, 1);
+    assert.equal(store.getMatch(m.id).moves.length, 2);
+    assert.equal(store.getMatch(m.id).state.player, 0);
+    runner.stop(m.id);
+    assert.throws(() => runner.submitMove(m.id, 0, 2, 'C:2:2'), /Resume/);
+  } finally {
+    store.close();
+  }
+});
+
+test('server human Dots & Boxes keeps a captured-box extra turn', async () => {
+  const store = new Store(':memory:');
+  const runner = new Runner(store, new Nebius('https://example.test/v1/', ''));
+  try {
+    const config = simpleMatchConfig('dots-boxes', structuredClone(defaultConfig.players));
+    config.players[1].kind = 'human';
+    config.moveDelayMs = 0;
+    let initial = gameFor('dots-boxes').create(1, 2);
+    for (const action of ['H:0:0', 'H:0:1', 'H:1:0', 'H:1:1', 'V:0:0'])
+      initial = gameFor('dots-boxes').apply(initial, action).state;
+    const m = runner.create(config, { initial });
+    await runner.start(m.id);
+    runner.submitMove(m.id, 1, initial.ply, 'V:0:1');
+    await runner.idle();
+    const after = store.getMatch(m.id);
+    assert.equal(after.moves[0].retained, true);
+    assert.equal(after.state.player, 1);
+    runner.submitMove(m.id, 1, after.state.ply, 'V:0:2');
+    await runner.idle();
+    assert.equal(store.getMatch(m.id).status, 'completed');
+    assert.deepEqual(store.getMatch(m.id).state.scores, [0, 2]);
+  } finally {
+    store.close();
+  }
 });

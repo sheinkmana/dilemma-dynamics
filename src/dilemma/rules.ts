@@ -5,14 +5,14 @@ export const RULES_VERSION = 'dilemma/1';
 export const PROTOCOL_VERSION = 'dilemma-actions-forecasts/1';
 const participant = z
   .object({
-    kind: z.enum(['model', 'demo-random', 'demo-reciprocal']),
+    kind: z.enum(['human', 'model', 'demo-random', 'demo-reciprocal']),
     name: z.string().trim().min(1).max(80),
     model: z.string().max(200).default(''),
   })
   .strict();
 export const configSchema = z
   .object({
-    mode: z.enum(['autonomous', 'demo']).default('autonomous'),
+    mode: z.enum(['autonomous', 'demo', 'interactive']).default('autonomous'),
     players: z.tuple([participant, participant]),
     protocol: z.enum(['actions', 'forecasts']).default('actions'),
     horizon: z
@@ -27,19 +27,30 @@ export const configSchema = z
   })
   .strict()
   .superRefine((c, ctx) => {
-    if (c.players.some((p) => (p.kind === 'model') !== (c.mode === 'autonomous')))
+    if (
+      c.mode !== 'interactive' &&
+      c.players.some(
+        (p) => (p.kind === 'model') !== (c.mode === 'autonomous') || p.kind === 'human',
+      )
+    )
       ctx.addIssue({
         code: 'custom',
         message:
           'Autonomous sessions require two models; demos require two explicitly local players.',
       });
-    if (c.mode === 'demo' && c.protocol !== 'actions')
+    if (c.mode === 'interactive' && c.players.filter((p) => p.kind === 'human').length !== 1)
       ctx.addIssue({
         code: 'custom',
-        message: 'Local demonstrations use actions only; forecasts are not fabricated.',
+        message: 'Interactive play requires exactly one human player.',
+      });
+    if (c.mode !== 'autonomous' && c.protocol !== 'actions')
+      ctx.addIssue({
+        code: 'custom',
+        message:
+          'Local demonstrations and human play use actions only; forecasts are not fabricated.',
       });
     if (c.players.some((p) => p.kind === 'model' && !p.model))
-      ctx.addIssue({ code: 'custom', message: 'Choose two model IDs.' });
+      ctx.addIssue({ code: 'custom', message: 'Choose an ID for each model player.' });
   });
 export function token(action: Action, mapping: DilemmaConfig['mapping']): 'X' | 'Y' {
   return (action === 'C') === (mapping === 'X=C') ? 'X' : 'Y';

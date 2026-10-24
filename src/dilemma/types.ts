@@ -2,12 +2,12 @@ import type { Usage } from '../shared/types.js';
 export type Action = 'C' | 'D';
 export type Seat = 0 | 1;
 export interface Participant {
-  kind: 'model' | 'demo-random' | 'demo-reciprocal';
+  kind: 'human' | 'model' | 'demo-random' | 'demo-reciprocal';
   name: string;
   model: string;
 }
 export interface DilemmaConfig {
-  mode: 'autonomous' | 'demo';
+  mode: 'autonomous' | 'demo' | 'interactive';
   players: [Participant, Participant];
   protocol: 'actions' | 'forecasts';
   horizon: { kind: 'geometric' } | { kind: 'fixed'; rounds: number };

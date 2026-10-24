@@ -246,6 +246,8 @@ export function DilemmaPage({
   const [saved, setSaved] = useState<Saved[]>([]);
   const [session, setSession] = useState<DilemmaSession | null>(null);
   const [selected, setSelected] = useState<[string, string]>(['', '']);
+  const [humanPlay, setHumanPlay] = useState(false);
+  const [humanOpponent, setHumanOpponent] = useState('demo-reciprocal');
   const [protocol, setProtocol] = useState<'actions' | 'forecasts'>('actions');
   const [horizon, setHorizon] = useState('geometric');
   const [mapping, setMapping] = useState<'X=C' | 'X=D'>('X=C');
@@ -373,27 +375,44 @@ export function DilemmaPage({
       setBusy(false);
     }
   };
-  const start = (demo: boolean) =>
+  const start = (demo: boolean, interactive = false) =>
     void act(async () => {
-      const players: DilemmaConfig['players'] = demo
+      const opponent = eligible.find((m) => m.id === humanOpponent);
+      const players: DilemmaConfig['players'] = interactive
         ? [
-            { kind: 'demo-random', name: 'Local random demo', model: '' },
-            { kind: 'demo-reciprocal', name: 'Local reciprocal demo', model: '' },
+            { kind: 'human', name: 'You (human)', model: '' },
+            humanOpponent === 'demo-random' || humanOpponent === 'demo-reciprocal'
+              ? {
+                  kind: humanOpponent,
+                  name: humanOpponent === 'demo-random' ? 'Random bot' : 'Reciprocal bot',
+                  model: '',
+                }
+              : opponent
+                ? { kind: 'model', name: opponent.name, model: opponent.id }
+                : (() => {
+                    throw new Error('Choose an available opponent.');
+                  })(),
           ]
-        : (selected.map((id) => {
-            const m = eligible.find((m) => m.id === id);
-            if (!m) throw new Error('Choose two available models.');
-            return { kind: 'model' as const, name: m.name, model: m.id };
-          }) as DilemmaConfig['players']);
+        : demo
+          ? [
+              { kind: 'demo-random', name: 'Local random demo', model: '' },
+              { kind: 'demo-reciprocal', name: 'Local reciprocal demo', model: '' },
+            ]
+          : (selected.map((id) => {
+              const m = eligible.find((m) => m.id === id);
+              if (!m) throw new Error('Choose two available models.');
+              return { kind: 'model' as const, name: m.name, model: m.id };
+            }) as DilemmaConfig['players']);
       const config: DilemmaConfig = {
-        mode: demo ? 'demo' : 'autonomous',
+        mode: interactive ? 'interactive' : demo ? 'demo' : 'autonomous',
         players,
-        protocol: demo ? 'actions' : protocol,
-        horizon: demo
-          ? { kind: 'fixed', rounds: 10 }
-          : horizon === 'geometric'
-            ? { kind: 'geometric' }
-            : { kind: 'fixed', rounds: Number(horizon) },
+        protocol: demo || interactive ? 'actions' : protocol,
+        horizon:
+          demo || interactive
+            ? { kind: 'fixed', rounds: 10 }
+            : horizon === 'geometric'
+              ? { kind: 'geometric' }
+              : { kind: 'fixed', rounds: Number(horizon) },
         mapping,
         maxUsd: cap,
         delayMs: 700,
@@ -410,6 +429,17 @@ export function DilemmaPage({
     void act(async () => {
       setCursor(null);
       update(await api<DilemmaSession>(`/dilemma/sessions/${session.id}/${action}`, {}));
+    });
+  const choose = (action: 'C' | 'D') =>
+    session &&
+    void act(async () => {
+      update(
+        await api<DilemmaSession>(`/dilemma/sessions/${session.id}/choice`, {
+          seat: session.config.players.findIndex((p) => p.kind === 'human'),
+          round: session.pendingRound,
+          action,
+        }),
+      );
     });
   const liveLabel = pending
     ? `Round ${session!.pendingRound} · choices private`
@@ -562,10 +592,57 @@ export function DilemmaPage({
             className="pd-setup"
             onSubmit={(event) => {
               event.preventDefault();
-              start(browserOnly);
+              start(browserOnly, humanPlay);
             }}
           >
-            {!browserOnly && (
+            <div className="pd-play-mode">
+              <button type="button" aria-pressed={!humanPlay} onClick={() => setHumanPlay(false)}>
+                Watch players
+              </button>
+              <button type="button" aria-pressed={humanPlay} onClick={() => setHumanPlay(true)}>
+                Play as a human
+              </button>
+            </div>
+            {humanPlay && (
+              <div className="pd-settings">
+                <label>
+                  Your opponent
+                  <select
+                    value={humanOpponent}
+                    disabled={busy}
+                    onChange={(e) => setHumanOpponent(e.target.value)}
+                  >
+                    <option value="demo-reciprocal">Reciprocal bot · free</option>
+                    <option value="demo-random">Random bot · free</option>
+                    {!browserOnly &&
+                      eligible.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.name} · API
+                        </option>
+                      ))}
+                  </select>
+                </label>
+                {!browserOnly && !humanOpponent.startsWith('demo-') && (
+                  <label>
+                    Estimated session limit · USD
+                    <input
+                      type="number"
+                      min="0.001"
+                      max="5"
+                      step="0.001"
+                      required
+                      value={cap}
+                      onChange={(e) => setCap(Number(e.target.value))}
+                    />
+                  </label>
+                )}
+                <p className="muted">
+                  You are Player A. Play ten announced rounds, choosing Cooperate or Defect. Both
+                  choices reveal together. Continue at your own pace.
+                </p>
+              </div>
+            )}
+            {!browserOnly && !humanPlay && (
               <>
                 <div className="pd-model-fields">
                   {selected.map((id, seat) => (
@@ -640,11 +717,13 @@ export function DilemmaPage({
               <small>
                 Each player maximises expected own total points. Choices are simultaneous and
                 revealed together.{' '}
-                {browserOnly
-                  ? 'The free demo uses ten announced rounds, with a random policy and a reciprocal policy.'
-                  : horizon === 'geometric'
-                    ? `After each round, an independent draw continues play with probability ${CONTINUATION_PROBABILITY * 100}%. Expected length is ${EXPECTED_GEOMETRIC_ROUNDS} rounds, with no announced final round.`
-                    : `Exactly ${horizon} announced ${horizon === '1' ? 'round' : 'rounds'}.`}
+                {humanPlay
+                  ? 'Human play uses ten announced rounds. Your opponent sees only completed rounds.'
+                  : browserOnly
+                    ? 'The free demo uses ten announced rounds, with a random policy and a reciprocal policy.'
+                    : horizon === 'geometric'
+                      ? `After each round, an independent draw continues play with probability ${CONTINUATION_PROBABILITY * 100}%. Expected length is ${EXPECTED_GEOMETRIC_ROUNDS} rounds, with no announced final round.`
+                      : `Exactly ${horizon} announced ${horizon === '1' ? 'round' : 'rounds'}.`}
               </small>
             </div>
             <div className="pd-setup-actions">
@@ -653,9 +732,11 @@ export function DilemmaPage({
                   <button
                     className="primary"
                     type="submit"
-                    disabled={controlsDisabled || !eligible.length || Boolean(anyRunning)}
+                    disabled={
+                      controlsDisabled || (!humanPlay && !eligible.length) || Boolean(anyRunning)
+                    }
                   >
-                    Start autonomous interaction →
+                    {humanPlay ? 'Start playing →' : 'Start autonomous interaction →'}
                   </button>
                   <button
                     className="quiet"
@@ -679,8 +760,17 @@ export function DilemmaPage({
                   </button>
                 </>
               )}
+              {browserOnly && humanPlay && (
+                <button
+                  className="primary"
+                  type="submit"
+                  disabled={controlsDisabled || Boolean(anyRunning)}
+                >
+                  Start playing →
+                </button>
+              )}
               <button
-                className={browserOnly ? 'primary' : 'text-button'}
+                className={browserOnly && !humanPlay ? 'primary' : 'text-button'}
                 type="button"
                 disabled={controlsDisabled || Boolean(anyRunning)}
                 onClick={() => start(true)}
@@ -718,6 +808,12 @@ export function DilemmaPage({
         )}
         {session && (
           <>
+            {session.config.mode === 'interactive' && (
+              <p className="notice">
+                Human play · a separate practice session. Your choices and completed rounds are
+                saved in this app.
+              </p>
+            )}
             {session.config.mode === 'demo' && (
               <p className="notice">
                 Local demonstration · fixed local policies, not autonomous models. No model
@@ -741,7 +837,7 @@ export function DilemmaPage({
             >
               {browserOnly ? (
                 <span>
-                  Free browser demo · <strong>$0</strong> · no model requests
+                  Free browser play · <strong>$0</strong> · no model requests
                 </span>
               ) : (
                 <>
@@ -784,6 +880,8 @@ export function DilemmaPage({
                           {pending ? (
                             session.received[seat] ? (
                               'Choice received · private'
+                            ) : p.kind === 'human' ? (
+                              'Waiting for your choice…'
                             ) : (
                               'Choosing privately…'
                             )
@@ -806,6 +904,32 @@ export function DilemmaPage({
                     <PayoffTable current={!pending ? round?.actions.join('') : undefined} />
                     <small>A points · B points. Actions stay private until joint reveal.</small>
                   </div>
+                  {running &&
+                    pending &&
+                    session.config.players.some(
+                      (p, seat) => p.kind === 'human' && !session.received[seat],
+                    ) && (
+                      <div
+                        className="pd-human-choice"
+                        role="group"
+                        aria-label="Your private choice"
+                      >
+                        <p>
+                          Your turn · round {session.pendingRound}. Choose once; your choice is
+                          sealed until joint reveal.
+                        </p>
+                        <button
+                          className="primary"
+                          disabled={controlsDisabled}
+                          onClick={() => choose('C')}
+                        >
+                          Cooperate (C)
+                        </button>
+                        <button disabled={controlsDisabled} onClick={() => choose('D')}>
+                          Defect (D)
+                        </button>
+                      </div>
+                    )}
                   <div className="pd-status" role="status">
                     {session.message}
                   </div>
@@ -817,7 +941,7 @@ export function DilemmaPage({
                       disabled={controlsDisabled}
                       onClick={() => command('pause')}
                     >
-                      Pause after round
+                      {session.config.mode === 'interactive' ? 'Pause' : 'Pause after round'}
                     </button>
                   ) : ['ready', 'paused', 'interrupted'].includes(session.status) ? (
                     <>
@@ -826,15 +950,19 @@ export function DilemmaPage({
                         disabled={controlsDisabled}
                         onClick={() => command('start')}
                       >
-                        Resume
+                        {session.config.mode === 'interactive' && !session.pendingRound
+                          ? 'Next round'
+                          : 'Resume'}
                       </button>
-                      <button
-                        className="outline"
-                        disabled={controlsDisabled}
-                        onClick={() => command('step')}
-                      >
-                        Next round
-                      </button>
+                      {session.config.mode !== 'interactive' && (
+                        <button
+                          className="outline"
+                          disabled={controlsDisabled}
+                          onClick={() => command('step')}
+                        >
+                          Next round
+                        </button>
+                      )}
                     </>
                   ) : null}
                   {['ready', 'running', 'paused', 'interrupted', 'budget'].includes(
@@ -1002,7 +1130,11 @@ export function DilemmaPage({
               >
                 <span>{s.config.players.map((p) => p.name).join(' / ')}</span>
                 <small>
-                  {s.config.mode === 'demo' ? 'Local demo · ' : ''}
+                  {s.config.mode === 'interactive'
+                    ? 'Human play · '
+                    : s.config.mode === 'demo'
+                      ? 'Local demo · '
+                      : ''}
                   {s.roundCount} rounds · {s.status} · {new Date(s.createdAt).toLocaleString()}
                 </small>
               </button>

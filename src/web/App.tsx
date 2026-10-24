@@ -47,6 +47,7 @@ function availablePlayers(models: ModelInfo[]): PlayerConfig[] {
         ? [{ ...defaultConfig.players[0], kind: 'nebius' as const, model: id, name: model.name }]
         : [];
     }),
+    { ...defaultConfig.players[0], kind: 'human' as const, name: 'You (human)' },
     { ...defaultConfig.players[0], kind: 'heuristic' as const, name: 'Simple bot' },
     { ...defaultConfig.players[1], kind: 'random' as const, name: 'Random bot' },
   ];
@@ -75,18 +76,20 @@ function Board({
   action,
   optimal,
   parts,
+  onMove,
 }: {
   state: GameState;
   action?: string;
   optimal?: string[];
   parts?: Evaluation['components'];
+  onMove?: (action: string) => void;
 }) {
   if (state.game === 'tic-tac-toe')
     return (
       <svg
         className="board tic"
         viewBox="0 0 360 360"
-        role="img"
+        role={onMove ? 'group' : 'img'}
         aria-label={`Tic-tac-toe board, ${state.cells.filter((x) => x !== null).length} cells played`}
       >
         {[1, 2].map((i) => (
@@ -98,6 +101,21 @@ function Board({
           p === null ? (
             <rect
               key={i}
+              role={onMove ? 'button' : undefined}
+              tabIndex={onMove ? 0 : undefined}
+              aria-label={`Play row ${Math.floor(i / 3) + 1}, column ${(i % 3) + 1}`}
+              onClick={onMove ? () => onMove(`C:${Math.floor(i / 3)}:${i % 3}`) : undefined}
+              onKeyDown={
+                onMove
+                  ? (event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onMove(`C:${Math.floor(i / 3)}:${i % 3}`);
+                      }
+                    }
+                  : undefined
+              }
+              style={onMove ? { cursor: 'pointer' } : undefined}
               x={(i % 3) * 100 + 42}
               y={Math.floor(i / 3) * 100 + 42}
               width="76"
@@ -129,7 +147,7 @@ function Board({
     <svg
       className="board"
       viewBox={`0 0 ${w} ${h}`}
-      role="img"
+      role={onMove ? 'group' : 'img'}
       aria-label={`Dots and Boxes, ${state.rows} by ${state.cols} boxes. Scores ${state.scores.join(' to ')}.`}
     >
       {Array.from({ length: state.cols + 1 }, (_, c) => (
@@ -187,9 +205,26 @@ function Board({
                   ? ' · starting edge'
                   : ` · Player ${owner === 0 ? 'A' : 'B'}`}
             </title>
+            {owner === undefined && onMove && (
+              <path
+                d={d}
+                className="human-edge-target"
+                role="button"
+                tabIndex={0}
+                aria-label={`Draw ${e.horizontal ? 'horizontal' : 'vertical'} edge at row ${e.r}, column ${e.c}`}
+                onClick={() => onMove(e.id)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    onMove(e.id);
+                  }
+                }}
+              />
+            )}
             {action === e.id && <path d={d} className="last-glow" />}
             <path
               d={d}
+              style={onMove && owner === undefined ? { pointerEvents: 'none' } : undefined}
               className={`edge ${owner === undefined ? (isOptimal ? 'optimal' : 'available') : owner === -1 ? 'preset' : `p${owner}`} ${action === e.id ? 'latest' : ''}`}
             />
           </g>
@@ -377,6 +412,25 @@ function Recreation({
       if (action === 'start') setCursor(null);
       update(await api<MatchRecord>(`/matches/${match.id}/${action}`, {}));
     });
+  const playMove = (action: string) =>
+    match &&
+    void act(async () => {
+      update(
+        await api<MatchRecord>(`/matches/${match.id}/move`, {
+          player: match.state.player,
+          ply: match.state.ply,
+          action,
+        }),
+      );
+    });
+  const humanTurn = Boolean(
+    match &&
+      running &&
+      cursor === null &&
+      !busy &&
+      match.state.player !== null &&
+      match.config.players[match.state.player].kind === 'human',
+  );
   const shutdown = async () => {
     setServer('stopping');
     setError('');
@@ -558,7 +612,7 @@ function Recreation({
             <div className="setup-caption">
               <small>
                 {browserOnly
-                  ? 'Free browser bots · automatic move pacing'
+                  ? 'Play a free bot or choose You (human) to take a seat'
                   : 'Reasoning off · live board · automatic move pacing'}
               </small>
               {health?.keyConfigured && (
@@ -590,7 +644,7 @@ function Recreation({
             </strong>
             <small>
               {freeGame
-                ? 'Free · local bots'
+                ? 'Free · local play'
                 : `Local limit ${money(match?.config.maxUsd ?? 0.05)}`}
             </small>
           </div>
@@ -602,7 +656,7 @@ function Recreation({
             </strong>
             <small>
               {move
-                ? move.explanationSource === 'baseline'
+                ? move.explanationSource !== 'model'
                   ? 'Free local move'
                   : move.usage
                     ? `${move.usage.completionTokens} output tokens`
@@ -652,8 +706,17 @@ function Recreation({
             ))}
           </div>
           <div className="board-wrap">
-            <Board state={state} action={move?.action} />
+            <Board state={state} action={move?.action} onMove={humanTurn ? playMove : undefined} />
           </div>
+          {humanTurn && (
+            <p className="human-turn" role="status">
+              Your turn ·{' '}
+              {state.game === 'tic-tac-toe'
+                ? 'choose an empty cell'
+                : 'choose an undrawn edge; completing a box gives you another turn'}
+              .
+            </p>
+          )}
           <div className="live-status" role="status">
             <span className={`live-dot ${running && cursor === null ? 'active' : ''}`} />
             <span>
