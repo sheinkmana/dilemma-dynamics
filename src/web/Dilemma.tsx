@@ -557,7 +557,16 @@ export function DilemmaPage({
               >
                 Watch bots · free
               </button>
-              <button aria-pressed={showRecording} onClick={() => setShowRecording((v) => !v)}>
+              <button
+                aria-pressed={showRecording}
+                aria-controls="play-recording"
+                onClick={() => {
+                  setShowRecording(true);
+                  requestAnimationFrame(() =>
+                    document.getElementById('play-recording')?.scrollIntoView({ block: 'start' }),
+                  );
+                }}
+              >
                 Watch Nemotron · recording
               </button>
               <button onClick={() => setLessonRequest((n) => n + 1)}>Learn more</button>
@@ -618,7 +627,7 @@ export function DilemmaPage({
             </button>
           </p>
         )}
-        {!session && showRecording && <StudyReplayContent compact />}
+        {!session && showRecording && <StudyReplayContent id="play-recording" compact />}
         {!session && !showRecording && (
           <form
             id="play-setup"

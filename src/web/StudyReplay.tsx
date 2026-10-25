@@ -14,7 +14,7 @@ import { studies, type StudyTemperature as Temperature } from './studyData.js';
 import './results.css';
 
 /** Shared saved-action viewer: embedded in play and in the optional results replay. */
-export function StudyReplayContent({ compact = false }: { compact?: boolean }) {
+export function StudyReplayContent({ id, compact = false }: { id?: string; compact?: boolean }) {
   const headingId = useId();
   const [temperature, setTemperature] = useState<Temperature>(0);
   const [recording, setRecording] = useState<{
@@ -55,7 +55,7 @@ export function StudyReplayContent({ compact = false }: { compact?: boolean }) {
     setRound(0);
   };
   return (
-    <section className="study-replay" aria-labelledby={headingId}>
+    <section id={id} className="study-replay" aria-labelledby={headingId}>
       <div className="results-intro">
         <p className="results-eyebrow">Evaluation · saved Nemotron actions</p>
         <h2 id={headingId}>{compact ? 'Watch Nemotron play' : 'Replay the decisions'}</h2>
