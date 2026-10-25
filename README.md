@@ -41,6 +41,7 @@ In the repeated Prisoner’s Dilemma, both players choose privately and reveal t
 
 
 The evaluation contains **7,104 episodes** (6,144 benchmark episodes and 960 autonomous-interaction episodes), **two models** and **two temperatures**.
+Actions used neutral X/Y labels (not cooperate/defect), with both label assignments tested.
 
 **Direct** requests one thinking-off action; **Draft** first requests a bounded thinking-on private draft,
 then an action in a separate request. The study compares these complete procedures.
