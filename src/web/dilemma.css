@@ -101,7 +101,7 @@
 }
 .game-types-grid p,
 .game-types-scope {
-  font-size: 13px;
+  font-size: 16px;
 }
 .game-types-scope {
   padding-top: 16px;
@@ -508,7 +508,7 @@
   margin: 8px 0 18px;
 }
 .pd-inspector > p {
-  font-size: 14px;
+  font-size: 16px;
 }
 .pd-player-analysis + .pd-player-analysis {
   border-top: 1px solid var(--line);
@@ -521,7 +521,7 @@
   overflow-wrap: anywhere;
 }
 .pd-finding {
-  font-size: 14px;
+  font-size: 16px;
   margin-bottom: 14px;
 }
 .pd-app dl {
@@ -545,7 +545,7 @@
   font-weight: 600;
 }
 .pd-player-analysis > .muted {
-  font-size: 12px;
+  font-size: 14px;
   margin-top: 14px;
 }
 .pd-provenance {
@@ -555,7 +555,7 @@
   margin-top: 20px;
 }
 .pd-analysis-note {
-  font-size: 12px !important;
+  font-size: 14px !important;
   color: var(--muted);
   margin: 20px 0 0;
 }
@@ -582,7 +582,7 @@
   margin-top: 0;
 }
 .pd-profile .muted {
-  font-size: 13px;
+  font-size: 14px;
 }
 .pd-outcomes {
   display: flex;
@@ -695,7 +695,7 @@
 .pd-lesson {
   max-width: 820px;
   margin: 10px auto 0;
-  font-size: 15px;
+  font-size: 16px;
 }
 .pd-lesson h3 {
   font-size: clamp(24px, 3vw, 30px);
@@ -837,7 +837,7 @@
   border-top: 1px solid var(--line);
   margin-top: 18px;
   padding-top: 16px;
-  font-size: 14px;
+  font-size: 16px;
 }
 .pd-lesson-detail summary,
 .pd-forecast-details summary {
@@ -901,15 +901,15 @@
 }
 .pd-decision-information h3,
 .pd-continuation-observation h3 {
-  font-size: 14px;
+  font-size: 16px;
 }
 .pd-decision-information p,
 .pd-continuation-observation p {
-  font-size: 13px;
+  font-size: 16px;
   margin-bottom: 10px;
 }
 .pd-choice-summary {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   margin-bottom: 14px;
 }
@@ -917,7 +917,7 @@
   margin-top: 0;
 }
 .pd-immediate-comparison p {
-  font-size: 13px;
+  font-size: 16px;
   margin: 8px 0;
 }
 .pd-immediate-comparison > div {
@@ -934,7 +934,7 @@
   margin-top: 10px;
 }
 .pd-player-analysis h4 {
-  font-size: 13px;
+  font-size: 14px;
   margin: 22px 0 10px;
 }
 .pd-forecast-details {

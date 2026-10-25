@@ -9,6 +9,7 @@ import {
 import { payoff } from '../dilemma/spec.js';
 import { PayoffTable } from './DilemmaLearning.js';
 import { StudyTemperature } from './StudyTemperature.js';
+import { StudyPrompt } from './StudyPrompt.js';
 import { studies, type StudyTemperature as Temperature } from './studyData.js';
 import './results.css';
 
@@ -67,6 +68,7 @@ export function StudyReplayContent({ compact = false }: { compact?: boolean }) {
           0, block 1, chosen by metadata. Aggregate comparisons are in Results.
         </p>
       </div>
+      {compact && <StudyPrompt />}
       <StudyTemperature
         value={temperature}
         onChange={(next) => {

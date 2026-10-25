@@ -270,6 +270,7 @@ code {
   font-size: 12px;
 }
 .game-page {
+  font-size: 16px;
   max-width: 900px;
   margin: auto;
   padding: 44px 28px 28px;
@@ -851,7 +852,7 @@ summary {
   max-width: 650px;
   margin-top: 16px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.8;
 }
 .explanation-copy p {
@@ -986,7 +987,7 @@ a:hover {
   border: 1px solid var(--line);
   background: var(--paper);
   color: var(--muted);
-  font-size: 12px;
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 .app-access-note p {

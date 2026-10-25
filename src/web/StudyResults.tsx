@@ -12,6 +12,7 @@ import {
 import { playerLabel } from '../dilemma/recorded.js';
 import './results.css';
 import { StudyReplayContent } from './StudyReplay.js';
+import { StudyPrompt } from './StudyPrompt.js';
 
 const n = (value: number) => value.toLocaleString('en-US');
 const loss = (value: number) => value.toFixed(4);
@@ -82,7 +83,9 @@ export function StudyResults({
         <AppAccessNote />
         <div className="results-intro">
           <p className="results-eyebrow">Evaluation</p>
-          <h1>Better individual decisions. A harder path to cooperation.</h1>
+          <h1>
+            <span>Better individual decisions.</span> <span>A harder path to cooperation.</span>
+          </h1>
           <p className="results-lead">
             An AI agent’s decisions can shape whether a partner cooperates, retaliates or helps
             rebuild a productive interaction. This evaluation examines how individual payoff
@@ -154,6 +157,7 @@ export function StudyResults({
               </p>
             </article>
           </div>
+          <StudyPrompt />
           <p>
             Both procedures face the same paired environments. Against a disclosed opponent rule, an
             exact payoff reference measures the expected own payoff given up by each choice.{' '}
