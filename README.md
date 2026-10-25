@@ -1,6 +1,6 @@
 # Dilemma Dynamics
 
-_Exploring AI strategies, incentives and cooperation. An interactive game laboratory studying NVIDIA Nemotron's choices._
+_Exploring AI strategies, incentives and cooperation. An interactive game laboratory studying NVIDIA Nemotron's choices. Submission to [Nebius x NVIDIA Global AI Hackathon (Best Apps and Agents Track)](https://nebiusglobalaihackathon.devpost.com)._
 
 An AI agent's choices can influence whether a partner cooperates, retaliates or rebuilds a productive
 relationship. Dilemma Dynamics allows to examine how individual decision quality relates to cooperation over time. Students can
