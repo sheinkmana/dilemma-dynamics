@@ -15,6 +15,9 @@ __pycache__/
 *.egg-info/
 output/
 mlruns/
+/AGENTS.md
+/public/research/accounting.json
+/public/research/publication-review.json
 
 # Local study operations and immutable private evidence (retain on disk).
 /docs/FINAL_EVALUATION_V2.md

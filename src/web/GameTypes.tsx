@@ -1,62 +1,41 @@
 export function GameTypes({ recreational = false }: { recreational?: boolean }) {
-  const comparison = (
-    <>
+  if (!recreational)
+    return (
+      <p className="recreational-link">
+        <a href="#recreational">Explore recreational games →</a>
+      </p>
+    );
+  return (
+    <aside className="game-types-context" aria-label="Recreational games">
+      <p className="eyebrow">RECREATIONAL GAMES</p>
+      <h2>Patterns, tactics &amp; search</h2>
+      <p>
+        Tic-tac-toe and Dots &amp; Boxes are mathematical games on discrete grids or lattices. Both
+        have perfect information: the full position and every completed move are visible, and
+        players take turns. Try a move, follow the consequences, and compare your choices with the
+        game’s solver.
+      </p>
       <div className="game-types-grid">
         <section>
-          <h3>Repeated Prisoner’s Dilemma</h3>
+          <h3>Tic-tac-toe</h3>
           <p>
-            Both players choose privately, then reveal together. Mutual cooperation earns 3 points
-            each; mutual defection earns 1 each. Defecting pays more in a single round, but future
-            responses can make cooperation valuable. The total reward can grow for both players.
+            Place marks on a grid and make three in a row. Look for threats, blocks and forks.
+            Perfect play leads to a draw.
           </p>
         </section>
         <section>
           <h3>Dots &amp; Boxes</h3>
           <p>
-            Players draw edges on a fully visible board; capturing a box earns another move. A
-            completed board has a fixed number of boxes to divide. Giving up a box can be a tactic
-            for winning more later, rather than a way to increase both players’ final scores.
-          </p>
-        </section>
-        <section>
-          <h3>Tic-tac-toe</h3>
-          <p>
-            Players alternate visible moves to make three in a row. One player’s win is the other’s
-            loss, and perfect play produces a draw. The challenge is tactical search and avoiding
-            mistakes, rather than sustaining mutually profitable cooperation.
+            Draw an edge on the lattice. Complete a box to claim it and move again. Chains and
+            carefully timed sacrifices determine how the fixed set of boxes is divided.
           </p>
         </section>
       </div>
-      <p className="game-types-scope">
-        The published 7,104 final episodes across two temperatures concern the repeated Prisoner’s
-        Dilemma. Board-game matches belong to a separate recreational side project; their scores and
-        solver checks answer different questions.
+      <p>
+        These games have their own scores and solver checks. The evaluation studies repeated
+        Prisoner’s Dilemma.
       </p>
-    </>
-  );
-
-  return (
-    <aside className="game-types-context" aria-label="Study and side-project scope">
-      {recreational && (
-        <>
-          <p className="eyebrow">RECREATIONAL SIDE PROJECT</p>
-          <h2>Competitive board games</h2>
-          <p>
-            Explore tactics and search on a fully visible board. These games divide a fixed set of
-            boxes or decide a win, loss or draw. The main project examines when both players can
-            gain through cooperation in repeated interactions.
-          </p>
-          <a href="#replay">Explore the cooperation study →</a>
-        </>
-      )}
-      <details>
-        <summary>
-          {recreational
-            ? 'Why are these different kinds of games?'
-            : 'Extra: recreational board games'}
-        </summary>
-        {comparison}
-      </details>
+      <a href="#play">Return to Play &amp; understand →</a>
     </aside>
   );
 }

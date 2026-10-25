@@ -2,49 +2,44 @@
 
 _Exploring AI strategies, incentives and cooperation._
 
-An interactive game laboratory by **Alisa Sheinkman**. Explore how incentives
-shape AI decisions, inspect simultaneous choices and their consequences, and
-compare bounded decision procedures in NVIDIA Nemotron Nano and Super.
+An interactive game laboratory by **Alisa Sheinkman**. Play the repeated
+Prisoner's Dilemma, inspect choices and their consequences, and explore how
+NVIDIA Nemotron Nano and Super respond to changing incentives.
 
-![Final benchmark comparisons](public/research/figures/primary-results.png)
+![Evaluation: average drafting effects](public/research/figures/primary-results.png)
 
-The final evaluation completed **7,104 episodes across temperatures 0 and 1**
-with native Inspect logs, local MLflow tracking and exact offline scoring.
-Drafting lowered pooled benchmark loss in all four planned comparisons, yet
-increased loss against Tit-for-Tat and produced less cooperation in self-play.
-The app and website contain this final campaign only.
+The evaluation contains **7,104 episodes**, **two models** and **two temperatures**.
+Drafting reduced average exact benchmark decision loss by **16.8–37.5%** across
+the four planned comparisons. The opponent matters: drafting increased loss
+against Tit-for-Tat and reduced cooperation in autonomous self-play. Recognising
+an exploitation opportunity and sustaining a reciprocal relationship are
+distinct capabilities.
 
-Read [FINAL_EVALUATION.md](FINAL_EVALUATION.md) for conclusions, hypotheses,
-methods and reproducibility, or the [report (PDF)](public/research/paper/report.pdf)
-and its [TeX source](public/research/paper/main.tex).
+Read the [evaluation guide](FINAL_EVALUATION.md) for findings and reproducibility,
+or the [PDF notes](public/research/paper/report.pdf) for the study, mathematical
+definitions and future work. The [TeX source](public/research/paper/main.tex) is
+retained in the repository.
 
 ## Explore the app
 
-1. **Dilemma:** open **Learn the game**, run the free ten-round demo, or choose
-   **Play as a human** to face a random or reciprocal bot. The local API app also
-   lets you choose Nemotron as your opponent.
-   Both players choose privately and reveal together. Compare the immediate
-   temptation to defect with the future value of cooperation.
-2. **Analysis:** inspect the completed history, payoff arithmetic and alternative
-   actions. Reported model forecasts, when requested, are distinguished from
-   verified outcomes; a free policy demonstration does not invent forecasts.
-3. **Study replay:** select a saved Nemotron episode, reveal rounds, and compare
-   the same condition under Direct and Draft. Replay makes no model requests.
-   One trajectory illustrates behaviour; aggregate comparisons belong in Results.
-4. **Results:** inspect decision loss, opponent breakdowns, autonomous pairings,
-   costs, presentation and planning failures, hypotheses and downloadable evidence
-   from the completed final evaluation.
-5. **Board games:** try Dots & Boxes or Tic-tac-toe. Choose **You (human)** for
-   either seat, then click an empty cell or undrawn edge to play against a bot
-   or, in the local API app, Nemotron. These visible, sequential,
-   competitive games explore tactics and search. They are separate from the
-   cooperation study, where mutual cooperation can improve both players' returns.
+- **Play & understand** introduces simultaneous private choices, the payoff
+  matrix and the value of another encounter. Play yourself, watch free bots, or
+  watch labelled saved Nemotron recordings. Inspect a completed round's payoffs
+  and alternative actions beside the game. Expand lessons and advanced setup
+  when useful. The local app also offers explicitly started live Nemotron play.
+- **Results** presents the question, Direct/Draft procedures, key numbers and
+  charts. Expand **Study replay** below the findings to follow a saved episode,
+  then explore detailed tables and methods. Saved recordings make no model calls.
+- **Recreational games** is a separate secondary link. Tic-tac-toe and Dots & Boxes
+  are mathematical games played on discrete grids or lattices, with perfect
+  information and visible sequential moves. Try their tactics and search in the
+  game area. Their scores are separate from the dilemma evaluation.
 
 Both website and local builds share this interface. The website supports free
-browser games, lessons, saved recordings, analysis and downloads without a key.
-The local build additionally supports paid model play through a localhost server.
-Browser games save locally when storage is available; reload pauses unfinished
-games until Resume. Download a replay to keep a separate copy.
+play, analysis, saved recordings and replay exports without a key. The local
+build additionally supports model play through a localhost server. Browser games
+save locally when storage is available; reload pauses unfinished games until
+Resume. Download a replay to keep a separate copy.
 
 ## Run locally
 
@@ -56,20 +51,19 @@ npm run build
 npm start
 ```
 
-Open **http://127.0.0.1:4317**. Free demonstrations, lessons, recordings and
-Results work without a provider key. For development, run `npm run dev` and
-`npm run dev:web` in separate terminals; Vite normally serves port 5173 and
-proxies the API to port 4317.
+Open **http://127.0.0.1:4317**. Free play, lessons, recordings and Results work
+without a provider key. For development, run `npm run dev` and `npm run dev:web`
+in separate terminals; Vite normally serves port 5173 and proxies the API to 4317.
 
 For live Nemotron play, copy `.env.example` to the ignored `.env`, configure
-`NEBIUS_API_KEY`, restart, and choose **Refresh models**. Select priced models,
-set a session limit and explicitly start. These calls can incur charges.
+`NEBIUS_API_KEY`, restart, and choose **Refresh models**. Select the models and
+session settings, then explicitly start. Calls use your own provider account.
 The server keeps the key private; the public website never embeds it.
 
 Pause waits for a joint-round boundary. Stop awards no partial-round points.
-Restart never automatically resumes paid requests. Accepted sealed responses
-are retained for supported recovery. A disconnected browser does not prove the
-server stopped; check connection and session status before restarting.
+Restart never automatically resumes model requests. Accepted sealed responses
+are retained for supported recovery. After a browser disconnect, check the
+connection and session status before restarting.
 
 ## Build the website app
 
@@ -78,55 +72,57 @@ npm run build:public
 npm run preview:public
 ```
 
-Open **http://127.0.0.1:4173/dilemma-dynamics/**. The default opens Study replay;
-direct routes are `#dilemma`, `#analysis`, `#replay`, `#results` and `#recreational`.
+Open **http://127.0.0.1:4173/dilemma-dynamics/**. The default is **Play & understand**
+(`#play`); **Results** is `#results`, with Study replay at `#replay`.
+`#recreational` opens Recreational games. Existing `#dilemma` and `#analysis`
+links still open the corresponding Play section. Changing tabs keeps game state.
+
 Free play runs in the browser. The public build excludes model configuration,
 server shutdown and inference transport; its build check rejects API endpoints
-or event streams in the compiled scripts.
+or event streams in compiled scripts.
 
 Publish the contents of `dist/web/` under the website's `dilemma-dynamics/`
-directory, with `LICENSE` copied as `LICENSE.txt`. Each build replaces
-`dist/web/`, so export immediately after `build:public`. Rebuilding this repo
-does not publish the separate website.
+directory, with `LICENSE` copied as `LICENSE.txt`. The build uses an explicit
+website asset allowlist: app assets, PDF notes, required figures and viewer data,
+saved action recordings, and a checksum manifest. The repository retains the
+full scientific export and TeX source. Research links on the website lead to
+the PDF and this repository. Each build replaces `dist/web/`; export immediately
+after `build:public`. Rebuilding this repository does not publish the website.
 
 For Jekyll, exclude `dilemma-dynamics/**` from `jekyll-minifier`; Vite already
-minifies the assets. Preserve the curated research files and checksum manifest
+minifies the assets. Preserve the selected research assets and checksum manifest
 byte for byte. Check free play, pause/resume, browser saves, replay, Results and
-downloads after copying the build.
+research links after copying the build.
 
 ## How it works
 
 **React interface → local Fastify coordinator → Nebius Token Factory.**
-SQLite stores local sessions and accounting. The public build uses a separate
-browser runtime for free policies and static evidence. Neither browser analysis
-nor scientific scoring feeds advice back into a player.
+SQLite stores local sessions and request records. The public build uses a
+separate browser runtime for free policies and static evidence. Analysis runs
+outside the player decision loop.
 
 The scientific pipeline uses **Python 3.12**, **Inspect AI**, **HTTPX**, **NumPy**,
 **PyArrow**, **Matplotlib** and local **MLflow Skinny/SQLite** tracking. Hosted
 Nemotron models choose actions; deterministic code runs the game and calculates
-payoff references. There is no training, fine-tuning or local model/GPU hosting.
-Exact roles, locked versions and mathematical definitions are in
-[FINAL_EVALUATION.md](FINAL_EVALUATION.md).
+exact payoff references. Roles, locked versions and mathematical definitions
+are in the [evaluation guide](FINAL_EVALUATION.md).
 
-| Location                                     | Purpose                                                                |
-| -------------------------------------------- | ---------------------------------------------------------------------- |
-| `src/web/`                                   | Shared interface, browser runtime, replay and results.                 |
-| `src/server/`                                | Local API, provider calls, session persistence and spending controls.  |
-| `src/dilemma/`, `src/games/`                 | Rules, observations, analysis and board-game solvers.                  |
-| `evaluation_v2/`                             | Current joint-temperature final evaluation and native tracking.        |
-| `evaluation_recovery/`                       | Approved bounded recovery with separately frozen authority and source. |
-| `python/gamefield_research/`                 | Exact scoring, schedules and audited transport/recovery.               |
-| `fixtures/`                                  | Frozen engineering decisions, reference checks and reviewed prices.    |
-| `public/research/`                           | Bundled actions, numeric data, figures and TeX/PDF notes.              |
-| `tools/`                                     | Offline verification, frozen-protocol restoration and build checks.    |
-| `tests/`, `python_tests/`, `recovery_tests/` | Application and network-free research/recovery checks.                 |
-| `package-lock.json`, `uv.lock`               | Reproducible JavaScript and Python dependency resolutions.             |
+| Location | Purpose |
+| --- | --- |
+| `src/web/` | Shared interface, browser runtime, replay and results. |
+| `src/server/` | Local API, provider calls and session persistence. |
+| `src/dilemma/`, `src/games/` | Rules, observations, analysis and recreational-game solvers. |
+| `evaluation_v2/`, `evaluation_recovery/` | Executed evaluation and separately frozen recovery. |
+| `python/gamefield_research/`, `fixtures/` | Exact scoring, schedules and frozen reference checks. |
+| `public/research/` | Released actions, numeric data, figures and TeX/PDF notes. |
+| `tools/` | Offline verification, protocol restoration and website checks. |
+| `tests/`, `python_tests/`, `recovery_tests/` | App and network-free research checks. |
+| `package-lock.json`, `uv.lock` | Reproducible dependency resolutions. |
 
 The `gamefield_research`, `gamefield-study` and `GAMEFIELD_*` compatibility names
-are intentional; renaming them would break retained sessions or provenance.
-Private evidence and evaluation output remain in ignored `output/`. A root
-`conftest.py` isolates one frozen legacy test’s retired public paths using a
-temporary reconstructed plan contract; historical observations stay private.
+preserve installed packages, sessions and provenance. Private execution evidence
+remains in ignored `output/`. A root `conftest.py` isolates one frozen legacy
+test's retired public paths using a temporary reconstructed plan contract.
 
 ## Verify
 
@@ -149,21 +145,20 @@ uv run python -m pytest python_tests recovery_tests -q
 uv run python tools/verify_public_results.py
 ```
 
-Preserve executed source and evidence; do not relaunch the completed campaign. [AGENTS.md](AGENTS.md) records those boundaries;
-[FINAL_EVALUATION.md](FINAL_EVALUATION.md) contains the current run commands.
+Preserve executed source, prompts, scoring and evidence. The completed campaign
+can be reconstructed offline; the [evaluation guide](FINAL_EVALUATION.md)
+explains the evidence and verification paths.
 
 ## Storage, access and license
 
 The live server binds to `127.0.0.1`, checks Host/Origin and requires a local
-mutation token. It has no multi-user authentication. Host only the static public
-build on the website; keep credentials, `data/`, raw drafts and operational
-evidence private. Local spending limits are estimates rather than provider
-invoice caps. A key exposed accidentally should be revoked with its provider;
-report vulnerabilities privately through repository security advisories.
+mutation token. Host the static public build on the website; keep credentials,
+`data/`, raw drafts and operational evidence private. Report vulnerabilities
+privately through repository security advisories.
 
 [MIT](LICENSE) covers project code, original documentation and released data.
-Dependencies and cited works retain their licenses. The locally hosted Nebius
-and NVIDIA marks identify the services/models used; they are not covered by MIT.
+Dependencies and cited works retain their licenses. Nebius and NVIDIA marks
+identify the services/models used and retain their own terms.
 Logo sources: [Nebius](https://nebius.com/logo.svg) and
 [NVIDIA](https://www.nvidia.com/en-us/about-nvidia/legal-info/logo-brand-usage/).
 Retrieved 24 October 2026. NVIDIA's `n24-nvidia-logo` symbol is wrapped as a

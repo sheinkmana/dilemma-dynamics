@@ -1,11 +1,10 @@
-import summary from '../../public/research/summary.json' with { type: 'json' };
-import diagnostics from '../../public/research/diagnostics.json' with { type: 'json' };
-import accounting from '../../public/research/accounting.json' with { type: 'json' };
-import provenance from '../../public/research/provenance.json' with { type: 'json' };
+import data from './viewer-study.json' with { type: 'json' };
+import type { ViewerStudy } from './viewerData.js';
 
-export { summary, diagnostics, accounting, provenance };
+const study: ViewerStudy = data;
+export const { summary, diagnostics, provenance } = study;
 export type StudyTemperature = 0 | 1;
 export const studies = {
-  0: { path: 'research/temperature-zero', date: '24–25 October 2026' },
-  1: { path: 'research/temperature-one', date: '24–25 October 2026' },
+  0: { path: 'research/temperature-zero' },
+  1: { path: 'research/temperature-one' },
 } as const;

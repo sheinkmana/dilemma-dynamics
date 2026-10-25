@@ -22,9 +22,54 @@
   color: var(--text);
   background: var(--hover);
 }
-.domain-nav .side-project-nav {
-  border-style: dashed;
-  border-color: var(--line);
+.domain-nav .recreational-nav {
+  align-self: center;
+  padding: 9px 10px;
+  min-height: 44px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: 12px;
+}
+.domain-nav .recreational-nav[aria-current='page'] {
+  color: var(--green);
+}
+.pd-intro-payoffs {
+  max-width: 540px;
+  margin: 20px 0;
+}
+.pd-live-setup,
+.pd-session-profile {
+  padding: 16px 0;
+}
+.pd-live-setup summary,
+.pd-session-profile summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.pd-live-setup[open] > summary {
+  margin-bottom: 18px;
+}
+.recreational-link {
+  padding-top: 24px;
+  font-size: 13px;
+}
+.study-replay {
+  margin: 28px 0;
+}
+#decision-analysis,
+#play-setup {
+  scroll-margin-top: 24px;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 600px) {
+  .domain-nav .recreational-nav {
+    margin-left: 0;
+  }
+  .pd-intro-payoffs table {
+    font-size: 11px;
+  }
 }
 .game-types-context {
   margin: 0 0 24px;

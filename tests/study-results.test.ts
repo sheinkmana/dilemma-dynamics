@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { relative, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -93,21 +94,58 @@ test('temperatures retain paired environments and distinct observation identitie
   }
 });
 
-test('accounting amendment retains uncertainty and all primary comparisons', () => {
-  const review = read('publication-review.json');
-  const accounting = read('accounting.json');
-  assert(review.ready);
-  assert.equal(review.evidenceHead, summary.evidenceHead);
-  assert.equal(review.originalFrozenGate.ready, false);
-  assert.equal(accounting.unresolvedMaximumExposure, summary.reservedUsd);
-  assert.equal(accounting.billingReconciled, false);
-  assert.equal(accounting.settledLedgerAltered, false);
+test('public scientific verification retains all primary comparison intervals', () => {
   const primary = summary.contrasts.filter((c: { family: string }) => c.family === 'primary');
   assert.equal(primary.length, 4);
   assert(
     primary.every(
       (c: { coverage: number; blocksPerStratum: number[] }) =>
         c.coverage === 0.9875 && c.blocksPerStratum.every((b) => b === 12),
+    ),
+  );
+});
+
+test('local accounting and approval records are absent from the scientific export', () => {
+  assert.equal(existsSync(new URL('accounting.json', root)), false);
+  assert.equal(existsSync(new URL('publication-review.json', root)), false);
+});
+
+test('the typed viewer projection matches source science and excludes operational fields', () => {
+  execFileSync(process.execPath, ['tools/build-viewer-data.mjs', '--check'], {
+    cwd: fileURLToPath(new URL('../', import.meta.url)),
+  });
+  const viewer = JSON.parse(
+    readFileSync(new URL('../src/web/viewer-study.json', import.meta.url), 'utf8'),
+  );
+  assert.deepEqual(Object.keys(viewer).sort(), [
+    'diagnostics',
+    'provenance',
+    'schemaVersion',
+    'summary',
+  ]);
+  assert.equal(viewer.summary.completed, 7104);
+  assert.deepEqual(viewer.summary.contrasts, summary.contrasts);
+  assert.deepEqual(viewer.summary.cooperation, summary.cooperation);
+  assert.deepEqual(
+    viewer.summary.arms,
+    summary.arms.map((arm: Record<string, unknown>) => {
+      const { estimatedUsd: _local, ...scientific } = arm;
+      return scientific;
+    }),
+  );
+  const diagnostics = read('diagnostics.json');
+  assert.deepEqual(viewer.diagnostics.policyEffects, diagnostics.policyEffects);
+  assert.deepEqual(viewer.diagnostics.autonomousContrasts, diagnostics.autonomousContrasts);
+  assert.deepEqual(
+    viewer.diagnostics.requestDiagnostics,
+    diagnostics.requestDiagnostics.map((row: Record<string, unknown>) => {
+      const { uncertainBillingAttempts: _local, ...scientific } = row;
+      return scientific;
+    }),
+  );
+  assert(
+    !/reservedUsd|spentUsd|estimatedUsd|uncertainBillingAttempts|accounting|billing|approval|evidenceHead|specSha256|sourceSha256|campaignCap|budget/i.test(
+      JSON.stringify(viewer),
     ),
   );
 });

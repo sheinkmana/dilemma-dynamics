@@ -1,6 +1,7 @@
 import { AppAccessNote, ProviderLogos } from './AppIdentity.js';
 import { BrandText } from './BrandText.js';
 import { GameTypes } from './GameTypes.js';
+import { StudyReplayContent } from './StudyReplay.js';
 import { useEffect, useState, type ReactNode } from 'react';
 import type { DilemmaConfig, DilemmaSession, Round } from '../dilemma/types.js';
 import type { Health, ModelInfo } from '../shared/types.js';
@@ -23,7 +24,7 @@ function Inspector({
 }) {
   if (!round || !session)
     return (
-      <aside className="pd-inspector">
+      <aside id="decision-analysis" className="pd-inspector">
         <h2>Decision analysis</h2>
         <p>
           Each completed round gains an analysis of immediate incentives and future consequences.
@@ -33,7 +34,11 @@ function Inspector({
     );
   const information = decisionInformation(session, round.index);
   return (
-    <aside className="pd-inspector" aria-label={`Analysis of round ${round.index}`}>
+    <aside
+      id="decision-analysis"
+      className="pd-inspector"
+      aria-label={`Analysis of round ${round.index}`}
+    >
       <span className="eyebrow">ANALYSIS · ROUND {round.index}</span>
       <h2>Understand this decision</h2>
       <section className="pd-decision-information">
@@ -246,7 +251,8 @@ export function DilemmaPage({
   const [saved, setSaved] = useState<Saved[]>([]);
   const [session, setSession] = useState<DilemmaSession | null>(null);
   const [selected, setSelected] = useState<[string, string]>(['', '']);
-  const [humanPlay, setHumanPlay] = useState(false);
+  const [humanPlay, setHumanPlay] = useState(true);
+  const [showRecording, setShowRecording] = useState(false);
   const [humanOpponent, setHumanOpponent] = useState('demo-reciprocal');
   const [protocol, setProtocol] = useState<'actions' | 'forecasts'>('actions');
   const [horizon, setHorizon] = useState('geometric');
@@ -260,6 +266,12 @@ export function DilemmaPage({
   const [stream, setStream] = useState<'connecting' | 'live' | 'reconnecting'>('connecting');
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [lessonRequest, setLessonRequest] = useState(0);
+  useEffect(() => {
+    if (analysisOnly)
+      requestAnimationFrame(() =>
+        document.getElementById('decision-analysis')?.scrollIntoView({ block: 'start' }),
+      );
+  }, [analysisOnly, session?.id]);
   const eligible = models.filter(
     (m) => m.available && m.inputRate !== null && m.outputRate !== null,
   );
@@ -450,6 +462,7 @@ export function DilemmaPage({
       <main className="shutdown-screen">
         <h1>Server shut down.</h1>
         <p>Sessions and costs are saved. Start it with npm start, then reload.</p>
+        <GameTypes />
       </main>
     );
   return (
@@ -489,7 +502,7 @@ export function DilemmaPage({
         <div className="page-heading">
           <div>
             <span className="eyebrow">MAIN PROJECT · COOPERATION &amp; INCENTIVES</span>
-            <h1>{analysisOnly ? 'Decision analysis' : 'Trust & temptation'}</h1>
+            <h1>Trust &amp; temptation</h1>
             <p>Repeated Prisoner’s Dilemma · maximise expected own points.</p>
           </div>
           {session && (
@@ -505,38 +518,53 @@ export function DilemmaPage({
             </button>
           )}
         </div>
-        {!session && !analysisOnly && (
+        {!session && (
           <section className="pd-welcome" aria-label="Start exploring">
             <p>
-              An interactive lab for students and AI builders: see how incentives shape Nemotron
-              decisions, then examine what the evidence supports.
+              Your choice today can change how a partner responds tomorrow. Explore what happens
+              when private, simultaneous decisions are repeated.
             </p>
+            <div className="pd-payoffs pd-intro-payoffs">
+              <PayoffTable />
+              <small>A points · B points</small>
+            </div>
             <p>
-              Both players can earn more through mutual cooperation, while each has an immediate
-              incentive to defect. Repeated interaction lets us examine when future consequences
-              change that choice. Each player seeks its own expected total points.
+              Each player seeks their own total points. Both can gain through cooperation, while
+              defection offers an immediate temptation. Repetition makes future responses matter.
             </p>
             <div className="pd-entry-actions">
-              <a className="entry-primary" href="#replay">
-                Explore a recorded Nemotron interaction →
-              </a>
+              <button
+                className="primary"
+                onClick={() => {
+                  setShowRecording(false);
+                  setHumanPlay(true);
+                  requestAnimationFrame(() =>
+                    document.getElementById('play-setup')?.scrollIntoView({ block: 'start' }),
+                  );
+                }}
+              >
+                Play yourself
+              </button>
               <button
                 disabled={controlsDisabled || Boolean(anyRunning)}
-                onClick={() => start(true)}
+                onClick={() => {
+                  setShowRecording(false);
+                  void start(true);
+                }}
               >
-                Run a free ten-round local demo
+                Watch bots · free
               </button>
-              <button onClick={() => setLessonRequest((n) => n + 1)}>Learn the game</button>
+              <button aria-pressed={showRecording} onClick={() => setShowRecording((v) => !v)}>
+                Watch Nemotron · recording
+              </button>
+              <button onClick={() => setLessonRequest((n) => n + 1)}>Learn more</button>
             </div>
             <small>
-              {browserOnly
-                ? 'Recorded study and free browser play need no key. The demo uses simple local policies, not models.'
-                : 'Recorded study: no key needed. Local demo: simple policies, not models. Configure live Nemotron play below.'}
+              Bot play and recordings need no key. Live model play is available in the local app.
             </small>
           </section>
         )}
         <BrowserNotice />
-        <GameTypes />
         <p
           className={`pd-connection ${connection !== 'connected' || (session && stream !== 'live') ? 'notice' : 'muted'}`}
           role="status"
@@ -587,8 +615,10 @@ export function DilemmaPage({
             </button>
           </p>
         )}
-        {!session && (
+        {!session && showRecording && <StudyReplayContent compact />}
+        {!session && !showRecording && (
           <form
+            id="play-setup"
             className="pd-setup"
             onSubmit={(event) => {
               event.preventDefault();
@@ -597,7 +627,7 @@ export function DilemmaPage({
           >
             <div className="pd-play-mode">
               <button type="button" aria-pressed={!humanPlay} onClick={() => setHumanPlay(false)}>
-                Watch players
+                {browserOnly ? 'Watch bots' : 'Live Nemotron'}
               </button>
               <button type="button" aria-pressed={humanPlay} onClick={() => setHumanPlay(true)}>
                 Play as a human
@@ -643,7 +673,8 @@ export function DilemmaPage({
               </div>
             )}
             {!browserOnly && !humanPlay && (
-              <>
+              <details className="pd-live-setup">
+                <summary>Live Nemotron setup</summary>
                 <div className="pd-model-fields">
                   {selected.map((id, seat) => (
                     <label key={seat}>
@@ -710,10 +741,9 @@ export function DilemmaPage({
                     ? 'Players submit one action. The analyst shows verified incentives without inventing beliefs.'
                     : 'Players seal numeric forecasts with each action. Analysis checks reported consistency and forecast error; reports are not verified internal beliefs.'}
                 </p>
-              </>
+              </details>
             )}
-            <div className="pd-payoffs pd-before-payoffs">
-              <PayoffTable />
+            <div className="pd-before-payoffs">
               <small>
                 Each player maximises expected own total points. Choices are simultaneous and
                 revealed together.{' '}
@@ -806,6 +836,7 @@ export function DilemmaPage({
             )}
           </form>
         )}
+        {!session && analysisOnly && <Inspector round={undefined} session={null} />}
         {session && (
           <>
             {session.config.mode === 'interactive' && (
@@ -856,8 +887,7 @@ export function DilemmaPage({
                 </>
               )}
             </section>
-            {analysisOnly && <Profile session={session} />}
-            <div className={analysisOnly ? 'pd-analysis-layout' : 'pd-layout'}>
+            <div className="pd-layout">
               <div className="pd-main">
                 <section className="pd-table" aria-label="Simultaneous interaction">
                   <div className="pd-table-heading">
@@ -1027,7 +1057,10 @@ export function DilemmaPage({
               </div>
               <Inspector round={round} session={session} />
             </div>
-            {!analysisOnly && <Profile session={session} />}
+            <details className="pd-session-profile">
+              <summary>Session decision profile</summary>
+              <Profile session={session} />
+            </details>
             <details className="pd-records">
               <summary>Replay, audit & protocol</summary>
               {!browserOnly && (
@@ -1157,6 +1190,7 @@ export function DilemmaPage({
               : 'Choices, rules, and analysis save automatically.'}
           </span>
         </footer>
+        <GameTypes />
       </main>
     </div>
   );

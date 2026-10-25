@@ -12,7 +12,8 @@ from decimal import Decimal
 from pathlib import Path
 from statistics import mean
 
-from final_results import check_actions, diagnostics
+from final_results import ROOT, check_actions, diagnostics
+from release_final_results import check_local_records
 
 
 def read(path):
@@ -24,7 +25,10 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-def prepare(campaign, recovery, target):
+def prepare(campaign, recovery, target, private_records=None):
+    private_records = private_records or ROOT / "output/release-polish/private"
+    if private_records.resolve().is_relative_to(target.resolve()) or private_records.resolve().is_relative_to(ROOT / "public"):
+        raise ValueError("Local accounting records must stay outside the scientific/public export")
     evidence_head = read(campaign / "tracking-final.json")["evidenceHead"]
     source = campaign / ("export-" + evidence_head[:12])
     summary = read(source / "summary.json")
@@ -128,7 +132,7 @@ def prepare(campaign, recovery, target):
     eng_events = [json.loads(s) for s in (campaign / "engineering/events.jsonl").open()]
     engineering_usd = Decimal(eng_events[-1]["spentUsd"])
     write(
-        target / "accounting.json",
+        private_records / "accounting.json",
         {
             "currency": "USD",
             "basis": "Usage at recorded input/output token rates; estimates, not invoices",
@@ -196,12 +200,15 @@ def prepare(campaign, recovery, target):
 if __name__ == "__main__":
     if sys.argv[1] == "--manifest":
         target = Path(sys.argv[2])
-        assert read(target / "publication-review.json")["ready"]
+        private_records = Path(sys.argv[3]) if len(sys.argv) > 3 else ROOT / "output/release-polish/private"
+        check_local_records(target, private_records)
+        assert not (target / "accounting.json").exists()
+        assert not (target / "publication-review.json").exists()
         write(
             target / "manifest.json",
             {
                 "schemaVersion": 2,
-                "scope": "Sole completed joint-temperature final evaluation; revealed actions and numerical telemetry. Private provider evidence is attested in the release review, not authenticated by these public hashes. Unresolved billing exposure is explicitly retained.",
+                "scope": "Completed joint-temperature evaluation: saved actions, scientific source, exact scoring and numerical telemetry. Private provider evidence and release authority are retained locally and checked separately.",
                 "files": {
                     p.relative_to(target).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
                     for p in sorted(target.rglob("*"))
@@ -211,4 +218,4 @@ if __name__ == "__main__":
         )
         print("Updated complete final-publication manifest.")
     else:
-        prepare(*(Path(s) for s in sys.argv[1:4]))
+        prepare(*(Path(s) for s in sys.argv[1:5]))

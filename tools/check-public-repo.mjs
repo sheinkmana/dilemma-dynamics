@@ -15,7 +15,8 @@ const files = [
 const failures = [];
 const privatePath =
   /^(?:archive\/|data\/|output\/|docs\/research\/|\.env(?:\.|$)(?!example$))|(?:\.sqlite(?:-wal|-shm)?|\.db|\.tar\.gz|\.zip)$|^[^/]+\.pdf$|^research\/paper-extracted\.txt$/i;
-const maintainedMarkdown = new Set(['README.md', 'AGENTS.md', 'FINAL_EVALUATION.md']);
+const localOnlyPath = /^(?:AGENTS\.md|public\/research\/(?:accounting|publication-review)\.json)$/;
+const maintainedMarkdown = new Set(['README.md', 'FINAL_EVALUATION.md']);
 for (const name of files.filter((name) => name.endsWith('.md') && existsSync(name))) {
   if (!maintainedMarkdown.has(name)) failures.push(`${name}: redundant maintained Markdown`);
 }
@@ -33,6 +34,9 @@ const patterns = [
   ],
 ];
 function inspect(name, bytes, historical = false) {
+  // Historical operational records remain in existing Git history. New releases
+  // exclude them from the current tree without rewriting prior commits.
+  if (!historical && localOnlyPath.test(name)) failures.push(`${name}: local-only record`);
   if (privatePath.test(name))
     failures.push(`${historical ? 'history: ' : ''}${name}: private artifact path`);
   if (bytes.length > 5 * 1024 * 1024)

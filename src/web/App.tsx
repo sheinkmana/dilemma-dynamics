@@ -17,7 +17,7 @@ import { gameFor } from '../games/registry.js';
 import './style.css';
 import { DilemmaPage } from './Dilemma.js';
 import { StudyResults } from './StudyResults.js';
-import { StudyReplay } from './StudyReplay.js';
+import { pageForHash, primaryPage, type Page } from './navigation.js';
 
 import { api, browserOnly, subscribe, ExportLink, BrowserNotice } from './transport.js';
 const usd = new Intl.NumberFormat('en-US', {
@@ -902,26 +902,22 @@ function Recreation({
     </div>
   );
 }
-type Page = 'dilemma' | 'analysis' | 'replay' | 'results' | 'recreational';
 function pageFromHash(): Page {
-  const hash = window.location.hash.slice(1);
-  if (browserOnly && !['dilemma', 'analysis', 'replay', 'results', 'recreational'].includes(hash))
-    return 'replay';
-  return ['analysis', 'replay', 'results', 'recreational'].includes(hash)
-    ? (hash as Page)
-    : 'dilemma';
+  return pageForHash(window.location.hash);
 }
 export function App() {
   const [theme, setTheme] = useState(initialTheme);
   const [page, setPage] = useState<Page>(pageFromHash);
   const [visitedRecreation, setVisitedRecreation] = useState(page === 'recreational');
-  const [visitedDilemma, setVisitedDilemma] = useState(page === 'dilemma' || page === 'analysis');
+  const [visitedDilemma, setVisitedDilemma] = useState(page === 'play' || page === 'analysis');
+  const [visitedResults, setVisitedResults] = useState(primaryPage(page) === 'results');
   useEffect(() => {
     const navigate = () => {
       const next = pageFromHash();
       setPage(next);
+      if (primaryPage(next) === 'results') setVisitedResults(true);
       if (next === 'recreational') setVisitedRecreation(true);
-      if (next === 'dilemma' || next === 'analysis') setVisitedDilemma(true);
+      if (next === 'play' || next === 'analysis') setVisitedDilemma(true);
     };
     window.addEventListener('hashchange', navigate);
     return () => window.removeEventListener('hashchange', navigate);
@@ -938,33 +934,30 @@ export function App() {
   }, [theme]);
   const navigation = (
     <nav className="domain-nav" aria-label="Project sections">
-      {(['dilemma', 'analysis', 'replay', 'results', 'recreational'] as const).map((p) => (
+      {(['play', 'results'] as const).map((p) => (
         <button
           key={p}
-          className={p === 'recreational' ? 'side-project-nav' : undefined}
-          aria-label={p === 'recreational' ? 'Board games · side project' : undefined}
-          aria-pressed={page === p}
+          aria-pressed={primaryPage(page) === p}
           onClick={() => {
             window.location.hash = p;
           }}
         >
-          {p === 'dilemma'
-            ? 'Dilemma'
-            : p === 'analysis'
-              ? 'Analysis'
-              : p === 'replay'
-                ? 'Study replay'
-                : p === 'results'
-                  ? 'Results'
-                  : 'Board games · side project'}
+          {p === 'play' ? 'Play & understand' : 'Results'}
         </button>
       ))}
+      <a
+        className="recreational-nav"
+        href="#recreational"
+        aria-current={page === 'recreational' ? 'page' : undefined}
+      >
+        Recreational games ↗
+      </a>
     </nav>
   );
   return (
     <>
       {visitedDilemma && (
-        <div hidden={page !== 'dilemma' && page !== 'analysis'}>
+        <div hidden={page !== 'play' && page !== 'analysis'}>
           <DilemmaPage
             navigation={navigation}
             analysisOnly={page === 'analysis'}
@@ -973,11 +966,10 @@ export function App() {
           />
         </div>
       )}
-      {page === 'replay' && (
-        <StudyReplay navigation={navigation} theme={theme} setTheme={setTheme} />
-      )}
-      {page === 'results' && (
-        <StudyResults navigation={navigation} theme={theme} setTheme={setTheme} />
+      {visitedResults && (
+        <div hidden={primaryPage(page) !== 'results'}>
+          <StudyResults navigation={navigation} theme={theme} setTheme={setTheme} />
+        </div>
       )}
       {visitedRecreation && (
         <div hidden={page !== 'recreational'}>

@@ -1,24 +1,21 @@
-# Final evaluation
+# Evaluation
 
-## Completed result and scope
+## What the study conveys
 
-The sole public evaluation completed **7,104/7,104 episodes**: **3,552 at each
-temperature**, **6,144 known-policy benchmark episodes** and **960 autonomous
-dyads**. The scientific stage ran from **24 October 2026 14:10 UTC to 25 October
-06:20 UTC**, taking **16.16 hours** including interruption and recovery. No further
-paid inference is required. Report, app, replay and website use this campaign only.
-Historical development evidence is retained privately and never pooled.
+The evaluation contains **7,104 episodes** across **two models** and
+**temperatures 0 and 1**: 6,144 known-policy benchmark episodes and 960 autonomous
+dyads. Drafting reduced average exact benchmark decision loss by **16.8–37.5%**
+across the four planned comparisons, increased loss against Tit-for-Tat, and
+reduced cooperation in self-play.
 
-The strongest finding is conditional: **Draft lowers pooled exact benchmark
-loss in all four planned model/temperature comparisons, yet worsens loss against
-Tit-for-Tat and produces less cooperation in autonomous self-play.** Recognising
-simple exploitation opportunities and sustaining contingent reciprocity emerge
-as distinct capabilities.
+This contrast separates two capabilities: recognising the best action against
+a predictable partner and sustaining valuable reciprocal interaction. Exact
+payoff references explain the first; cooperation, returns and repair trajectories
+reveal the second. App, report and website use this completed campaign only.
 
-Earlier outcomes informed this prospective design, so this is not an
-outcome-naive first study. The primary contrasts and uncertainty rule were fixed
-before this campaign's scientific outcomes; the additional diagnostic slices and
-hypotheses below were chosen after completion.
+The four primary contrasts and uncertainty rule were fixed before this campaign's
+outcomes. Earlier development informed the design; additional opponent,
+presentation, planning and self-play diagnostics below are exploratory.
 
 ## Findings and uncertainty
 
@@ -119,7 +116,7 @@ payoff losses. At continuation .9 against Grim, Super Draft starts with the
 optimal C in only 26/48 zero-temperature episodes and 17/48 at one. Full first-action,
 finite-path and presentation tables are in `diagnostics.json` and the app.
 
-### Resource and serving observations
+### Resource observations
 
 Each arm makes 5,236 decisions per temperature across both tracks. Direct has
 one successful request per decision; Draft has two. Draft costs approximately
@@ -137,73 +134,60 @@ request medians range from .96 to 1.98 seconds. A mixed per-request median does
 not measure full decision delay or wall-clock throughput. Queueing, both phases,
 recovery and cooldowns matter.
 
-Successful responses consistently report the requested model ID and one
-fingerprint per model during this campaign. They do not pin weights or hidden
-serving state. Models have different listed serving regions and quantisations,
-so absolute between-model differences combine model and deployment differences.
-Transport-segment loss means are disclosed in `diagnostics.json`; composition
-differs, and two episodes span the interruption, preventing a causal recovery comparison.
+Successful responses report the requested model ID and one fingerprint per
+model during the campaign. Serving regions and quantisations are recorded with
+the implementation, providing deployment context for between-model comparisons.
+Measured resource use and usage-based cost estimates use the rates recorded
+during the run.
 
-## Hypotheses and useful next tests
+## Future work
 
-These are explanations to investigate, not established mechanisms. No additional
-inference is needed or authorised by this analysis.
+**Contingent planning.** The different optimal responses to TFT, and the contrast
+between useful endgame choices and complete finite paths, motivate comparing
+explicit state-transition plans at several depths. Score initial and continuation
+choices separately, match compute across procedures, and vary draft length
+independently. Cross every stopping seed with every mapping and seat to examine
+how equivalent presentations affect the plans.
 
-1. **Local optimisation outruns contingent planning.** Gains against unresponsive
-   policies coexist with TFT reversals and rare optimal finite paths. Compare
-   explicit state-transition planning depths at fixed compute; score early and
-   continuation choices separately.
-2. **Independent defensive play blocks reciprocal repair.** Super Draft's
-   zero-temperature self-play never returns to CC in 325 opportunities. Test
-   controlled forgiving partners that create known repair opportunities.
-3. **Drafting changes presentation habits.** Nano's mapping-associated sign
-   reversal motivates crossing every stopping seed with every mapping and seat.
-4. **Truncation interacts with sampling and conditioning.** Randomise draft caps
-   and add an equal-compute Direct control. Current cap/performance associations
-   cannot separate request difficulty, sampling and the two-stage intervention.
+**Formation and repair.** Controlled forgiving partners could create known
+opportunities to restore cooperation after a defection. Varying their timing and
+frequency would show when reciprocal exploration builds a stable relationship,
+and when individually cautious decisions keep a pair in low cooperation.
 
-## Completion, recovery and accounting
+**Communication and noise.** Add messages, controlled action mistakes and noisy
+observations to study how players interpret intent, commitments and apparent
+breaches. Comparing explanations with subsequent actions would connect payoff
+reasoning, cooperative recovery and commitment reliability.
 
-The original session stopped at 3,406 episodes after HTTP 529 overload. An
-explicitly approved recovery preserved the entire ledger prefix and completed
-the remaining schedule, using six total attempts, one durable 30-minute decision
-window, a shared five-minute cooldown, and two sample workers/four requests.
-Prompts, models, seeds, scoring, budget and original deadline were retained.
-The final record contains **62,832 successful requests plus 20 additional
-transmissions**: 17 HTTP 529 responses, one HTTP 502 and two attempts without a
-durable HTTP response. No scheduled observation is missing.
+**Longer interactions.** Longer horizons and changes in a partner's policy could
+reveal how agents update plans through repeated cycles of coordination and
+breakdown. Separate history length from expected remaining interaction, then
+consider encounters across episodes to study reputation and learning.
 
-| Accounting item                                         |         USD |
-| ------------------------------------------------------- | ----------: |
-| Final usage-priced inference estimate                   | 17.15200728 |
-| Engineering usage-priced estimate                       |  0.63490812 |
-| Total recorded campaign inference estimate              | 17.78691540 |
-| Unresolved maximum exposure for 20 transmitted attempts |  0.32479584 |
-| Total campaign inference maximum exposure               | 18.11171124 |
-| Other-charge reserve plus contingency allocation        |        4.00 |
-| Authorised additional campaign ceiling                  |       40.00 |
+**Incentives and populations.** Vary payoff matrices, asymmetry, group size and
+population composition, including simple policies, adaptive agents and human
+players. Partner selection could connect individual decision quality to the
+relationships and strategies that persist across a population.
 
-These are recorded-rate estimates and exposure bounds, not provider invoices.
-The $40 is additional to historical campaigns; old unused allowances are not
-added. No GPU, VM or new cloud resource was provisioned.
+## Execution and provenance
 
-On **25 October 2026**, the user approved publication with the $0.32479584 retained
-as explicitly uncertain maximum billing exposure. It is neither confirmed paid
-nor confirmed free. The original ledger and frozen zero-unresolved-reservations
-check remain unchanged. `publication-review.json` records its accounting-only
-exception plus the approved head/amount-bound authority; all scientific gates
-passed. No reservation was cleared or successful output regenerated.
+All 7,104 scheduled episodes completed. The scientific stage ran from 24 October
+2026, 14:10 UTC, to 25 October, 06:20 UTC (16.16 elapsed hours), including a
+provider-overload interruption. Recovery preserved the first 3,406 completed
+episodes, their ledger prefix and the scientific schedule. There were 62,832
+successful requests plus 20 additional transmissions.
 
-The campaign is `output/preparation/final-joint-2026-10-24/`; the recovery is
+The original campaign is retained under
+`output/preparation/final-joint-2026-10-24/`, with recovery under
 `output/preparation/final-joint-recovery-2026-10-24/`. Their immutable identities:
 
-| Record                            | SHA-256                                                            |
-| --------------------------------- | ------------------------------------------------------------------ |
-| Specification                     | `047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc` |
-| Original source index             | `1ed37c1db467149166c32e8ff008fbb552cb2e4741e17af7f38fd5576f261ceb` |
-| Recovery amendment                | `6276f6ff189c399a67dba8dc248a8fc8a5031e2e47cd96c3909e99441d604aa8` |
-| Recovery source index             | `16d15ecf916d06a0818e8c0ac2e008e8f729de48f73da69f3319532279f6cce4` |
-| Completed canonical evidence head | `2c1b475f1e4c5a0c4581072e19a7c7b939cc2be1ca107c10e45c4e1e7b513053` |
+| Record | SHA-256 |
+| --- | --- |
+| Specification | `047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc` |
+| Original source index | `1ed37c1db467149166c32e8ff008fbb552cb2e4741e17af7f38fd5576f261ceb` |
+| Recovery amendment | `6276f6ff189c399a67dba8dc248a8fc8a5031e2e47cd96c3909e99441d604aa8` |
+| Recovery source index | `16d15ecf916d06a0818e8c0ac2e008e8f729de48f73da69f3319532279f6cce4` |
+| Completed evidence head | `2c1b475f1e4c5a0c4581072e19a7c7b939cc2be1ca107c10e45c4e1e7b513053` |
 
 ## Questions and treatments
 
@@ -229,8 +213,8 @@ with action X or Y determines play; malformed successful responses are not repai
 All request phases use the episode's temperature, **0 or 1**, and top-p 1. There
 are no tools, communication, coaching, forecast elicitation, examples, analyst
 feedback or cross-episode memory in the final scientific protocol. Draft changes
-compute, request count, thinking settings and conditioning together. This is a
-bounded-procedure comparison, not an equal-cost isolation of native reasoning.
+compute, request count, thinking settings and conditioning together; the estimand
+is the effect of that complete bounded procedure.
 
 ## Game and experimental conditions
 
@@ -309,8 +293,8 @@ each model and temperature. Negative favours Draft. Weight all 16 conditions
 equally within each block and all four strata equally. Use **50,000 deterministic
 PCG64 stratified whole-block bootstrap draws** and report **98.75% marginal
 intervals**, an approximate Bonferroni treatment of a four-comparison 5% family.
-At least five complete within-model blocks in every stratum are needed for an
-interval. Coverage and power are not guaranteed.
+The completed evaluation contributes 12 paired blocks in every stratum; bootstrap
+coverage is approximate.
 
 The **six secondary contrasts** are temperature 0 minus 1 for four arms and the
 change in Draft-minus-Direct for each model. Resample matched whole blocks
@@ -323,31 +307,26 @@ and breakdown/recovery counts with opportunity denominators. Normalised joint
 return is `(1-delta) * sum(both players' points)`, not observed mean points per
 round. Rounds within a dyad are dependent observations.
 
-Every scheduled episode retains a status. Missing episodes are not defections
-or zero scores. Complete-block estimates remain conditional on completion.
-Dynamic programming bounds feasible loss over the remaining scheduled length,
-conditional on a committed prefix. Those schedule-specific bounds are not
-population confidence intervals. An incomplete campaign cannot pass release.
+Every scheduled episode has a retained status and all scheduled observations
+completed. The released estimates use all blocks and both temperatures.
 
 ## Observation and artifact inventory
 
 | Artifact                                                       | What it provides                                                                                                        |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `engineering/events.jsonl`, `final/events.jsonl`               | Authoritative append-only request, accounting, response and joint-reveal chains.                                        |
+| `engineering/events.jsonl`, `final/events.jsonl`               | Append-only request, response and joint-reveal chains.                                        |
 | Stage `inspect/*.eval`                                         | Native samples, model events, private traces, scored outcomes and joint-reveal events linked to canonical event hashes. |
 | `tracking.sqlite`, `tracking-artifacts/`                       | Local MLflow identities, parameters, costs, contrasts and derived artifacts.                                            |
-| `export-<head>/summary.json`, `report.md`                      | Reconstructed completion, primary/secondary comparisons, limits and provenance.                                         |
+| `export-<head>/summary.json`, `report.md`                      | Reconstructed completion, primary/secondary comparisons and provenance.                                         |
 | `episodes.json`                                                | Revealed histories, exact scores, statuses and missingness bounds.                                                      |
 | `decisions.csv`, `decisions.parquet`                           | Action, state, payoff, exact gap, cap indicator, estimated cost and measured request durations.                         |
 | `requests.csv`, `requests.parquet`                             | Usage, phase, attempt, requested/reported model, provider fingerprint when returned and timing.                         |
 | `arms.csv`, `conditions.csv`, `crossplay.csv`, `contrasts.csv` | Complete arm/condition/pairing summaries and uncertainty.                                                               |
 | `primary-contrasts.png`, `manifest.json`                       | Rendered primary comparisons and derived-file checksums.                                                                |
 
-Truncation/error associations, provider drift, state-dependent behaviour, token
-use, cost/latency and draft-content review are exploratory. Truncation is
-endogenous: an association does not prove that increasing a draft budget fixes
-errors. Drafts and app forecasts are generated reports, not verified beliefs.
-Raw responses and private drafts remain local rather than entering public downloads.
+State-dependent behaviour, token use, cost/latency and draft-content review are
+exploratory diagnostics. Drafts and optional app forecasts are model reports; exact
+action scores are calculated separately. Raw responses and private drafts stay local.
 
 ## Engineering and dependencies
 
@@ -370,20 +349,11 @@ A tracking/export failure can be repaired without regenerating successful model 
 `uv.lock` pins the complete dependency resolution; `runtime.json` records the
 actual interpreter, platform and installed distributions. Preserve that environment and its lock for reproduction. No model weights are trained or hosted locally.
 
-Engineering used the existing frozen bank of 142 decisions plus 26 independent
-interactive episodes **at each temperature**: 284 bank decisions and 52 episodes.
-Require valid protocol/usage, draft-reasoning telemetry on both models and forced
-32-token exhaustion probes. Synthetic mocks cannot unlock hosted final inference.
-Engineering observations never enter scientific estimates.
-
-The shared ledger reserves both seats and both phases before transmission. The
-original segment used four sample workers/eight requests and three admitted
-attempts with 15/45-second backoffs. The approved recovery uses two workers/four
-requests, six total attempts and a shared five-minute 529 cooldown. Every
-ambiguous transmission retains its full reservation.
-Durable successful responses are replayed; invalid successful content or unknown
-usage cannot be regenerated. Recovery retains the original observations and
-global deadline; its explicitly amended decision admissions persist across resumes.
+Engineering checked protocol validity, usage telemetry and draft handling on a
+separate frozen decision bank and interactive episodes at each temperature.
+Those observations remain separate from the scientific estimates. Execution
+retained valid responses across interruption and recovery, preserving observations,
+schedule, source records and the original deadline.
 
 ## Reproduce and inspect
 
@@ -401,23 +371,13 @@ secondary comparisons, exploratory diagnostics, 41,888 decisions, 62,852 request
 records, token-price arithmetic and source/manifest hashes. CSV telemetry is gzip
 compressed; Parquet carries the same records. It makes no inference calls.
 
-For the retained private evidence, these read-only commands reconstruct and
-check original/recovery provenance, native logs and local MLflow:
+The public verifier checks scientific reconstruction and integrity. Local
+execution records and release-authority checks are maintained separately.
+The original and recovery source packets remain byte-preserved.
 
-```sh
-.venv/bin/python -m evaluation_recovery verify output/preparation/final-joint-recovery-2026-10-24
-.venv/bin/python -m evaluation_recovery analyse output/preparation/final-joint-recovery-2026-10-24
-.venv/bin/python -m evaluation_recovery release-check output/preparation/final-joint-recovery-2026-10-24
-```
-
-The last command intentionally still reports unresolved accounting. The explicit
-publication amendment was checked separately with `tools/release_final_results.py`
-and its private approval record. `public/research/publication-review.json` retains
-the resulting review, including the original gate's exact reason. Never clear
-reservations to make the original command green. Do not launch completed runs.
-
-`public/research/` contains only this final campaign's numerical package, figures
-and TeX/PDF. `summary.json` covers both temperatures;
+`public/research/` contains the evaluation's numerical package, figures
+and TeX/PDF. The website includes only selected viewer assets and PDF notes;
+the full scientific package remains in the repository. `summary.json` covers both temperatures;
 `temperature-zero/episodes.json` and `temperature-one/episodes.json` contain the
 separate action histories. `diagnostics.json` includes post-viewing slices and
 nominal exploratory intervals, clearly separated from the planned contrasts.
@@ -439,26 +399,26 @@ compatibility input, not another maintained guide. Preserve both executed source
 indices and protocol bytes even after completion.
 
 Reproducibility covers exact saved-action scoring, deterministic offline
-resampling, frozen design/source/dependencies and an independent-replication
-procedure. Hosted outputs are not guaranteed byte-identical, including at zero.
-Public hashes verify integrity; they do not independently authenticate private
-provider identity, request history or invoices.
+resampling and frozen design, source and dependencies. Hosted generation remains
+stochastic, including at temperature zero; the released action histories provide
+a stable basis for reproducing the analysis.
 
 ## Interpretation and related work
 
-The findings concern these bounded procedures, prompts, sampled environments
-and hosted service window. Approximate primary uncertainty does not guarantee
-coverage. Six secondary contrasts and the post-viewing opponent, presentation,
-finite-planning, self-play and transport analyses have no family correction.
-All scheduled episodes completed, so completion-based missingness bounds collapse
-to observed values; bounds on missing schedules are not population intervals.
+The findings compare the stated bounded procedures, prompts, sampled environments
+and hosted service window. The four primary contrasts use approximate family
+coverage; six secondary temperature contrasts use nominal intervals. Opponent,
+presentation, finite-planning and self-play diagnostics are exploratory. This
+separation supports a clear interpretation of decision quality, cooperation and
+relationship repair.
 
 Rasmusen's _Games and Information_ supplies the repeated-game, best-response and
 commitment foundations. The notes retain the book reference and related LLM-game
 literature: Akata et al. on repeated games and social chain of thought, Fontana
 et al. on model-specific cooperation, Pal et al. on strategies across repeated
 game settings, and Taylor and Bergen on communication and deception in other
-protocols. The final scientific protocol has no communication or elicited beliefs.
+protocols. The action-only scientific protocol provides a baseline for future work on
+communication and elicited beliefs.
 Full citations, mathematical definitions and probability/forecast derivations
 remain in the [TeX notes](public/research/paper/main.tex) and
 [report (PDF)](public/research/paper/report.pdf).

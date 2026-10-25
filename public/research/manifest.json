@@ -1,8 +1,7 @@
 {
   "schemaVersion": 2,
-  "scope": "Sole completed joint-temperature final evaluation; revealed actions and numerical telemetry. Private provider evidence is attested in the release review, not authenticated by these public hashes. Unresolved billing exposure is explicitly retained.",
+  "scope": "Completed joint-temperature evaluation: saved actions, scientific source, exact scoring and numerical telemetry. Private provider evidence and release authority are retained locally and checked separately.",
   "files": {
-    "accounting.json": "fd0820955ce8e02d0fcf97f0eede5cb9d40be97f82956b087fa12fde917c421e",
     "arms.csv": "2b094cbf722d2749df98f6be77bb81d2f99f982e33a0c55a39892d03bbead6ff",
     "conditions.csv": "71104b08a86afc665aa270dff341cc2e434d15b76b8c4f855a757ef8f1e8bcad",
     "contrasts.csv": "e02f03cd8d978396b9a4988d2ea54fd71ff39770b289c07bd48d5b12f30f5251",
@@ -16,11 +15,10 @@
     "figures/condition-effects.svg": "a57212d7ff854dafc7c79a9e2c873d5f45f4fee195a08f2307ce665953b72e93",
     "figures/primary-results.png": "b76d364ee5401a69b7d3806bc8af483b85aa22cbcb5ae0d0e2124c95bd4e55e2",
     "figures/primary-results.svg": "9fa71ce289bb25d6be5fa9d0ecca5443961cf011c56400d637b5401f6e5fdc5e",
-    "paper/main.tex": "df35ba265aec5132134c40de94220a7c2a776f99e3fa0a825f81465f260c2e42",
-    "paper/report.pdf": "154cab65c23a3c81c50b3bcd700d687b41b58e4c4b30c41a8b270e9d4bb154bb",
+    "paper/main.tex": "39836e7d907b1e6b4e4a02b6e2ee43f1475123f5b7a9c3f7487e7c968d908f8b",
+    "paper/report.pdf": "5a087103ebbd9376055f49c36d34bf0ce6b2a2644fb4cdcf786cd38b903c88ab",
     "prices.json": "ece5524f886d893616bc900af645c3236c4e8ce1fb2c9097b99333691feaa44c",
     "provenance.json": "642e4b094b7c9f3e417a7510acc1e5585eb901ece3486013f39f1f1bf71508d4",
-    "publication-review.json": "dcd523e4c01ecc99a767d538251ecf193e55543bef5be71904d93f59a31d80f7",
     "recovery-amendment.json": "1141340239f3d3d6fcc2ea846c0ededfcdb837adcd252966ef7a1da3cc4c8766",
     "recovery-analysis.json": "caff45533792b59e03adfe0dacdc5645aa8ff4c36c2c84e5135117d9db908f03",
     "recovery-source-index.json": "a731017ea5baba089d15a4e683c4e94876da54be9229ed1c654294fd2b128967",

@@ -242,24 +242,13 @@ def verify(directory):
             ),
         }
         equal({k: arm[k] for k in calculated}, calculated)
-    # These are explicit publication authority and retained uncertainty, not invoices.
-    accounting, review = read("accounting.json"), read("publication-review.json")
-    equal(accounting["finalUsageEstimate"], summary["spentUsd"])
-    equal(accounting["unresolvedMaximumExposure"], summary["reservedUsd"])
-    assert not accounting["billingReconciled"] and not accounting["settledLedgerAltered"]
-    assert review["ready"] and review["newInference"] == 0
-    equal(review["evidenceHead"], summary["evidenceHead"])
-    equal(review["accountingAmendment"]["unresolvedMaximumExposureUsd"], summary["reservedUsd"])
-    equal(review["accountingAmendment"]["approval"], "Approve disclosed accounting amendment")
-    equal(
-        review["originalFrozenGate"],
-        {
-            "ready": False,
-            "reasons": ["Unresolved final reservations require explicit accounting review"],
-        },
-    )
+    # Authority records are local. Their independent required assertions live in
+    # release_final_results.py --check-records; public reproducibility needs only
+    # the scientific export and unchanged frozen scoring/source.
+    assert not (directory / "accounting.json").exists()
+    assert not (directory / "publication-review.json").exists()
     print(
-        "Verified 7,104 final episodes, exact scoring, paired schedule, 4 primary/6 secondary contrasts, exploratory slices, 41,888 decisions and 62,852 request records. Billing uncertainty is retained; private native evidence is attested separately."
+        "Verified 7,104 evaluation episodes, exact scoring, paired schedule, 4 primary/6 secondary contrasts, exploratory slices, 41,888 decisions and 62,852 request records. Local release authority is checked separately."
     )
 
 

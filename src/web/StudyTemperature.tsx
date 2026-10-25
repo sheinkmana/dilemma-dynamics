@@ -1,4 +1,5 @@
-import { studies, type StudyTemperature } from './studyData.js';
+import { useId } from 'react';
+import type { StudyTemperature } from './studyData.js';
 
 export function StudyTemperature({
   value,
@@ -7,17 +8,18 @@ export function StudyTemperature({
   value: StudyTemperature;
   onChange: (value: StudyTemperature) => void;
 }) {
+  const id = useId();
   return (
     <div className="results-filter study-temperature">
-      <label htmlFor="study-temperature">Study temperature</label>
+      <label htmlFor={id}>Study temperature</label>
       <select
-        id="study-temperature"
+        id={id}
         value={value}
         onChange={(event) => onChange(Number(event.target.value) as StudyTemperature)}
       >
         {([0, 1] as const).map((temperature) => (
           <option key={temperature} value={temperature}>
-            Temperature {temperature} · {studies[temperature].date}
+            Temperature {temperature}
           </option>
         ))}
       </select>
