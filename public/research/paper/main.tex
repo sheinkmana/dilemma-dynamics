@@ -1,6 +1,6 @@
 \documentclass[11pt,a4paper]{article}
 \usepackage[margin=24mm]{geometry}
-\usepackage{amsmath,amssymb,booktabs,array}
+\usepackage{amsmath,amssymb,booktabs,array,graphicx}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage[hidelinks]{hyperref}
@@ -15,7 +15,7 @@
 \newcommand{\Prb}{\mathbb P}
 \title{Dilemma Dynamics\\\large Cooperation, deliberation and repeated-game incentives}
 \author{Alisa Sheinkman}
-\date{Technical notes for the final evaluation, 24 October 2026}
+\date{Final evaluation and mathematical notes, 25 October 2026}
 \begin{document}
 \maketitle
 \begin{abstract}
@@ -28,9 +28,13 @@ Nano and Super at two sampling temperatures. Against disclosed opponent policies
 exact dynamic programming measures the payoff given up at each choice.
 Autonomous pairings reveal how cooperation begins, breaks down and returns.
 Matched game schedules, interleaved temperatures and durable event logs connect
-aggregate comparisons to individual decisions. The final evaluation is underway;
-these notes develop its theoretical motivation, experimental design and
-reproducible analysis.
+aggregate comparisons to individual decisions. Drafting lowers average benchmark
+loss for both models at both temperatures, yet increases loss against Tit-for-Tat.
+Autonomous self-play also becomes less cooperative with drafting. The contrast
+suggests that recognising immediate exploitation opportunities and sustaining
+reciprocity are distinct capabilities. Temperature and action-label sensitivity
+further qualify when deliberation helps. These notes connect the completed
+results to repeated-game theory and propose targeted explanations for future tests.
 \end{abstract}
 
 \section{The question and the intervention}
@@ -317,26 +321,243 @@ workers sharing four request slots. The original campaign deadline remains
 36 hours, with its watchdog and shutdown margin. The original source and ledger
 prefix remain intact; a separate frozen receipt records the amendment.
 
-\subsection{Reading the eventual findings}
-The primary effects compare complete bounded procedures: Draft adds computation,
-a request, thinking controls and conditioning. Opponent breakdowns explain which
-incentive regimes contribute to an average effect. Autonomous pairings add a
-separate view of the cooperation paths those procedures generate.
+\subsection{Completion, accounting and reproducibility}
+All 7,104 scientific episodes completed, with 3,552 at each temperature.
+The scientific stage ran from 24 October 2026, 14:10 UTC, to 25 October,
+06:20 UTC (16.16 elapsed hours, including the interruption).
+The recovery preserved all 3,406 previously completed episodes and the original
+ledger prefix. There were 62,832 successful requests and 20 additional transmitted
+attempts: 17 HTTP 529 responses, one HTTP 502 and two attempts without a durable
+HTTP response. No scheduled observation is missing.
 
-Interpretation remains specific to the tested models, prompts, budgets and
-hosted service window. Backend weights and sampling may change even when the
-requested model name stays fixed, including at temperature zero. Bootstrap
-intervals have approximate coverage; secondary and exploratory comparisons need
-corresponding caution. Draft-content review supports qualitative questions about
-the generated text, while behavioural conclusions use revealed actions and exact
-scores. Broader claims about model rankings, latent beliefs or learning outcomes
-would require additional experiments.
+Usage-priced final inference is estimated at \$17.15200728 and engineering at
+\$0.63490812. Another \$0.32479584 remains reserved against the 20 uncertain
+transmissions. Thus campaign inference exposure is at most \$18.11171124 under
+these recorded bounds, before the \$4 non-inference/contingency allocation.
+These figures are not provider invoices. On 25 October the user explicitly
+approved publication with this unresolved maximum exposure disclosed. The
+original accounting gate still reports unresolved reservations; the separate
+publication amendment changes only that release condition. No reservation or
+usage record was cleared or relabelled.
 
-The public report, replay and downloads will use the completed verified final
-campaign together. Publication checks require native sample coverage, resolved
-final reservations, MLflow export and reproducible derived artifacts.
-\texttt{FINAL\_EVALUATION.md} gives the operational commands and source identities;
-\texttt{AGENTS.md} records the execution safeguards.
+Native Inspect scored-sample coverage, canonical reconstruction, frozen original
+and recovery source, and final MLflow evidence heads were verified. Public actions
+reproduce exact scores and bootstrap comparisons offline. Numerical request and
+decision tables support the usage diagnostics; private draft text and raw native
+logs remain in the evidence archive. Hosted replay is not required to reproduce
+the released statistics. Public hashes provide integrity checks rather than
+independent authentication of private provider evidence.
+
+\clearpage
+\section{Results: better decisions against whom?}
+Each model--procedure arm has 768 benchmark episodes at each temperature.
+Table~\ref{tab:primary} gives the four planned primary comparisons; lower loss
+means less achievable expected own payoff forgone. The intervals use the
+pre-specified approximate four-comparison family treatment described above.
+Every interval lies below zero. Relative to each Direct mean, the reductions
+are 16.8\%, 19.4\%, 25.7\% and 37.5\%, respectively. These percentages describe
+loss reduction, not a percentage increase in earned reward.
+
+\begin{table}[htbp]\centering\small
+\begin{tabular}{lrrrrl}
+\toprule
+Model & $\tau$ & Direct & Draft & Draft--Direct & 98.75\% interval\\
+\midrule
+Nano & 0 & .6462 & .5374 & $-.1088$ & [$-.1640,-.0577$]\\
+Super & 0 & .4616 & .3720 & $-.0896$ & [$-.1212,-.0591$]\\
+Nano & 1 & .6541 & .4861 & $-.1680$ & [$-.2172,-.1209$]\\
+Super & 1 & .5988 & .3741 & $-.2246$ & [$-.2795,-.1742$]\\
+\bottomrule
+\end{tabular}
+\caption{Planned benchmark comparisons in normalised payoff points. All 48
+matched blocks contribute, with 12 blocks in each presentation stratum.}
+\label{tab:primary}
+\end{table}
+
+\begin{center}
+\includegraphics[width=.98\linewidth]{../figures/primary-results.png}
+\end{center}
+
+\subsection{The average hides a Tit-for-Tat reversal}
+Against Always Cooperate, drafting reduces loss by .5865 and .6042 for Nano
+at temperatures zero and one, and by .2094 and .5167 for Super. Against this
+unresponsive opponent, D is optimal at every round: an improvement therefore
+means more effective exploitation, rather than more cooperation. Super Draft
+also nearly eliminates loss against Always Defect. Nano Draft at temperature
+zero has a small opposite aggregate change against Always Defect ($+.0068$).
+
+Against Tit-for-Tat the sign reverses for every model and temperature
+(Table~\ref{tab:policy}). The reversal is concentrated in continuation .6, .9
+and the announced ten-round game; at .4 drafting improves all four means.
+The .6 case rewards alternation, whereas .9 rewards sustained cooperation.
+Worse loss in both regimes indicates that a uniform instruction to cooperate
+more, or to defect more, would not explain all the errors. The 16-condition
+breakdown in Figure~\ref{fig:conditions} prevents gains against simple policies
+from concealing these difficulties.
+
+\begin{table}[htbp]\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+Opponent & Nano 0 & Super 0 & Nano 1 & Super 1\\
+\midrule
+Always Cooperate & $-.5865$ & $-.2094$ & $-.6042$ & $-.5167$\\
+Always Defect & $+.0068$ & $-.2083$ & $-.1984$ & $-.3385$\\
+Grim & $-.0958$ & $-.1511$ & $-.1919$ & $-.2151$\\
+Tit-for-Tat & $+.2404$ & $+.2103$ & $+.3225$ & $+.1717$\\
+\bottomrule
+\end{tabular}
+\caption{Exploratory Draft--Direct mean losses by opponent, averaging its four
+conditions equally (192 episodes per arm/opponent/temperature).}
+\label{tab:policy}
+\end{table}
+
+\begin{figure}[p]\centering
+\includegraphics[width=\linewidth]{../figures/condition-effects.png}
+\caption{All condition effects, chosen for disclosure rather than significance.
+Blue favours Draft; red favours Direct. Each cell compares 48 episodes per arm.
+Condition codes g denote geometric continuation; h denotes announced length.
+These exploratory point estimates have no simultaneous uncertainty guarantee.}
+\label{fig:conditions}
+\end{figure}
+
+\subsection{Temperature changes the drafting advantage}
+The six planned secondary contrasts use nominal approximate 95\% intervals.
+For Super Direct, temperature zero minus one is $-.1372$
+[$-.1814,-.0942$], while Super Draft changes by $-.0022$
+[$-.0193,+.0147$]. Nano Direct changes by $-.0080$
+[$-.0480,+.0316$], and Nano Draft by $+.0513$ [$+.0199,+.0815$].
+Thus zero temperature improves one Direct procedure markedly, worsens one Draft
+procedure, and leaves two contrasts near zero relative to their uncertainty.
+The Draft--Direct advantage narrows at zero for Nano by $+.0592$
+[$+.0099,+.1084$] and for Super by $+.1350$ [$+.0876,+.1849$].
+These six intervals were not multiplicity adjusted. Temperature has no uniform
+preferred setting across the four arms.
+
+\subsection{Presentation sensitivity and finite planning}
+An exploratory presentation slice reveals a large Nano effect at temperature
+zero. When X means C, Draft--Direct loss is $-.4652$ in the first display seat
+and $-.2558$ in the second; when X means D, it is $+.1427$ and $+.1431$.
+Each stratum has 12 blocks. Seats show the same mapping-associated reversal,
+while Nano's temperature-one effects and all Super effects favour Draft in
+every stratum. Strata also have different stopping draws, so these estimates
+motivate a fully crossed label experiment rather than isolating a causal label
+effect. Equal weighting of all four strata is essential to the reported average.
+
+In the ten-round committed-policy games, the optimal own action path is nine C
+moves followed by D, with total payoff 32. Across all 768 such episodes,
+only one follows that path (Super Draft against Grim at temperature zero).
+Against TFT, Super Draft cooperates in round nine in 43/48 temperature-zero
+episodes and defects in round ten in all 48, yet never follows the complete
+optimal path. Its actions match a useful local endgame in many histories while
+losing payoff earlier. Against Grim at continuation .9, even Super Draft starts
+with the optimal C in only 26/48 episodes at zero and 17/48 at one. This is a substantial gap in sustained contingent planning despite improvement
+on the pooled benchmark.
+
+\clearpage
+\section{Autonomous interaction: cooperation is a separate outcome}
+Every unordered pairing has 48 dyads and 376 realised rounds per temperature.
+Across all ten pairings, mutual cooperation occurs in 330/3,760 rounds (8.8\%)
+at zero and 353/3,760 (9.4\%) at one. The corresponding means of within-episode
+CC fractions are 8.9\% and 9.8\%. These two weighting schemes answer different
+questions; rounds in a trajectory are dependent.
+
+\begin{table}[htbp]\centering\small
+\begin{tabular}{lrrrr}
+\toprule
+Self-play arm & CC rounds, $\tau=0$ & $J$, $\tau=0$ & CC rounds, $\tau=1$ & $J$, $\tau=1$\\
+\midrule
+Nano Direct & 61/376 & 2.7500 & 87/376 & 3.3729\\
+Nano Draft & 29/376 & 2.5083 & 15/376 & 2.3854\\
+Super Direct & 124/376 & 3.2063 & 58/376 & 3.1500\\
+Super Draft & 3/376 & 1.8667 & 9/376 & 2.0792\\
+\bottomrule
+\end{tabular}
+\caption{Self-play cooperation and mean normalised joint return $J$.
+Draft lowers both point estimates for each model at each temperature.}
+\label{tab:self}
+\end{table}
+
+\begin{center}
+\includegraphics[width=\linewidth]{../figures/autonomous-self-play.png}
+\end{center}
+
+For Super at zero, changing both self-play agents from Direct to Draft lowers
+mean normalised joint return by 1.3396 (exploratory nominal 95\% paired-block
+interval [$-1.8375,-.9042$]). Super Draft self-play has 329/376 DD rounds,
+three first-round CC outcomes, and no return to CC in 325 opportunities.
+Super Direct self-play starts with zero first-round CC outcomes but later
+recovers CC in 82/218 eligible transitions. Its 124 CC rounds show that low
+initial cooperation can coexist with subsequent coordination.
+
+The other self-play joint-return differences (Draft minus Direct) are
+$-.2417$ [$-.5458,+.0271$] for Nano at zero,
+$-.9875$ [$-1.3063,-.6958$] for Nano at one, and
+$-1.0708$ [$-1.4208,-.7521$] for Super at one.
+These post-viewing comparisons change both players together and have no
+multiplicity correction. All ten pairings, including cross-model interactions,
+are released with CC/CD/DC/DD counts and breakdown/recovery opportunities.
+
+The shared realised .9-continuation schedule averages 7.833 rounds, below its
+population expectation of ten. On this particular schedule, constant CC would
+yield mean $J=4.7000$, and constant DD $J=1.5667$. This helps interpret the
+normalised returns without mistaking a realised average for a population limit.
+
+\section{Compute, transport and explanatory hypotheses}
+\subsection{The intervention has a material resource cost}
+At each temperature every arm contributes 5,236 decisions across both tracks.
+Direct needs one successful request per decision and Draft two. Within a model,
+Draft's recorded final usage costs are about 10.0--11.9 times Direct's; these
+costs include autonomous play as well as benchmark episodes.
+Median request latency ranges from .36--.69 seconds for Direct and .96--1.98
+seconds for the mixture of Draft's two request phases. Summing phase latencies,
+queueing and cooldowns is necessary to estimate decision or wall-clock delay;
+the mixed per-request median is not that quantity.
+
+The thinking draft hits its 1,024-token cap in 1,322/5,236 Nano-zero drafts
+(25.2\%), 2,148/5,236 Nano-one (41.0\%), 1,941/5,236 Super-zero (37.1\%)
+and 2,938/5,236 Super-one (56.1\%). Completion tokens include the provider's
+counted output; missing reasoning-token detail is not evidence of zero reasoning.
+This study therefore evaluates a frequently truncated bounded procedure.
+Cap status is an outcome of the request and its difficulty, so a capped versus
+uncapped comparison would be confounded.
+
+Successful responses report the requested model identifier and one fingerprint
+per model. These identifiers do not pin weights or hidden serving state. Listed
+regions, quantisations and prices differ between models, so absolute model
+differences also combine serving differences.
+
+The transport amendment changes concurrency and waiting. Original/recovery loss
+means are disclosed, but segment composition differs and two episodes span the
+interruption. These slices cannot isolate recovery effects or backend drift.
+
+\subsection{Hypotheses suggested by the observations}
+\begin{enumerate}
+\item \textbf{Local optimisation outruns contingent planning.} Near-zero Super
+Draft loss against unresponsive policies, TFT reversals and rare optimal
+finite paths suggest that simple exploitation is easier than preserving future
+responses. A future test could hold token budget fixed and vary the depth of
+explicit state-transition planning, scoring first actions and continuation
+choices separately.
+\item \textbf{Independent defensive choices create a low-cooperation trap.}
+Super Draft's low self-play CC and zero observed CC recovery at temperature zero
+suggest a mechanism in which individually cautious play blocks reciprocal
+exploration. A controlled partner policy that forgives after a fixed number of
+D rounds could test whether repair opportunities restore cooperation. The
+present action-only protocol does not identify latent fear or intent.
+\item \textbf{Deliberation can partly stabilise or amplify presentation habits.}
+Nano-zero's mapping-associated sign reversal and weaker temperature-one
+sensitivity motivate crossing every seed with every mapping and seat. This
+would separate presentation from the current stratum-specific stopping draws.
+\item \textbf{Truncation and temperature interact with the two-stage procedure.}
+More cap hits at temperature one coexist with better Nano Draft loss but almost
+unchanged Super Draft loss. A future cap randomisation and equal-compute Direct
+control would distinguish output budget from sampling and draft conditioning.
+\end{enumerate}
+
+Bounded drafting improves mean exact payoff decisions over this balanced
+benchmark while leaving reciprocity and planning failures visible in autonomous
+play. The hypotheses above suggest future tests; no further paid calls are
+required to reproduce this final evaluation.
 
 \clearpage
 \appendix

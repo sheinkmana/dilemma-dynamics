@@ -1,542 +1,746 @@
 {
-  "schemaVersion": 1,
-  "studyDate": "2026-10-22",
-  "studyId": "recovery-successor-01-2026-10-22",
-  "interpretation": "Descriptive amended study; not a confirmatory preregistration.",
-  "publicEvidenceScope": "Completed plan and revealed episode actions. Raw provider responses, private drafts, receipts and operational records are retained privately; public data cannot independently verify provider identity, transport, billing or the original raw event chain.",
-  "sourceSha256": "0f2fe59b9218ea0f77d21f7dfd71207b9d030909256ec8d0813508b12aac6c2a",
-  "planSha256": "d28ab0aada5fd26d9822c4e3c9e85948fb9b7ff6a50bbc325518de87982fc5c4",
-  "evidenceHead": "9ae7cce67e2d1c150884560a8d5412dcaea635eaffba1d5b52c3d83916c9694f",
-  "completed": 1776,
-  "scheduled": 1776,
-  "requestCount": 17124,
-  "decisionCount": 11416,
-  "draftCount": 5708,
-  "roundCount": 9356,
-  "failures": 0,
-  "retries": 0,
-  "sessions": 1,
-  "unresolvedSuccessorUsd": "0",
-  "primary": [
+  "version": "dilemma-final/3",
+  "specSha256": "047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc",
+  "sourceSha256": "1ed37c1db467149166c32e8ff008fbb552cb2e4741e17af7f38fd5576f261ceb",
+  "execution": "tokenfactory",
+  "evidenceHead": "2c1b475f1e4c5a0c4581072e19a7c7b939cc2be1ca107c10e45c4e1e7b513053",
+  "selectedBlocksPerTemperature": 48,
+  "scheduled": 7104,
+  "completed": 7104,
+  "statusCounts": {
+    "completed": 7104
+  },
+  "complete": true,
+  "reservedUsd": "0.32479584",
+  "spentUsd": "17.15200728",
+  "requestCount": 62852,
+  "arms": [
     {
+      "temperature": 0,
+      "arm": "nano-direct",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.6461607142857143,
+      "zeroLossEpisodes": 344,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 2178,
+      "requests": 5236,
+      "promptTokens": 1918136,
+      "completionTokens": 31416,
+      "drafts": 0,
+      "cappedDrafts": 0,
+      "requestMedianSeconds": 0.364249249920249,
+      "requestP95Seconds": 0.616129458299838,
+      "estimatedUsd": "0.12262800"
+    },
+    {
+      "temperature": 0,
+      "arm": "nano-draft",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.5373772321428572,
+      "zeroLossEpisodes": 340,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 2200,
+      "requests": 10473,
+      "promptTokens": 7750266,
+      "completionTokens": 3689964,
+      "drafts": 5237,
+      "cappedDrafts": 1322,
+      "requestMedianSeconds": 1.1519617079757154,
+      "requestP95Seconds": 9.784504860639565,
+      "estimatedUsd": "1.35060732"
+    },
+    {
+      "temperature": 0,
+      "arm": "super-direct",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.4616257440476191,
+      "zeroLossEpisodes": 301,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 2284,
+      "requests": 5237,
+      "promptTokens": 1918140,
+      "completionTokens": 36652,
+      "drafts": 0,
+      "cappedDrafts": 0,
+      "requestMedianSeconds": 0.6912516874726862,
+      "requestP95Seconds": 1.1042831243830733,
+      "estimatedUsd": "0.6084288"
+    },
+    {
+      "temperature": 0,
+      "arm": "super-draft",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.37198660714285714,
+      "zeroLossEpisodes": 478,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 2505,
+      "requests": 10477,
+      "promptTokens": 8148555,
+      "completionTokens": 4041423,
+      "drafts": 5239,
+      "cappedDrafts": 1941,
+      "requestMedianSeconds": 1.6771363749867305,
+      "requestP95Seconds": 7.776648897340055,
+      "estimatedUsd": "6.0818472"
+    },
+    {
+      "temperature": 1,
+      "arm": "nano-direct",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.654131324404762,
+      "zeroLossEpisodes": 241,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 1894,
+      "requests": 5236,
+      "promptTokens": 1918655,
+      "completionTokens": 32467,
+      "drafts": 0,
+      "cappedDrafts": 0,
+      "requestMedianSeconds": 0.36561881250236183,
+      "requestP95Seconds": 0.615504302084446,
+      "estimatedUsd": "0.12291138"
+    },
+    {
+      "temperature": 1,
+      "arm": "nano-draft",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.4861253720238095,
+      "zeroLossEpisodes": 381,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 2287,
+      "requests": 10474,
+      "promptTokens": 8132680,
+      "completionTokens": 4062927,
+      "drafts": 5238,
+      "cappedDrafts": 2148,
+      "requestMedianSeconds": 0.9639130835421383,
+      "requestP95Seconds": 10.396689406386574,
+      "estimatedUsd": "1.46306328"
+    },
+    {
+      "temperature": 1,
+      "arm": "super-direct",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.5987927827380952,
+      "zeroLossEpisodes": 242,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 1938,
+      "requests": 5237,
+      "promptTokens": 1918570,
+      "completionTokens": 36661,
+      "drafts": 0,
+      "cappedDrafts": 0,
+      "requestMedianSeconds": 0.6919250208884478,
+      "requestP95Seconds": 1.135322978720069,
+      "estimatedUsd": "0.6085659"
+    },
+    {
+      "temperature": 1,
+      "arm": "super-draft",
+      "benchmarkCompleted": 768,
+      "meanOracleLoss": 0.3741480654761905,
+      "zeroLossEpisodes": 454,
+      "benchmarkDecisions": 3356,
+      "zeroGapDecisions": 2512,
+      "requests": 10482,
+      "promptTokens": 8778466,
+      "completionTokens": 4622684,
+      "drafts": 5243,
+      "cappedDrafts": 2938,
+      "requestMedianSeconds": 1.982944541494362,
+      "requestP95Seconds": 10.931961729389142,
+      "estimatedUsd": "6.7939554"
+    }
+  ],
+  "contrasts": [
+    {
+      "family": "primary",
       "model": "nano",
-      "direction": "draft-minus-direct; negative favours draft",
-      "estimate": -0.19470610119047618,
-      "approximateInterval95": [
-        -0.3076987537202381,
-        -0.09830319940476194
+      "temperature": 0,
+      "contrast": "draft-minus-direct",
+      "direction": "negative favours draft",
+      "estimate": -0.10878348214285713,
+      "interval": [
+        -0.16396869187127983,
+        -0.05769058082217265
       ],
-      "eligibleBlocksByStratum": [
-        6,
-        6,
-        6,
-        6
+      "coverage": 0.9875,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
       ],
-      "incompleteBlocks": [],
-      "scheduledOutcomeBounds": [
-        -0.19470610119047618,
-        -0.19470610119047618
-      ],
-      "inference": "conditional on complete within-model blocks; descriptive, not confirmatory",
-      "intervalStatus": "approximate",
-      "directMean": 0.688921130952381,
-      "draftMean": 0.4942150297619048,
-      "relativeReductionPercent": 28.26246611441717,
-      "stratumMeans": [
-        -0.2998363095238095,
-        -0.11184523809523811,
-        -0.2731845238095238,
-        -0.09395833333333332
-      ]
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
     },
     {
+      "family": "primary",
       "model": "super",
-      "direction": "draft-minus-direct; negative favours draft",
-      "estimate": -0.23708333333333334,
-      "approximateInterval95": [
-        -0.30947191220238096,
-        -0.1734739583333334
+      "temperature": 0,
+      "contrast": "draft-minus-direct",
+      "direction": "negative favours draft",
+      "estimate": -0.08963913690476191,
+      "interval": [
+        -0.12117399088541671,
+        -0.05912652297247028
       ],
-      "eligibleBlocksByStratum": [
-        6,
-        6,
-        6,
-        6
+      "coverage": 0.9875,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
       ],
-      "incompleteBlocks": [],
-      "scheduledOutcomeBounds": [
-        -0.23708333333333334,
-        -0.23708333333333334
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "primary",
+      "model": "nano",
+      "temperature": 1,
+      "contrast": "draft-minus-direct",
+      "direction": "negative favours draft",
+      "estimate": -0.1680059523809524,
+      "interval": [
+        -0.21722286551339287,
+        -0.12085652669270835
       ],
-      "inference": "conditional on complete within-model blocks; descriptive, not confirmatory",
-      "intervalStatus": "approximate",
-      "directMean": 0.6149739583333333,
-      "draftMean": 0.37789062500000004,
-      "relativeReductionPercent": 38.551767944103325,
-      "stratumMeans": [
-        -0.25157738095238097,
-        -0.27979166666666666,
-        -0.15494047619047618,
-        -0.26202380952380955
-      ]
+      "coverage": 0.9875,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "primary",
+      "model": "super",
+      "temperature": 1,
+      "contrast": "draft-minus-direct",
+      "direction": "negative favours draft",
+      "estimate": -0.22464471726190477,
+      "interval": [
+        -0.279528564453125,
+        -0.17421682012648812
+      ],
+      "coverage": 0.9875,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "secondary",
+      "arm": "nano-direct",
+      "contrast": "temperature-0-minus-1",
+      "estimate": -0.007970610119047622,
+      "interval": [
+        -0.04804692150297621,
+        0.031557245163690475
+      ],
+      "coverage": 0.95,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "secondary",
+      "arm": "nano-draft",
+      "contrast": "temperature-0-minus-1",
+      "estimate": 0.05125186011904762,
+      "interval": [
+        0.019853004092261917,
+        0.0815235305059524
+      ],
+      "coverage": 0.95,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "secondary",
+      "arm": "super-direct",
+      "contrast": "temperature-0-minus-1",
+      "estimate": -0.1371670386904762,
+      "interval": [
+        -0.18136369977678568,
+        -0.09416294642857143
+      ],
+      "coverage": 0.95,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "secondary",
+      "arm": "super-draft",
+      "contrast": "temperature-0-minus-1",
+      "estimate": -0.0021614583333333277,
+      "interval": [
+        -0.019280366443452365,
+        0.014732328869047642
+      ],
+      "coverage": 0.95,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "secondary",
+      "model": "nano",
+      "contrast": "drafting-temperature-interaction",
+      "estimate": 0.05922247023809524,
+      "interval": [
+        0.009867652529761954,
+        0.10839122953869051
+      ],
+      "coverage": 0.95,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
+    },
+    {
+      "family": "secondary",
+      "model": "super",
+      "contrast": "drafting-temperature-interaction",
+      "estimate": 0.13500558035714286,
+      "interval": [
+        0.08761532738095239,
+        0.18487188430059526
+      ],
+      "coverage": 0.95,
+      "blocksPerStratum": [
+        12,
+        12,
+        12,
+        12
+      ],
+      "interpretation": "Approximate stratified whole-block bootstrap; coverage is not guaranteed"
     }
   ],
-  "arms": {
-    "nano-direct": {
-      "episodes": 384,
-      "meanOracleLoss": 0.688921130952381,
-      "zeroLossEpisodes": 130
-    },
-    "nano-draft": {
-      "episodes": 384,
-      "meanOracleLoss": 0.4942150297619048,
-      "zeroLossEpisodes": 194
-    },
-    "super-direct": {
-      "episodes": 384,
-      "meanOracleLoss": 0.6149739583333333,
-      "zeroLossEpisodes": 126
-    },
-    "super-draft": {
-      "episodes": 384,
-      "meanOracleLoss": 0.37789062500000004,
-      "zeroLossEpisodes": 232
-    }
-  },
-  "policyEffects": [
+  "scheduledOutcomeBounds": [
     {
-      "policy": "allc",
-      "nano": -0.75625,
-      "super": -0.5145833333333334
+      "temperature": 0,
+      "model": "nano",
+      "lower": -0.10878348214285716,
+      "upper": -0.10878348214285716,
+      "interpretation": "Feasible scheduled-outcome bounds, not confidence intervals"
     },
     {
-      "policy": "alld",
-      "nano": -0.21354166666666666,
-      "super": -0.37083333333333335
+      "temperature": 0,
+      "model": "super",
+      "lower": -0.08963913690476194,
+      "upper": -0.08963913690476194,
+      "interpretation": "Feasible scheduled-outcome bounds, not confidence intervals"
     },
     {
-      "policy": "grim",
-      "nano": -0.15749999999999997,
-      "super": -0.25416666666666665
+      "temperature": 1,
+      "model": "nano",
+      "lower": -0.16800595238095245,
+      "upper": -0.16800595238095245,
+      "interpretation": "Feasible scheduled-outcome bounds, not confidence intervals"
     },
     {
-      "policy": "tft",
-      "nano": 0.34846726190476196,
-      "super": 0.19125
+      "temperature": 1,
+      "model": "super",
+      "lower": -0.22464471726190471,
+      "upper": -0.22464471726190471,
+      "interpretation": "Feasible scheduled-outcome bounds, not confidence intervals"
     }
   ],
-  "crossplay": [
+  "cooperation": [
     {
+      "temperature": 0,
       "cell": "B/nano-direct/nano-direct",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 5,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 3.8333333333333335,
-      "mutualCooperation": {
-        "count": 52,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 38,
-        "opportunities": 45
-      },
-      "recovery": {
-        "count": 40,
-        "opportunities": 137
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 61,
+      "CD": 55,
+      "DC": 53,
+      "DD": 207,
+      "roundWeightedCC": 0.1622340425531915,
+      "episodeWeightedCC": 0.15568790106833585,
+      "firstCC": 11,
+      "meanNormalisedJointReturn": 2.75,
+      "breakdownCount": 23,
+      "recoveryCount": 19,
+      "breakdownOpportunities": 54,
+      "recoveryOpportunities": 274
     },
     {
+      "temperature": 0,
       "cell": "B/nano-direct/nano-draft",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 3,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 3.1125000000000003,
-      "mutualCooperation": {
-        "count": 14,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 13,
-        "opportunities": 13
-      },
-      "recovery": {
-        "count": 11,
-        "opportunities": 169
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 40,
+      "CD": 80,
+      "DC": 46,
+      "DD": 210,
+      "roundWeightedCC": 0.10638297872340426,
+      "episodeWeightedCC": 0.1285278417471512,
+      "firstCC": 10,
+      "meanNormalisedJointReturn": 2.6875,
+      "breakdownCount": 18,
+      "recoveryCount": 14,
+      "breakdownOpportunities": 34,
+      "recoveryOpportunities": 294
     },
     {
+      "temperature": 0,
       "cell": "B/nano-direct/super-direct",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 5,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 3.529166666666667,
-      "mutualCooperation": {
-        "count": 33,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 29,
-        "opportunities": 29
-      },
-      "recovery": {
-        "count": 28,
-        "opportunities": 153
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 15,
+      "CD": 82,
+      "DC": 75,
+      "DD": 204,
+      "roundWeightedCC": 0.0398936170212766,
+      "episodeWeightedCC": 0.025025284640054463,
+      "firstCC": 0,
+      "meanNormalisedJointReturn": 2.6729166666666666,
+      "breakdownCount": 14,
+      "recoveryCount": 14,
+      "breakdownOpportunities": 15,
+      "recoveryOpportunities": 313
     },
     {
+      "temperature": 0,
       "cell": "B/nano-direct/super-draft",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 0,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 2.841666666666667,
-      "mutualCooperation": {
-        "count": 6,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 6,
-        "opportunities": 6
-      },
-      "recovery": {
-        "count": 6,
-        "opportunities": 176
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 14,
+      "CD": 30,
+      "DC": 35,
+      "DD": 297,
+      "roundWeightedCC": 0.03723404255319149,
+      "episodeWeightedCC": 0.07987345253969295,
+      "firstCC": 9,
+      "meanNormalisedJointReturn": 2.0895833333333336,
+      "breakdownCount": 8,
+      "recoveryCount": 3,
+      "breakdownOpportunities": 10,
+      "recoveryOpportunities": 318
     },
     {
+      "temperature": 0,
       "cell": "B/nano-draft/nano-draft",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 2,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 2.745833333333333,
-      "mutualCooperation": {
-        "count": 10,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 9,
-        "opportunities": 9
-      },
-      "recovery": {
-        "count": 8,
-        "opportunities": 173
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 29,
+      "CD": 49,
+      "DC": 63,
+      "DD": 235,
+      "roundWeightedCC": 0.07712765957446809,
+      "episodeWeightedCC": 0.10239150162024203,
+      "firstCC": 13,
+      "meanNormalisedJointReturn": 2.5083333333333333,
+      "breakdownCount": 26,
+      "recoveryCount": 15,
+      "breakdownOpportunities": 27,
+      "recoveryOpportunities": 301
     },
     {
+      "temperature": 0,
       "cell": "B/nano-draft/super-direct",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 3,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 3.2708333333333335,
-      "mutualCooperation": {
-        "count": 19,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 15,
-        "opportunities": 18
-      },
-      "recovery": {
-        "count": 13,
-        "opportunities": 164
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 31,
+      "CD": 57,
+      "DC": 77,
+      "DD": 211,
+      "roundWeightedCC": 0.08244680851063829,
+      "episodeWeightedCC": 0.06917912916154605,
+      "firstCC": 0,
+      "meanNormalisedJointReturn": 2.6625,
+      "breakdownCount": 28,
+      "recoveryCount": 30,
+      "breakdownOpportunities": 29,
+      "recoveryOpportunities": 299
     },
     {
+      "temperature": 0,
       "cell": "B/nano-draft/super-draft",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 3,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 2.533333333333333,
-      "mutualCooperation": {
-        "count": 10,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 4,
-        "opportunities": 8
-      },
-      "recovery": {
-        "count": 3,
-        "opportunities": 174
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 11,
+      "CD": 44,
+      "DC": 40,
+      "DD": 281,
+      "roundWeightedCC": 0.02925531914893617,
+      "episodeWeightedCC": 0.04072061191626409,
+      "firstCC": 5,
+      "meanNormalisedJointReturn": 2.183333333333333,
+      "breakdownCount": 8,
+      "recoveryCount": 4,
+      "breakdownOpportunities": 10,
+      "recoveryOpportunities": 318
     },
     {
+      "temperature": 0,
       "cell": "B/super-direct/super-direct",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 3,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 3.4791666666666665,
-      "mutualCooperation": {
-        "count": 33,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 23,
-        "opportunities": 29
-      },
-      "recovery": {
-        "count": 24,
-        "opportunities": 153
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 124,
+      "CD": 42,
+      "DC": 55,
+      "DD": 155,
+      "roundWeightedCC": 0.32978723404255317,
+      "episodeWeightedCC": 0.26795015749619333,
+      "firstCC": 0,
+      "meanNormalisedJointReturn": 3.20625,
+      "breakdownCount": 68,
+      "recoveryCount": 82,
+      "breakdownOpportunities": 110,
+      "recoveryOpportunities": 218
     },
     {
+      "temperature": 0,
       "cell": "B/super-direct/super-draft",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 1,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 3.0666666666666664,
-      "mutualCooperation": {
-        "count": 6,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 6,
-        "opportunities": 6
-      },
-      "recovery": {
-        "count": 5,
-        "opportunities": 176
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 2,
+      "CD": 82,
+      "DC": 59,
+      "DD": 233,
+      "roundWeightedCC": 0.005319148936170213,
+      "episodeWeightedCC": 0.013020833333333334,
+      "firstCC": 0,
+      "meanNormalisedJointReturn": 2.464583333333333,
+      "breakdownCount": 1,
+      "recoveryCount": 2,
+      "breakdownOpportunities": 1,
+      "recoveryOpportunities": 327
     },
     {
+      "temperature": 0,
       "cell": "B/super-draft/super-draft",
-      "scheduled": 24,
-      "completed": 24,
-      "firstCC": {
-        "count": 1,
-        "opportunities": 24
-      },
-      "meanNormalisedJointReturn": 2.2666666666666666,
-      "mutualCooperation": {
-        "count": 6,
-        "opportunities": 206
-      },
-      "breakdown": {
-        "count": 5,
-        "opportunities": 5
-      },
-      "recovery": {
-        "count": 5,
-        "opportunities": 177
-      }
+      "completed": 48,
+      "rounds": 376,
+      "CC": 3,
+      "CD": 23,
+      "DC": 21,
+      "DD": 329,
+      "roundWeightedCC": 0.007978723404255319,
+      "episodeWeightedCC": 0.007475490196078432,
+      "firstCC": 3,
+      "meanNormalisedJointReturn": 1.8666666666666667,
+      "breakdownCount": 3,
+      "recoveryCount": 0,
+      "breakdownOpportunities": 3,
+      "recoveryOpportunities": 325
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-direct/nano-direct",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 87,
+      "CD": 86,
+      "DC": 87,
+      "DD": 116,
+      "roundWeightedCC": 0.23138297872340424,
+      "episodeWeightedCC": 0.2458684372367237,
+      "firstCC": 10,
+      "meanNormalisedJointReturn": 3.372916666666667,
+      "breakdownCount": 56,
+      "recoveryCount": 60,
+      "breakdownOpportunities": 73,
+      "recoveryOpportunities": 255
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-direct/nano-draft",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 29,
+      "CD": 92,
+      "DC": 81,
+      "DD": 174,
+      "roundWeightedCC": 0.07712765957446809,
+      "episodeWeightedCC": 0.10167190900886552,
+      "firstCC": 7,
+      "meanNormalisedJointReturn": 2.8895833333333334,
+      "breakdownCount": 20,
+      "recoveryCount": 19,
+      "breakdownOpportunities": 23,
+      "recoveryOpportunities": 305
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-direct/super-direct",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 77,
+      "CD": 70,
+      "DC": 87,
+      "DD": 142,
+      "roundWeightedCC": 0.2047872340425532,
+      "episodeWeightedCC": 0.2051250600363452,
+      "firstCC": 5,
+      "meanNormalisedJointReturn": 3.189583333333333,
+      "breakdownCount": 54,
+      "recoveryCount": 63,
+      "breakdownOpportunities": 63,
+      "recoveryOpportunities": 265
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-direct/super-draft",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 25,
+      "CD": 102,
+      "DC": 84,
+      "DD": 165,
+      "roundWeightedCC": 0.06648936170212766,
+      "episodeWeightedCC": 0.055652660248248484,
+      "firstCC": 3,
+      "meanNormalisedJointReturn": 2.9375,
+      "breakdownCount": 18,
+      "recoveryCount": 17,
+      "breakdownOpportunities": 23,
+      "recoveryOpportunities": 305
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-draft/nano-draft",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 15,
+      "CD": 48,
+      "DC": 63,
+      "DD": 250,
+      "roundWeightedCC": 0.0398936170212766,
+      "episodeWeightedCC": 0.051478930395170805,
+      "firstCC": 3,
+      "meanNormalisedJointReturn": 2.3854166666666665,
+      "breakdownCount": 12,
+      "recoveryCount": 11,
+      "breakdownOpportunities": 13,
+      "recoveryOpportunities": 315
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-draft/super-direct",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 22,
+      "CD": 91,
+      "DC": 89,
+      "DD": 174,
+      "roundWeightedCC": 0.05851063829787234,
+      "episodeWeightedCC": 0.07150404417028458,
+      "firstCC": 4,
+      "meanNormalisedJointReturn": 2.875,
+      "breakdownCount": 18,
+      "recoveryCount": 16,
+      "breakdownOpportunities": 20,
+      "recoveryOpportunities": 308
+    },
+    {
+      "temperature": 1,
+      "cell": "B/nano-draft/super-draft",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 12,
+      "CD": 44,
+      "DC": 49,
+      "DD": 271,
+      "roundWeightedCC": 0.031914893617021274,
+      "episodeWeightedCC": 0.02480444747068788,
+      "firstCC": 3,
+      "meanNormalisedJointReturn": 2.247916666666667,
+      "breakdownCount": 9,
+      "recoveryCount": 7,
+      "breakdownOpportunities": 11,
+      "recoveryOpportunities": 317
+    },
+    {
+      "temperature": 1,
+      "cell": "B/super-direct/super-direct",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 58,
+      "CD": 96,
+      "DC": 80,
+      "DD": 142,
+      "roundWeightedCC": 0.15425531914893617,
+      "episodeWeightedCC": 0.13853632499332627,
+      "firstCC": 3,
+      "meanNormalisedJointReturn": 3.15,
+      "breakdownCount": 41,
+      "recoveryCount": 46,
+      "breakdownOpportunities": 50,
+      "recoveryOpportunities": 278
+    },
+    {
+      "temperature": 1,
+      "cell": "B/super-direct/super-draft",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 19,
+      "CD": 83,
+      "DC": 86,
+      "DD": 188,
+      "roundWeightedCC": 0.05053191489361702,
+      "episodeWeightedCC": 0.06563469210528033,
+      "firstCC": 3,
+      "meanNormalisedJointReturn": 2.78125,
+      "breakdownCount": 14,
+      "recoveryCount": 12,
+      "breakdownOpportunities": 18,
+      "recoveryOpportunities": 310
+    },
+    {
+      "temperature": 1,
+      "cell": "B/super-draft/super-draft",
+      "completed": 48,
+      "rounds": 376,
+      "CC": 9,
+      "CD": 39,
+      "DC": 31,
+      "DD": 297,
+      "roundWeightedCC": 0.023936170212765957,
+      "episodeWeightedCC": 0.02270946645946646,
+      "firstCC": 5,
+      "meanNormalisedJointReturn": 2.0791666666666666,
+      "breakdownCount": 7,
+      "recoveryCount": 3,
+      "breakdownOpportunities": 8,
+      "recoveryOpportunities": 320
     }
   ],
-  "jointActionCounts": {
-    "DD": 1042,
-    "CC": 189,
-    "DC": 439,
-    "CD": 390
-  },
-  "firstRoundCC": 26,
-  "durationSecondsApprox": 11277.813758134842,
-  "durationBasis": "session timestamp to terminal ledger filesystem modification; terminal event has no timestamp",
-  "finalEstimatedUsd": "4.92776508",
-  "successorEngineeringEstimatedUsd": "0.09012780",
-  "successorTotalEstimatedUsd": "5.01789288",
-  "campaignExposureUsd": "6.32674422",
-  "campaignTechnicalExposureUsd": "0.18093318",
-  "campaignFinalExposureUsd": "6.14581104",
-  "otherChargesReserveUsd": "8",
-  "armUsage": {
-    "super-direct": {
-      "requests": 2854,
-      "promptTokens": 1068687,
-      "completionTokens": 19982,
-      "costUsd": "0.3385899",
-      "serialRequestSeconds": 1994.4581360814627
-    },
-    "nano-draft": {
-      "requests": 5708,
-      "promptTokens": 4462398,
-      "completionTokens": 2199849,
-      "costUsd": "0.79570764",
-      "serialRequestSeconds": 21219.125314065488
-    },
-    "nano-direct": {
-      "requests": 2854,
-      "promptTokens": 1068726,
-      "completionTokens": 17717,
-      "costUsd": "0.06837564",
-      "serialRequestSeconds": 1327.9841513957363
-    },
-    "super-draft": {
-      "requests": 5708,
-      "promptTokens": 4838592,
-      "completionTokens": 2526127,
-      "costUsd": "3.7250919",
-      "serialRequestSeconds": 25056.92271458055
-    }
-  },
-  "conditions": [
-    {
-      "condition": "allc-g0.4",
-      "nano-direct": 1.0,
-      "nano-draft": 0.15,
-      "super-direct": 0.5,
-      "super-draft": 0.0,
-      "nanoDifference": -0.85,
-      "superDifference": -0.5
-    },
-    {
-      "condition": "allc-g0.6",
-      "nano-direct": 1.0666666666666667,
-      "nano-draft": 0.23333333333333334,
-      "super-direct": 0.7333333333333334,
-      "super-draft": 0.0,
-      "nanoDifference": -0.8333333333333333,
-      "superDifference": -0.7333333333333334
-    },
-    {
-      "condition": "allc-g0.9",
-      "nano-direct": 0.825,
-      "nano-draft": 0.06666666666666667,
-      "super-direct": 0.4083333333333333,
-      "super-draft": 0.0,
-      "nanoDifference": -0.7583333333333333,
-      "superDifference": -0.4083333333333333
-    },
-    {
-      "condition": "allc-h1",
-      "nano-direct": 0.6666666666666666,
-      "nano-draft": 0.08333333333333333,
-      "super-direct": 0.4166666666666667,
-      "super-draft": 0.0,
-      "nanoDifference": -0.5833333333333333,
-      "superDifference": -0.4166666666666667
-    },
-    {
-      "condition": "alld-g0.4",
-      "nano-direct": 0.27499999999999997,
-      "nano-draft": 0.125,
-      "super-direct": 0.35,
-      "super-draft": 0.024999999999999998,
-      "nanoDifference": -0.14999999999999997,
-      "superDifference": -0.32499999999999996
-    },
-    {
-      "condition": "alld-g0.6",
-      "nano-direct": 0.5,
-      "nano-draft": 0.08333333333333334,
-      "super-direct": 0.5666666666666667,
-      "super-draft": 0.0,
-      "nanoDifference": -0.41666666666666663,
-      "superDifference": -0.5666666666666667
-    },
-    {
-      "condition": "alld-g0.9",
-      "nano-direct": 0.2916666666666667,
-      "nano-draft": 0.08750000000000001,
-      "super-direct": 0.38333333333333336,
-      "super-draft": 0.0,
-      "nanoDifference": -0.20416666666666666,
-      "superDifference": -0.38333333333333336
-    },
-    {
-      "condition": "alld-h1",
-      "nano-direct": 0.125,
-      "nano-draft": 0.041666666666666664,
-      "super-direct": 0.20833333333333334,
-      "super-draft": 0.0,
-      "nanoDifference": -0.08333333333333334,
-      "superDifference": -0.20833333333333334
-    },
-    {
-      "condition": "grim-g0.4",
-      "nano-direct": 0.22499999999999998,
-      "nano-draft": 0.12,
-      "super-direct": 0.24,
-      "super-draft": 0.09,
-      "nanoDifference": -0.10499999999999998,
-      "superDifference": -0.15
-    },
-    {
-      "condition": "grim-g0.6",
-      "nano-direct": 0.6333333333333333,
-      "nano-draft": 0.4166666666666667,
-      "super-direct": 0.7333333333333334,
-      "super-draft": 0.3666666666666667,
-      "nanoDifference": -0.21666666666666662,
-      "superDifference": -0.3666666666666667
-    },
-    {
-      "condition": "grim-g0.9",
-      "nano-direct": 1.6958333333333333,
-      "nano-draft": 1.6333333333333333,
-      "super-direct": 1.6,
-      "super-draft": 1.475,
-      "nanoDifference": -0.0625,
-      "superDifference": -0.125
-    },
-    {
-      "condition": "grim-h10",
-      "nano-direct": 1.975,
-      "nano-draft": 1.7291666666666667,
-      "super-direct": 1.9583333333333333,
-      "super-draft": 1.5833333333333333,
-      "nanoDifference": -0.24583333333333335,
-      "superDifference": -0.375
-    },
-    {
-      "condition": "tft-g0.4",
-      "nano-direct": 0.30357142857142855,
-      "nano-draft": 0.21785714285714286,
-      "super-direct": 0.225,
-      "super-draft": 0.22499999999999998,
-      "nanoDifference": -0.08571428571428569,
-      "superDifference": -2.7755575615628914e-17
-    },
-    {
-      "condition": "tft-g0.6",
-      "nano-direct": 0.30833333333333335,
-      "nano-draft": 0.5520833333333334,
-      "super-direct": 0.23333333333333334,
-      "super-draft": 0.32083333333333336,
-      "nanoDifference": 0.24375000000000002,
-      "superDifference": 0.08750000000000002
-    },
-    {
-      "condition": "tft-g0.9",
-      "nano-direct": 0.5275,
-      "nano-draft": 1.0758333333333334,
-      "super-direct": 0.5079166666666667,
-      "super-draft": 0.8895833333333334,
-      "nanoDifference": 0.5483333333333335,
-      "superDifference": 0.3816666666666667
-    },
-    {
-      "condition": "tft-h10",
-      "nano-direct": 0.6041666666666666,
-      "nano-draft": 1.2916666666666667,
-      "super-direct": 0.775,
-      "super-draft": 1.0708333333333333,
-      "nanoDifference": 0.6875000000000001,
-      "superDifference": 0.2958333333333333
-    }
+  "limitations": [
+    "Prior results informed this prospective replication; they are not pooled.",
+    "Hosted weights and sampling are not byte-reproducible; saved scoring is.",
+    "Draft changes compute, request count, thinking settings and conditioning together.",
+    "Primary 98.75% marginal intervals use approximate Bonferroni family control for four contrasts; no guaranteed coverage or power.",
+    "Secondary intervals are nominal 95%; opponent, trace, truncation, cost and timing diagnostics are exploratory.",
+    "Temperature pairing and interleaving reduce time confounding but do not pin backend versions.",
+    "No general model ranking, equilibrium, latent-belief inference or real-world benefit is established."
   ]
 }

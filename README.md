@@ -1,23 +1,22 @@
 # Dilemma Dynamics
 
-*Exploring AI strategies, incentives and cooperation.*
+_Exploring AI strategies, incentives and cooperation._
 
 An interactive game laboratory by **Alisa Sheinkman**. Explore how incentives
 shape AI decisions, inspect simultaneous choices and their consequences, and
 compare bounded decision procedures in NVIDIA Nemotron Nano and Super.
 
-![Dilemma Dynamics](docs/dilemma-dynamics-replay-2026-10-24.jpg)
+![Final benchmark comparisons](public/research/figures/primary-results.png)
 
-The final evaluation is paused after a provider-overload stop: **7,104 scheduled
-episodes across temperatures 0 and 1**, with **3,406 completed and preserved**,
+The final evaluation completed **7,104 episodes across temperatures 0 and 1**
 with native Inspect logs, local MLflow tracking and exact offline scoring.
-An approved bounded recovery is prepared; its launch command is in
-[FINAL_EVALUATION.md](FINAL_EVALUATION.md).
-No final findings are claimed yet. Bundled recordings and Results are earlier
-development snapshots; the new verified evaluation will replace them together.
-See [FINAL_EVALUATION.md](FINAL_EVALUATION.md) for the design, execution and
-reproduction instructions, or the [technical notes (PDF)](public/research/paper/report.pdf)
-and their [TeX source](public/research/paper/main.tex).
+Drafting lowered pooled benchmark loss in all four planned comparisons, yet
+increased loss against Tit-for-Tat and produced less cooperation in self-play.
+The app and website contain this final campaign only.
+
+Read [FINAL_EVALUATION.md](FINAL_EVALUATION.md) for conclusions, hypotheses,
+methods and reproducibility, or the [report (PDF)](public/research/paper/report.pdf)
+and its [TeX source](public/research/paper/main.tex).
 
 ## Explore the app
 
@@ -33,8 +32,8 @@ and their [TeX source](public/research/paper/main.tex).
    the same condition under Direct and Draft. Replay makes no model requests.
    One trajectory illustrates behaviour; aggregate comparisons belong in Results.
 4. **Results:** inspect decision loss, opponent breakdowns, autonomous pairings,
-   costs and downloadable evidence. During the current run, these are development
-   data rather than the replacement final evaluation.
+   costs, presentation and planning failures, hypotheses and downloadable evidence
+   from the completed final evaluation.
 5. **Board games:** try Dots & Boxes or Tic-tac-toe. Choose **You (human)** for
    either seat, then click an empty cell or undrawn edge to play against a bot
    or, in the local API app, Nemotron. These visible, sequential,
@@ -109,23 +108,25 @@ payoff references. There is no training, fine-tuning or local model/GPU hosting.
 Exact roles, locked versions and mathematical definitions are in
 [FINAL_EVALUATION.md](FINAL_EVALUATION.md).
 
-| Location | Purpose |
-|---|---|
-| `src/web/` | Shared interface, browser runtime, replay and results. |
-| `src/server/` | Local API, provider calls, session persistence and spending controls. |
-| `src/dilemma/`, `src/games/` | Rules, observations, analysis and board-game solvers. |
-| `evaluation_v2/` | Current joint-temperature final evaluation and native tracking. |
-| `evaluation_recovery/` | Approved bounded recovery with separately frozen authority and source. |
-| `python/gamefield_research/` | Exact scoring, schedules and audited transport/recovery. |
-| `fixtures/` | Frozen engineering decisions, reference checks and reviewed prices. |
-| `public/research/` | Bundled actions, numeric data, figures and TeX/PDF notes. |
-| `tools/` | Offline verification, frozen-protocol restoration and build checks. |
-| `tests/`, `python_tests/`, `recovery_tests/` | Application and network-free research/recovery checks. |
-| `package-lock.json`, `uv.lock` | Reproducible JavaScript and Python dependency resolutions. |
+| Location                                     | Purpose                                                                |
+| -------------------------------------------- | ---------------------------------------------------------------------- |
+| `src/web/`                                   | Shared interface, browser runtime, replay and results.                 |
+| `src/server/`                                | Local API, provider calls, session persistence and spending controls.  |
+| `src/dilemma/`, `src/games/`                 | Rules, observations, analysis and board-game solvers.                  |
+| `evaluation_v2/`                             | Current joint-temperature final evaluation and native tracking.        |
+| `evaluation_recovery/`                       | Approved bounded recovery with separately frozen authority and source. |
+| `python/gamefield_research/`                 | Exact scoring, schedules and audited transport/recovery.               |
+| `fixtures/`                                  | Frozen engineering decisions, reference checks and reviewed prices.    |
+| `public/research/`                           | Bundled actions, numeric data, figures and TeX/PDF notes.              |
+| `tools/`                                     | Offline verification, frozen-protocol restoration and build checks.    |
+| `tests/`, `python_tests/`, `recovery_tests/` | Application and network-free research/recovery checks.                 |
+| `package-lock.json`, `uv.lock`               | Reproducible JavaScript and Python dependency resolutions.             |
 
 The `gamefield_research`, `gamefield-study` and `GAMEFIELD_*` compatibility names
 are intentional; renaming them would break retained sessions or provenance.
-Private evidence and evaluation output remain in ignored `output/`.
+Private evidence and evaluation output remain in ignored `output/`. A root
+`conftest.py` isolates one frozen legacy test’s retired public paths using a
+temporary reconstructed plan contract; historical observations stay private.
 
 ## Verify
 
@@ -148,8 +149,7 @@ uv run python -m pytest python_tests recovery_tests -q
 uv run python tools/verify_public_results.py
 ```
 
-Do not sync dependencies, edit frozen sources or restart the active scientific
-run for documentation/build work. [AGENTS.md](AGENTS.md) records those boundaries;
+Preserve executed source and evidence; do not relaunch the completed campaign. [AGENTS.md](AGENTS.md) records those boundaries;
 [FINAL_EVALUATION.md](FINAL_EVALUATION.md) contains the current run commands.
 
 ## Storage, access and license

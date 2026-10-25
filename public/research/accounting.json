@@ -1,0 +1,15 @@
+{
+  "currency": "USD",
+  "basis": "Usage at recorded input/output token rates; estimates, not invoices",
+  "finalUsageEstimate": "17.15200728",
+  "engineeringUsageEstimate": "0.63490812",
+  "unresolvedMaximumExposure": "0.32479584",
+  "unresolvedTransmittedAttempts": 20,
+  "campaignUsageEstimate": "17.78691540",
+  "campaignInferenceMaximumExposure": "18.11171124",
+  "additionalCampaignCap": "40",
+  "nonInferenceReservedAllocation": "4",
+  "settledLedgerAltered": false,
+  "billingReconciled": false,
+  "unresolvedMeaning": "Retained exposure; neither confirmed billed nor confirmed free. No reservation was cleared for publication."
+}

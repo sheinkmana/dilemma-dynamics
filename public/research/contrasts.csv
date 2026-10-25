@@ -1,0 +1,11 @@
+family,model,temperature,contrast,direction,estimate,interval,coverage,blocksPerStratum,interpretation,arm
+primary,nano,0,draft-minus-direct,negative favours draft,-0.10878348214285713,"[-0.16396869187127983, -0.05769058082217265]",0.9875,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,
+primary,super,0,draft-minus-direct,negative favours draft,-0.08963913690476191,"[-0.12117399088541671, -0.05912652297247028]",0.9875,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,
+primary,nano,1,draft-minus-direct,negative favours draft,-0.1680059523809524,"[-0.21722286551339287, -0.12085652669270835]",0.9875,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,
+primary,super,1,draft-minus-direct,negative favours draft,-0.22464471726190477,"[-0.279528564453125, -0.17421682012648812]",0.9875,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,
+secondary,,,temperature-0-minus-1,,-0.007970610119047622,"[-0.04804692150297621, 0.031557245163690475]",0.95,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,nano-direct
+secondary,,,temperature-0-minus-1,,0.05125186011904762,"[0.019853004092261917, 0.0815235305059524]",0.95,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,nano-draft
+secondary,,,temperature-0-minus-1,,-0.1371670386904762,"[-0.18136369977678568, -0.09416294642857143]",0.95,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,super-direct
+secondary,,,temperature-0-minus-1,,-0.0021614583333333277,"[-0.019280366443452365, 0.014732328869047642]",0.95,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,super-draft
+secondary,nano,,drafting-temperature-interaction,,0.05922247023809524,"[0.009867652529761954, 0.10839122953869051]",0.95,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,
+secondary,super,,drafting-temperature-interaction,,0.13500558035714286,"[0.08761532738095239, 0.18487188430059526]",0.95,"[12, 12, 12, 12]",Approximate stratified whole-block bootstrap; coverage is not guaranteed,

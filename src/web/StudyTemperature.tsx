@@ -22,7 +22,7 @@ export function StudyTemperature({
         ))}
       </select>
       <p className="results-note">
-        1,776 completed episodes per temperature · same 24-block environment schedule.
+        3,552 completed episodes per temperature · 48 matched blocks · interleaved in one campaign.
       </p>
     </div>
   );

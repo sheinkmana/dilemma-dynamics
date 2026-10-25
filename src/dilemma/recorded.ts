@@ -4,9 +4,11 @@ import { payoff } from './spec.js';
 const action = z.enum(['C', 'D']);
 const episodeSchema = z.object({
   id: z.string(),
+  matchedId: z.string(),
+  temperature: z.union([z.literal(0), z.literal(1)]),
   track: z.enum(['A', 'B']),
   cell: z.string(),
-  block: z.number().int().min(0).max(23),
+  block: z.number().int().min(0).max(47),
   stratum: z.number().int().min(0).max(3),
   mapping: z.enum(['X=C', 'X=D']),
   subjectSeat: z.union([z.literal(0), z.literal(1), z.null()]),

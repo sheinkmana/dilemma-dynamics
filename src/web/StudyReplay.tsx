@@ -84,12 +84,13 @@ export function StudyReplay({
         <AppAccessNote />
         <div className="results-intro">
           <p className="results-eyebrow">
-            Repeated Prisoner’s Dilemma · recorded studies · 22–23 October 2026
+            Repeated Prisoner’s Dilemma · final evaluation · 24–25 October 2026
           </p>
           <h1>Replay the decisions.</h1>
           <p>
-            Step through 3,552 published episodes across temperatures 0 and 1, with 1,776 in each
-            study. No key or inference is needed. This is a recording, not a new model interaction.
+            Step through all 7,104 final episodes across temperatures 0 and 1, with 3,552 at each
+            temperature. No key or inference is needed. This is a recording, not a new model
+            interaction.
           </p>
           <p className="results-caveat">
             One episode illustrates play; it does not estimate a procedure’s effect.{' '}
@@ -148,7 +149,7 @@ export function StudyReplay({
                       setRound(0);
                     }}
                   >
-                    {Array.from({ length: 24 }, (_, n) => (
+                    {Array.from({ length: 48 }, (_, n) => (
                       <option key={n} value={n}>
                         {n + 1}
                       </option>
@@ -251,9 +252,15 @@ export function StudyReplay({
                 <details className="results-details">
                   <summary>Procedure and provenance</summary>
                   <p>
+                    Episode: <code>{episode.id}</code>
+                    <br />
+                    Matched environment: <code>{episode.matchedId}</code>
+                  </p>
+                  <p>
                     The default is Nano Direct against Tit-for-Tat in block 1 with ten announced
-                    rounds, chosen by study metadata rather than its outcome. All 1,776 episodes
-                    remain selectable; this example is not a representative-effect claim.
+                    rounds, chosen by study metadata rather than its outcome. All 3,552 episodes at
+                    this temperature remain selectable; this example is not a representative-effect
+                    claim.
                   </p>
                   <p>
                     Direct: one thinking-off action request, capped at 128 tokens. Draft: a

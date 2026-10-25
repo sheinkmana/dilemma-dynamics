@@ -1,0 +1,7 @@
+{
+  "scope": "Test-only historical plan contract; no observations. Reconstructed only inside pytest temporary working directories.",
+  "seed": "gamefield-final-2026-10-20-040a34661a7ea7bb83e812207905acb9",
+  "blocks": 24,
+  "planSha256": "d28ab0aada5fd26d9822c4e3c9e85948fb9b7ff6a50bbc325518de87982fc5c4",
+  "designV1Sha256": "4d8b336047bec9922ebd48e7c8509a00c6bf5a9b50e5f2933165ec208f89a702"
+}

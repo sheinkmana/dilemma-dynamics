@@ -1,0 +1,17 @@
+{
+  "study": "Joint-temperature final evaluation, 24-25 October 2026",
+  "specSha256": "047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc",
+  "evidenceHead": "2c1b475f1e4c5a0c4581072e19a7c7b939cc2be1ca107c10e45c4e1e7b513053",
+  "parentSourceSha256": "1ed37c1db467149166c32e8ff008fbb552cb2e4741e17af7f38fd5576f261ceb",
+  "amendmentSourceSha256": "16d15ecf916d06a0818e8c0ac2e008e8f729de48f73da69f3319532279f6cce4",
+  "amendmentSha256": "6276f6ff189c399a67dba8dc248a8fc8a5031e2e47cd96c3909e99441d604aa8",
+  "finalStartedUTC": "2026-10-24T14:10:46.019959+00:00",
+  "finalCompletedUTC": "2026-10-25T06:20:27.121999+00:00",
+  "finalElapsedHours": 16.161417233347894,
+  "preservedEpisodesAtAmendment": 3406,
+  "nativeScoredEpisodeCoverage": 7104,
+  "nativeCoverageBasis": "Private evidence review by frozen evaluation_recovery release-check; logs and raw responses retained privately",
+  "mlflowFinalEvidenceHead": "2c1b475f1e4c5a0c4581072e19a7c7b939cc2be1ca107c10e45c4e1e7b513053",
+  "publicReproducibility": "Saved actions, exact scoring, paired schedule, deterministic block bootstrap and numeric telemetry. Public hashes do not independently authenticate private provider evidence.",
+  "historicalDevelopmentEpisodesPooled": 0
+}

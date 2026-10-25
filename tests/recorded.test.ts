@@ -4,9 +4,12 @@ import { readFileSync } from 'node:fs';
 import { parseRecordedEpisodes, recordedScore } from '../src/dilemma/recorded.js';
 
 const data = JSON.parse(
-  readFileSync(new URL('../public/research/episodes.json', import.meta.url), 'utf8'),
+  readFileSync(
+    new URL('../public/research/temperature-one/episodes.json', import.meta.url),
+    'utf8',
+  ),
 );
-for (const directory of ['', 'temperature-zero/'])
+for (const directory of ['temperature-one/', 'temperature-zero/'])
   test(`recorded replay preserves both seats and every final score at ${directory || 'temperature-one'}`, () => {
     const data = JSON.parse(
       readFileSync(
@@ -15,7 +18,7 @@ for (const directory of ['', 'temperature-zero/'])
       ),
     );
     const rows = parseRecordedEpisodes(data);
-    assert.equal(rows.length, 1776);
+    assert.equal(rows.length, 3552);
     for (const row of rows) {
       assert.deepEqual(recordedScore(row, 0), [0, 0]);
       assert.deepEqual(recordedScore(row, row.rounds), row.scores);

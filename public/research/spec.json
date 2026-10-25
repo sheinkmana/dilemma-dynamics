@@ -1,0 +1,95 @@
+{
+  "version": "dilemma-final/3",
+  "seed": "dilemma-final-2026-10-24-1e438603dde854fae6664c5848420850",
+  "additionalBudgetUsd": "40",
+  "allocationUsd": {
+    "engineering": "2",
+    "final": "34",
+    "otherReserve": "2",
+    "contingency": "2"
+  },
+  "candidateBlocksPerTemperature": [
+    24,
+    32,
+    48
+  ],
+  "temperatures": [
+    0,
+    1
+  ],
+  "arms": [
+    {
+      "id": "nano-direct",
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "procedure": "direct"
+    },
+    {
+      "id": "nano-draft",
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "procedure": "draft"
+    },
+    {
+      "id": "super-direct",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "procedure": "direct"
+    },
+    {
+      "id": "super-draft",
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "procedure": "draft"
+    }
+  ],
+  "procedure": {
+    "draftTokens": 1024,
+    "actionTokens": 128,
+    "topP": 1
+  },
+  "recoveryPolicy": {
+    "version": "audited-recovery/2",
+    "maximumAttempts": 3,
+    "backoffSeconds": [
+      15,
+      45
+    ],
+    "retryHttpStatuses": [
+      429,
+      500,
+      502,
+      503,
+      504,
+      529
+    ],
+    "retryTransportErrors": true,
+    "unknownChargePolicy": "retain full reservation for every transmitted attempt",
+    "successfulResponsePolicy": "reuse first recorded 200; never retry invalid content or usage",
+    "decisionSeconds": 600,
+    "retryExposureUsd": {
+      "engineering": "0.05",
+      "final": "0.50"
+    }
+  },
+  "clock": {
+    "campaignSeconds": 129600,
+    "engineeringSeconds": 7200,
+    "shutdownMarginSeconds": 900
+  },
+  "concurrency": {
+    "samples": 4,
+    "requests": 8
+  },
+  "analysis": {
+    "bootstrapDraws": 50000,
+    "primaryFamilySize": 4,
+    "primaryMarginalCoverage": 0.9875,
+    "secondaryCoverage": 0.95,
+    "unit": "whole matched block, stratified by mapping and seat",
+    "conditionWeights": "1/16",
+    "stratumWeights": "1/4",
+    "selection": "largest frozen candidate with engineering cost/time forecast fitting caps; never outcomes",
+    "costMargin": 1.5,
+    "timeMargin": 1.5
+  },
+  "claimScope": "Prospective replication informed by historical exploratory results; approximate uncertainty; hosted API setting effects only.",
+  "publicRelease": "Only this complete verified campaign becomes the primary report/app dataset; historical evidence retained and disclosed as development history.",
+  "sha256": "047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc"
+}

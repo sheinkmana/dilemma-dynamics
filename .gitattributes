@@ -1,0 +1,2 @@
+# Preserve canonical csv.DictWriter bytes and allow its standard CRLF endings.
+public/research/*.csv -text whitespace=cr-at-eol

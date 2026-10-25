@@ -1,0 +1,30 @@
+{
+  "selectedBlocks": 48,
+  "forecasts": [
+    {
+      "blocksPerTemperature": 24,
+      "episodes": 3552,
+      "estimatedUsdWith50PercentMargin": 13.067736951273154,
+      "estimatedSecondsWith50PercentMargin": 32157.435514078184,
+      "fits": true
+    },
+    {
+      "blocksPerTemperature": 32,
+      "episodes": 4736,
+      "estimatedUsdWith50PercentMargin": 17.681700945916834,
+      "estimatedSecondsWith50PercentMargin": 43511.60113397754,
+      "fits": true
+    },
+    {
+      "blocksPerTemperature": 48,
+      "episodes": 7104,
+      "estimatedUsdWith50PercentMargin": 27.023171673327518,
+      "estimatedSecondsWith50PercentMargin": 66499.34137113385,
+      "fits": true
+    }
+  ],
+  "selectionUnix": 1792851042.092491,
+  "engineeringEvidenceHead": "ccb70fdb5476a0023a88f33954d64db9a4662abd82130eb84200bb784ea1df37",
+  "selectionInputs": "usage and latency only; never actions, scores, cooperation or draft content",
+  "forecastLimitation": "50% margin is a scenario, not guaranteed completion or a provider invoice cap"
+}

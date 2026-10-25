@@ -1,0 +1,122 @@
+{
+  "complete": true,
+  "completed": 7104,
+  "amendmentSha256": "6276f6ff189c399a67dba8dc248a8fc8a5031e2e47cd96c3909e99441d604aa8",
+  "parentSourceSha256": "1ed37c1db467149166c32e8ff008fbb552cb2e4741e17af7f38fd5576f261ceb",
+  "amendmentSourceSha256": "16d15ecf916d06a0818e8c0ac2e008e8f729de48f73da69f3319532279f6cce4",
+  "evidenceHead": "2c1b475f1e4c5a0c4581072e19a7c7b939cc2be1ca107c10e45c4e1e7b513053",
+  "policy": {
+    "version": "approved-bounded-recovery/2026-10-24",
+    "maximumAttempts": 6,
+    "backoffSeconds": [
+      15,
+      45
+    ],
+    "retryHttpStatuses": [
+      429,
+      500,
+      502,
+      503,
+      504,
+      529
+    ],
+    "retryTransportErrors": true,
+    "unknownChargePolicy": "retain full reservation for every transmitted attempt",
+    "successfulResponsePolicy": "reuse first recorded 200; never retry invalid content or usage",
+    "decisionSeconds": 1800,
+    "retryExposureUsd": {
+      "engineering": "0.05",
+      "final": "0.50"
+    },
+    "overloadCooldownSeconds": 300,
+    "sampleWorkers": 2,
+    "concurrentRequests": 4,
+    "attemptTimeoutSeconds": 600
+  },
+  "preservedEpisodesAtAmendment": 3406,
+  "transportBySegment": [
+    {
+      "segment": "original",
+      "temperature": 0,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "requests": 7012,
+      "httpStatuses": {
+        "200": 7007,
+        "529": 5
+      }
+    },
+    {
+      "segment": "original",
+      "temperature": 1,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "requests": 7007,
+      "httpStatuses": {
+        "200": 7001,
+        "529": 6
+      }
+    },
+    {
+      "segment": "original",
+      "temperature": 0,
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "requests": 7482,
+      "httpStatuses": {
+        "200": 7481,
+        "no-durable-http-response": 1
+      }
+    },
+    {
+      "segment": "original",
+      "temperature": 1,
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "requests": 7489,
+      "httpStatuses": {
+        "200": 7488,
+        "no-durable-http-response": 1
+      }
+    },
+    {
+      "segment": "approved-recovery",
+      "temperature": 0,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "requests": 8702,
+      "httpStatuses": {
+        "200": 8701,
+        "529": 1
+      }
+    },
+    {
+      "segment": "approved-recovery",
+      "temperature": 1,
+      "model": "nvidia/nemotron-3-super-120b-a12b",
+      "requests": 8712,
+      "httpStatuses": {
+        "200": 8707,
+        "502": 1,
+        "529": 4
+      }
+    },
+    {
+      "segment": "approved-recovery",
+      "temperature": 1,
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "requests": 8221,
+      "httpStatuses": {
+        "200": 8220,
+        "529": 1
+      }
+    },
+    {
+      "segment": "approved-recovery",
+      "temperature": 0,
+      "model": "nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B",
+      "requests": 8227,
+      "httpStatuses": {
+        "200": 8227
+      }
+    }
+  ],
+  "newInferenceForAnalysis": 0,
+  "disclosure": "Provider overload interrupted the run. A user-approved prospective transport amendment retained all previous evidence, the scientific protocol, budget and original global deadline.",
+  "publication": "Base export and this amendment receipt/source must accompany one another; no public release while accounting or native-log coverage is unresolved."
+}

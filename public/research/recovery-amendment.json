@@ -1,0 +1,61 @@
+{
+  "redactedProjection": true,
+  "version": "dilemma-final-recovery/1",
+  "authorization": "User approved bounded recovery in chat on 24 October 2026",
+  "policy": {
+    "version": "approved-bounded-recovery/2026-10-24",
+    "maximumAttempts": 6,
+    "backoffSeconds": [
+      15,
+      45
+    ],
+    "retryHttpStatuses": [
+      429,
+      500,
+      502,
+      503,
+      504,
+      529
+    ],
+    "retryTransportErrors": true,
+    "unknownChargePolicy": "retain full reservation for every transmitted attempt",
+    "successfulResponsePolicy": "reuse first recorded 200; never retry invalid content or usage",
+    "decisionSeconds": 1800,
+    "retryExposureUsd": {
+      "engineering": "0.05",
+      "final": "0.50"
+    },
+    "overloadCooldownSeconds": 300,
+    "sampleWorkers": 2,
+    "concurrentRequests": 4,
+    "attemptTimeoutSeconds": 600
+  },
+  "parentSpecSha256": "047b9a5ab172ffb907781aa4601bce01138c434409d97ca362e98fa4944be4bc",
+  "parentSourceSha256": "1ed37c1db467149166c32e8ff008fbb552cb2e4741e17af7f38fd5576f261ceb",
+  "amendmentSourceSha256": "16d15ecf916d06a0818e8c0ac2e008e8f729de48f73da69f3319532279f6cce4",
+  "parentEvidenceHead": "d6cf489f818dd314d856fa475adfdaeba9080a5edee522713d94ccb9166e2753",
+  "parentEventCount": 180454,
+  "parentLedgerBytes": 286387291,
+  "parentLedgerSha256": "b915d540d5c3fc75588bc5a9a9f631f1b1a22f97f68701065f77492c491fcc05",
+  "campaignClock": {
+    "startedUnix": 1792849666.6247401,
+    "deadlineUnix": 1792979266.6247401
+  },
+  "finalClock": {
+    "startedUnix": 1792851046.019959,
+    "deadlineUnix": 1792978366.6247401
+  },
+  "selectionSha256": "da64cf4fbeb159562f5e6eb5d5e69fc22c87b4b094bf35cf0f197d39f12705e4",
+  "pricesSha256": "ece5524f886d893616bc900af645c3236c4e8ce1fb2c9097b99333691feaa44c",
+  "additionalBudgetUsd": "0",
+  "campaignCeilingUsd": "40",
+  "finalAllocationUsd": "34",
+  "retryExposureCeilingUsd": "0.50",
+  "preservedCompletedEpisodes": 3406,
+  "inheritedSpentUsd": "7.54404396",
+  "inheritedReservedUsd": "0.22351224",
+  "inheritedRetryExposureUsd": "0.0158487",
+  "publicationGate": "Unchanged: unresolved reservations require explicit reconciliation",
+  "scientificChange": "None: same models, prompts, phases, tokens, seed, paired schedule and scoring",
+  "sha256": "6276f6ff189c399a67dba8dc248a8fc8a5031e2e47cd96c3909e99441d604aa8"
+}

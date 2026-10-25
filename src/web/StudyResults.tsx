@@ -2,23 +2,50 @@ import { AppAccessNote, ProviderLogos } from './AppIdentity.js';
 import { BrandText } from './BrandText.js';
 import { GameTypes } from './GameTypes.js';
 import { publicAsset } from './assets.js';
-import React, { type ReactNode, useState } from 'react';
-import comparison from '../../public/research/temperature-comparison.json' with { type: 'json' };
-import { studies, type StudyTemperature as Temperature } from './studyData.js';
+import { type ReactNode, useState } from 'react';
+import {
+  summary,
+  diagnostics,
+  accounting,
+  provenance,
+  type StudyTemperature as Temperature,
+} from './studyData.js';
 import { StudyTemperature } from './StudyTemperature.js';
 import { playerLabel } from '../dilemma/recorded.js';
 import './results.css';
 
-const number = (value: number) => value.toLocaleString('en-US');
-const loss = (value: number) => value.toFixed(4);
-const difference = (value: number) =>
-  Math.abs(value) < 0.00005 ? '0.0000' : `${value > 0 ? '+' : ''}${loss(value)}`;
+const n = (v: number) => v.toLocaleString('en-US');
+const loss = (v: number) => v.toFixed(4);
+const diff = (v: number) => `${v > 0 ? '+' : ''}${loss(v)}`;
+const pct = (v: number) => `${(100 * v).toFixed(1)}%`;
+const limits = (values: number[]) => `[${values.map(diff).join(', ')}]`;
 const policies: Record<string, string> = {
   allc: 'Always cooperate',
   alld: 'Always defect',
   grim: 'Grim trigger',
   tft: 'Tit-for-Tat',
 };
+const arms = ['nano-direct', 'nano-draft', 'super-direct', 'super-draft'] as const;
+const pairing = (cell: string) => cell.split('/').slice(1).map(playerLabel).join(' / ');
+type Contrast = {
+  family: string;
+  model?: string;
+  temperature?: number;
+  arm?: string;
+  contrast: string;
+  estimate: number;
+  interval: number[];
+};
+const contrasts: Contrast[] = summary.contrasts;
+const primary = contrasts.filter((c) => c.family === 'primary');
+
+function Download({ file, children }: { file: string; children: ReactNode }) {
+  return (
+    <a href={publicAsset(`research/${file}`)} download>
+      {children}
+    </a>
+  );
+}
 
 export function StudyResults({
   navigation,
@@ -29,10 +56,11 @@ export function StudyResults({
   theme: 'light' | 'dark';
   setTheme: (theme: 'light' | 'dark') => void;
 }) {
-  const [policy, setPolicy] = useState('all');
   const [temperature, setTemperature] = useState<Temperature>(0);
-  const { summary: study, costs, path } = studies[temperature];
-  const crossplayRounds = Object.values(study.jointActionCounts).reduce((a, b) => a + b, 0);
+  const [policy, setPolicy] = useState('all');
+  const armRows = summary.arms.filter((a) => a.temperature === temperature);
+  const crossplay = summary.cooperation.filter((c) => c.temperature === temperature);
+  const pooled = diagnostics.autonomousPooled.find((c) => c.temperature === temperature)!;
   return (
     <div className="simple-app pd-app">
       <header className="app-header">
@@ -54,567 +82,574 @@ export function StudyResults({
       <main className="game-page results-page">
         <AppAccessNote />
         <div className="results-intro">
-          <p className="results-eyebrow">
-            Repeated Prisoner’s Dilemma · replacement final evaluation running
-          </p>
-          <h1>Final evaluation in progress.</h1>
+          <p className="results-eyebrow">Final evaluation · 24–25 October 2026 · complete</p>
+          <h1>Drafting sharpens choices. Cooperation still breaks.</h1>
           <p className="results-lead">
-            The new evaluation schedules 7,104 episodes across temperatures 0 and 1 with matched,
-            interleaved conditions. Its verified results, replay and downloads will be released
-            together after completion.
+            A bounded draft lowered average payoff decision loss for Nemotron Nano and Super at both
+            temperatures. The gains reversed against Tit-for-Tat, while autonomous self-play became
+            less cooperative. Better performance against a disclosed rule can coexist with
+            difficulty sustaining reciprocity.
           </p>
-          <p className="results-caveat">
-            The tables and recordings currently bundled below are development snapshots from
-            22–23 October. They are excluded from the replacement evaluation and are not its final
-            findings.
+          <p>
+            All results below come from one completed, paired final campaign. Earlier development
+            observations are excluded. Explore the conditions, replay the actions, and test the
+            reported statistics offline.
           </p>
           <div className="results-downloads">
-            <a href="#replay">Replay recorded Nemotron decisions →</a>
-            <a href={publicAsset('/research/paper/report.pdf')} download>
-              Technical notes (PDF) ↓
-            </a>
-            <a href={publicAsset('/research/paper/main.tex')} download>
-              LaTeX source ↓
-            </a>
-            <a href={publicAsset('/FINAL_EVALUATION.md')}>Evaluation &amp; reproduction</a>
+            <Download file="paper/report.pdf">Report & mathematical notes (PDF)</Download>
+            <a href={publicAsset('FINAL_EVALUATION.md')}>Methods, conclusions & amendments</a>
+            <a href="#replay">Replay all decisions →</a>
           </div>
         </div>
-
-        <StudyTemperature value={temperature} onChange={setTemperature} />
         <dl className="results-stats">
           <div>
-            <dt>Episodes · temperature {temperature}</dt>
+            <dt>Completed episodes</dt>
             <dd>
-              {number(study.completed)} / {number(study.scheduled)}
+              {n(summary.completed)}
+              <small>3,552 at each temperature</small>
             </dd>
           </div>
           <div>
-            <dt>Balanced blocks</dt>
+            <dt>Matched blocks</dt>
             <dd>
-              24 <small>6 per presentation stratum</small>
+              48<small>12 in each label/seat stratum</small>
             </dd>
           </div>
           <div>
-            <dt>Final inference estimate</dt>
+            <dt>Benchmark / autonomous</dt>
             <dd>
-              ${Number(study.finalEstimatedUsd).toFixed(4)}{' '}
-              <small>usage priced; not an invoice</small>
+              6,144 / 960<small>disclosed rules / adaptive dyads</small>
             </dd>
           </div>
           <div>
-            <dt>Final-run failures / retries</dt>
+            <dt>Scientific stage</dt>
             <dd>
-              {study.failures} / {study.retries} <small>all scheduled episodes completed</small>
+              {provenance.finalElapsedHours.toFixed(2)} h
+              <small>including interruption and recovery</small>
             </dd>
           </div>
         </dl>
-
-        <section className="results-section" aria-labelledby="temperature-title">
-          <p className="results-eyebrow">
-            Matched temperature sensitivity · both completed studies
-          </p>
-          <h2 id="temperature-title">The size of the drafting benefit changed.</h2>
+        <section className="results-section">
+          <h2>Four planned comparisons favour Draft on average.</h2>
           <p>
-            Drafting lowered mean benchmark loss at both temperatures. Super Direct’s loss fell at
-            zero while Super Draft’s was nearly unchanged, reducing Super’s drafting advantage.
-            Nano’s change in the drafting advantage was uncertain under the approximate interval.
+            Direct makes one thinking-off action request. Draft makes a thinking-on draft capped at
+            1,024 tokens, then a separate thinking-off action request capped at 128. Each procedure
+            uses the selected temperature throughout. The draft changes computation, request count
+            and conditioning together.
           </p>
-          <div
-            className="results-table-wrap"
-            role="region"
-            aria-label="Both temperatures"
-            tabIndex={0}
-          >
+          <p>
+            Benchmark loss sums exact gaps to the best achievable expected own payoff against the
+            disclosed opponent, with horizon normalisation. Zero means no achievable expected payoff
+            was given up. Lower is better; negative Draft − Direct favours Draft.
+          </p>
+          <div className="results-table-wrap">
+            <table className="results-table">
+              <caption>Primary results · 768 benchmark episodes per arm and temperature</caption>
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Temperature</th>
+                  <th>Direct loss</th>
+                  <th>Draft loss</th>
+                  <th>Draft − Direct</th>
+                  <th>Approx. 98.75% interval</th>
+                </tr>
+              </thead>
+              <tbody>
+                {primary.map((c) => {
+                  const direct = summary.arms.find(
+                    (a) => a.temperature === c.temperature && a.arm === `${c.model}-direct`,
+                  )!;
+                  const draft = summary.arms.find(
+                    (a) => a.temperature === c.temperature && a.arm === `${c.model}-draft`,
+                  )!;
+                  return (
+                    <tr key={`${c.model}-${c.temperature}`}>
+                      <th>{c.model === 'nano' ? 'Nano' : 'Super'}</th>
+                      <td>{c.temperature}</td>
+                      <td>{loss(direct.meanOracleLoss)}</td>
+                      <td>{loss(draft.meanOracleLoss)}</td>
+                      <td>{diff(c.estimate)}</td>
+                      <td>{limits(c.interval)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="results-note">
+            50,000 deterministic stratified whole-block bootstrap draws. Four primary comparisons
+            use 98.75% marginal intervals as an approximate Bonferroni treatment of a 5% family;
+            coverage is not guaranteed. The independent unit is the matched block.
+          </p>
+        </section>
+        <section className="results-section">
+          <h2>Temperature changes the benefit of drafting.</h2>
+          <p>
+            At zero, Super Direct improves and Super Draft stays close to its temperature-one mean.
+            Nano Draft worsens, while Nano Direct changes little. Both models therefore have a
+            smaller drafting advantage at zero. A single temperature recommendation would hide these
+            differences.
+          </p>
+          <div className="results-table-wrap">
             <table className="results-table">
               <caption>
-                Mean benchmark loss and draft − direct contrast · payoff points forgone
+                Six planned secondary contrasts · temperature 0 minus 1 · nominal 95% intervals
               </caption>
               <thead>
                 <tr>
-                  <th scope="col">Model</th>
-                  <th scope="col">Temperature</th>
-                  <th scope="col">Direct</th>
-                  <th scope="col">Draft</th>
-                  <th scope="col">Draft − direct</th>
-                  <th scope="col">Approx. 95% interval</th>
+                  <th>Comparison</th>
+                  <th>Change</th>
+                  <th>Approx. interval</th>
                 </tr>
               </thead>
               <tbody>
-                {([1, 0] as const).flatMap((t) =>
-                  studies[t].summary.primary.map((result) => (
-                    <tr key={`${t}-${result.model}`}>
-                      <th scope="row">Nemotron {result.model === 'nano' ? 'Nano' : 'Super'}</th>
-                      <td>{t}</td>
-                      <td>{loss(result.directMean)}</td>
-                      <td>{loss(result.draftMean)}</td>
-                      <td>{difference(result.estimate)}</td>
-                      <td>[{result.approximateInterval95.map(loss).join(', ')}]</td>
+                {contrasts
+                  .filter((c) => c.family === 'secondary')
+                  .map((c) => (
+                    <tr key={`${c.contrast}-${c.arm ?? c.model}`}>
+                      <th>
+                        {c.arm
+                          ? playerLabel(c.arm)
+                          : `${c.model === 'nano' ? 'Nano' : 'Super'} · change in Draft − Direct`}
+                      </th>
+                      <td>{diff(c.estimate)}</td>
+                      <td>{limits(c.interval)}</td>
                     </tr>
-                  )),
-                )}
+                  ))}
               </tbody>
             </table>
           </div>
+          <p className="results-note">
+            These six intervals have no multiplicity correction. Temperatures were interleaved
+            within one campaign, using paired environments; hosted model weights and sampling remain
+            outside the experiment’s control.
+          </p>
+        </section>
+        <StudyTemperature value={temperature} onChange={setTemperature} />
+        <section className="results-section">
+          <h2>The opponent explains the reversal.</h2>
+          <p>
+            Drafting improves all four means against Always Cooperate and Grim, but worsens all four
+            against Tit-for-Tat. Against an opponent that always cooperates, defection maximises own
+            points. These gains therefore include more effective exploitation. Nano at zero also
+            shows a small loss increase against Always Defect.
+          </p>
+          <div className="results-table-wrap">
+            <table className="results-table">
+              <caption>
+                Exploratory opponent effects · temperature {temperature} · Draft − Direct loss
+              </caption>
+              <thead>
+                <tr>
+                  <th>Opponent</th>
+                  <th>Nano</th>
+                  <th>Super</th>
+                  <th>Episodes / arm</th>
+                </tr>
+              </thead>
+              <tbody>
+                {diagnostics.policyEffects
+                  .filter((r) => r.temperature === temperature)
+                  .map((r) => (
+                    <tr key={r.policy}>
+                      <th>{policies[r.policy]}</th>
+                      <td>{diff(r.nanoEffect)}</td>
+                      <td>{diff(r.superEffect)}</td>
+                      <td>{r.episodesPerArm}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+          <label className="results-filter">
+            Show conditions{' '}
+            <select value={policy} onChange={(e) => setPolicy(e.target.value)}>
+              <option value="all">All four opponents</option>
+              {Object.entries(policies).map(([id, name]) => (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="results-table-wrap">
+            <table className="results-table">
+              <caption>
+                All 16 condition means · 48 episodes per arm / condition / temperature
+              </caption>
+              <thead>
+                <tr>
+                  <th>Condition</th>
+                  {arms.map((a) => (
+                    <th key={a}>{a.replace('-', ' ')}</th>
+                  ))}
+                  <th>Nano Δ</th>
+                  <th>Super Δ</th>
+                </tr>
+              </thead>
+              <tbody>
+                {diagnostics.conditions
+                  .filter(
+                    (r) =>
+                      r.temperature === temperature &&
+                      (policy === 'all' || r.condition.startsWith(policy + '-')),
+                  )
+                  .map((r) => (
+                    <tr key={r.condition}>
+                      <th>{r.condition}</th>
+                      {arms.map((a) => (
+                        <td key={a}>{loss(r[a])}</td>
+                      ))}
+                      <td>{diff(r.nanoEffect)}</td>
+                      <td>{diff(r.superEffect)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="results-note">
+            g = geometric chance of another round; h = announced round count. At continuation .4,
+            drafting improves every Tit-for-Tat mean. Reversals occur at .6, .9 and h10. At .6
+            optimal play alternates; at .9 sustained cooperation is optimal. All exploratory slices
+            are disclosed without significance selection.
+          </p>
+        </section>
+        <section className="results-section">
+          <h2>Autonomous self-play becomes less cooperative with Draft.</h2>
+          <p>
+            Across all pairings at temperature {temperature}, mutual cooperation occurs in{' '}
+            {n(pooled.CC)}/{n(pooled.rounds)} rounds ({pct(pooled.CC / pooled.rounds)}). The mean
+            within-episode CC fraction is {pct(pooled.episodeWeightedCC)}. Every pairing shares the
+            same stopping lengths: 48 dyads and 376 realised rounds. Dependent rounds are not
+            separate independent trials.
+          </p>
+          <div className="results-table-wrap">
+            <table className="results-table">
+              <caption>
+                All ten autonomous pairings · temperature {temperature} · no disclosed opponent rule
+              </caption>
+              <thead>
+                <tr>
+                  <th>Pairing</th>
+                  <th>CC / rounds</th>
+                  <th>Mean episode CC</th>
+                  <th>First CC / dyads</th>
+                  <th>Joint return</th>
+                  <th>Breakdown / opportunities</th>
+                  <th>Recovery / opportunities</th>
+                </tr>
+              </thead>
+              <tbody>
+                {crossplay.map((c) => (
+                  <tr key={c.cell}>
+                    <th>{pairing(c.cell)}</th>
+                    <td>
+                      {c.CC}/{c.rounds}
+                    </td>
+                    <td>{pct(c.episodeWeightedCC)}</td>
+                    <td>
+                      {c.firstCC}/{c.completed}
+                    </td>
+                    <td>{loss(c.meanNormalisedJointReturn)}</td>
+                    <td>
+                      {c.breakdownCount}/{c.breakdownOpportunities}
+                    </td>
+                    <td>
+                      {c.recoveryCount}/{c.recoveryOpportunities}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Super Direct self-play at zero starts with no CC rounds, then returns to CC in 82/218
+            eligible transitions. Super Draft has only three CC rounds and no recovery in 325
+            opportunities. Changing both agents to Draft reduces self-play joint return for both
+            models at both temperatures.
+          </p>
           <details className="results-details">
-            <summary>Matched changes from temperature 1 to 0</summary>
-            <div
-              className="results-table-wrap"
-              role="region"
-              aria-label="Temperature changes"
-              tabIndex={0}
-            >
+            <summary>Paired self-play effects and return interpretation</summary>
+            <div className="results-table-wrap">
               <table className="results-table">
-                <caption>Temperature 0 − temperature 1 · negative means lower loss at zero</caption>
+                <caption>
+                  Exploratory Draft self-play − Direct self-play · temperature {temperature} ·
+                  nominal 95% intervals
+                </caption>
                 <thead>
                   <tr>
-                    <th scope="col">Procedure</th>
-                    <th scope="col">Change</th>
-                    <th scope="col">Approx. 95% interval</th>
+                    <th>Model</th>
+                    <th>Metric</th>
+                    <th>Difference</th>
+                    <th>Interval</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(comparison.temperatureChanges).map(([arm, row]) => (
-                    <tr key={arm}>
-                      <th scope="row">{playerLabel(arm)}</th>
-                      <td>{difference(row.temperature0Minus1)}</td>
-                      <td>[{row.approximateInterval95.map(loss).join(', ')}]</td>
-                    </tr>
-                  ))}
+                  {diagnostics.autonomousContrasts
+                    .filter((r) => r.temperature === temperature)
+                    .map((r) => (
+                      <tr key={`${r.model}-${r.metric}`}>
+                        <th>{r.model}</th>
+                        <td>
+                          {r.metric === 'episodeCC'
+                            ? 'Mean episode CC fraction'
+                            : 'Normalised joint return'}
+                        </td>
+                        <td>{diff(r.estimate)}</td>
+                        <td>{limits(r.interval)}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
-            {Object.entries(comparison.changeInDraftingEffect).map(([model, row]) => (
-              <p key={model}>
-                Nemotron {model === 'nano' ? 'Nano' : 'Super'}: change in draft − direct ={' '}
-                {difference(row.changeInDraftMinusDirect)}, approx. 95% interval [
-                {row.approximateInterval95.map(loss).join(', ')}]. Positive means a smaller drafting
-                benefit at zero.
-              </p>
-            ))}
-            <a href={publicAsset('research/temperature-comparison.csv')} download>
-              Download matched changes (CSV)
-            </a>
-          </details>
-          <p className="results-caveat">
-            This sensitivity analysis followed inspection of earlier outcomes. Dates, provider
-            execution windows and recovery policies also differed, so changes cannot be attributed
-            solely to temperature. Intervals pair the same 24 whole blocks across studies, with
-            20,000 stratified bootstrap draws and no multiplicity correction. Temperature zero does
-            not guarantee deterministic hosted inference.
-          </p>
-        </section>
-
-        <section className="results-section" aria-labelledby="benchmark-title">
-          <p className="results-eyebrow">
-            Temperature {temperature} · Track A · Decisions against disclosed policies
-          </p>
-          <h2 id="benchmark-title">The gap to the best achievable payoff.</h2>
-          <p>
-            Against each disclosed opponent policy, an exact solver identifies the highest expected
-            payoff available to the player. Oracle loss measures how much of that payoff a chosen
-            action gives up, assuming optimal play thereafter. We sum these gaps within each episode
-            and normalise for its horizon. A smaller value means less achievable payoff forgone
-            under this benchmark. Cooperation is reported separately in Track B.
-          </p>
-          <div className="results-model-grid">
-            {study.primary.map((result) => (
-              <article className="results-model" key={result.model}>
-                <h3>Nemotron {result.model === 'nano' ? 'Nano' : 'Super'}</h3>
-                <div
-                  className="results-loss-bars"
-                  aria-label={`Mean oracle loss for ${result.model}`}
-                >
-                  {(
-                    [
-                      ['Direct', result.directMean],
-                      ['Draft', result.draftMean],
-                    ] as const
-                  ).map(([label, value]) => (
-                    <div className="results-bar-row" key={label}>
-                      <span>{label}</span>
-                      <div className="results-bar-track">
-                        <div
-                          className={label === 'Draft' ? 'results-bar draft' : 'results-bar'}
-                          style={{ width: `${value * 100}%` }}
-                        />
-                      </div>
-                      <strong>{loss(value)}</strong>
-                    </div>
-                  ))}
-                </div>
-                <p className="results-effect">
-                  {difference(result.estimate)} <span>draft − direct loss</span>
-                </p>
-                <p className="results-interval">
-                  Approx. 95% interval [{result.approximateInterval95.map(loss).join(', ')}]
-                </p>
-                <p className="muted">
-                  384 episodes per procedure · {result.relativeReductionPercent.toFixed(1)}%
-                  relative reduction in mean loss
-                </p>
-              </article>
-            ))}
-          </div>
-          <p className="results-note">
-            The primary contrast equally weights 16 conditions and four presentation strata.
-            Approximate intervals use 20,000 stratified whole-block bootstrap draws. Only six blocks
-            per stratum are available; coverage and statistical power are not established.
-          </p>
-          <details className="results-details">
-            <summary>What does one point of loss mean?</summary>
             <p>
-              In a one-round game against Always Cooperate, cooperating earns 3 points; defecting
-              earns 5. Choosing C gives up 2 achievable points, so its oracle loss is 2. Choosing D
-              has loss 0. This measures the stated own-payoff objective, not kindness or
-              cooperation.
-            </p>
-            <p>
-              A block repeats the full set of study conditions. A presentation stratum groups a
-              neutral action-label mapping and a player seat. The study has four such groups, with
-              six blocks each. Resampling whole blocks keeps related observations together.
+              Normalised joint return is (1 − .9) × total points earned by both players. The
+              realised schedule averages 7.833 rounds: constant CC would give 4.7000, and constant
+              DD 1.5667. Breakdown is CC → non-CC; recovery is non-CC → CC, counted only when a next
+              round occurs. These post-viewing self-play comparisons change both agents and have no
+              multiplicity correction.
             </p>
           </details>
         </section>
-
-        <section className="results-section" aria-labelledby="opponents-title">
-          <h2 id="opponents-title">The opponent changes the result.</h2>
-          <p>
-            Each group below averages four conditions. Negative differences favour drafting;
-            positive differences favour direct action. These breakdowns are exploratory. Against
-            unconditional opponents, improved decisions mean selecting defection more often.
-          </p>
-          <div
-            className="results-table-wrap"
-            role="region"
-            aria-label="Opponent group results"
-            tabIndex={0}
-          >
-            <table className="results-table">
-              <caption>Draft minus direct mean oracle loss</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Opponent</th>
-                  <th scope="col">Nano</th>
-                  <th scope="col">Super</th>
-                </tr>
-              </thead>
-              <tbody>
-                {study.policyEffects.map((row) => (
-                  <tr key={row.policy}>
-                    <th scope="row">{policies[row.policy]}</th>
-                    <td>{difference(row.nano)}</td>
-                    <td>{difference(row.super)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <details className="results-details">
-            <summary>Explore all 16 benchmark conditions</summary>
-            <div className="results-filter">
-              <label htmlFor="results-opponent">Show opponent</label>
-              <select
-                id="results-opponent"
-                value={policy}
-                onChange={(event) => setPolicy(event.target.value)}
-              >
-                <option value="all">All opponents</option>
-                {Object.entries(policies).map(([id, label]) => (
-                  <option key={id} value={id}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <p className="results-note">
-              δ is the probability of another round. H is the announced total number of rounds. Each
-              cell has 24 episodes.
-            </p>
-            <div
-              className="results-table-wrap"
-              role="region"
-              aria-label="All benchmark conditions"
-              tabIndex={0}
-            >
-              <table className="results-table results-conditions">
-                <caption>Mean oracle loss by condition; difference = draft − direct</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Condition</th>
-                    <th scope="col">Nano direct</th>
-                    <th scope="col">Nano draft</th>
-                    <th scope="col">Nano diff.</th>
-                    <th scope="col">Super direct</th>
-                    <th scope="col">Super draft</th>
-                    <th scope="col">Super diff.</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {study.conditions
-                    .filter((row) => policy === 'all' || row.condition.startsWith(`${policy}-`))
-                    .map((row) => {
-                      const [opponent, horizon] = row.condition.split('-');
-                      return (
-                        <tr key={row.condition}>
-                          <th scope="row">
-                            {policies[opponent]} ·{' '}
-                            {horizon.replace('g', 'δ = ').replace('h', 'H = ')}
-                          </th>
-                          <td>{loss(row['nano-direct'])}</td>
-                          <td>{loss(row['nano-draft'])}</td>
-                          <td>{difference(row.nanoDifference)}</td>
-                          <td>{loss(row['super-direct'])}</td>
-                          <td>{loss(row['super-draft'])}</td>
-                          <td>{difference(row.superDifference)}</td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
-          </details>
-        </section>
-
-        <section className="results-section" aria-labelledby="cooperation-title">
-          <p className="results-eyebrow">Track B · Autonomous interaction</p>
-          <h2 id="cooperation-title">Cooperation varied across model–procedure pairings.</h2>
-          <div className="results-crossplay">
-            <p className="results-big-number">
-              {((100 * study.jointActionCounts.CC) / crossplayRounds).toFixed(1)}%
-              <span>of observed rounds had mutual cooperation</span>
-            </p>
-            <div>
-              <p>
-                <strong>
-                  {study.jointActionCounts.CC} of {number(crossplayRounds)} rounds
-                </strong>{' '}
-                across 240 dyads and all ten pairings, including self-play. First-round mutual
-                cooperation was {study.firstRoundCC}/240 (
-                {((100 * study.firstRoundCC) / 240).toFixed(1)}%).
-              </p>
-              <p>
-                Both defected in {number(study.jointActionCounts.DD)} rounds; the remaining{' '}
-                {number(study.jointActionCounts.CD + study.jointActionCounts.DC)} were asymmetric.
-              </p>
-            </div>
-          </div>
-          <p className="results-note">
-            Rounds within a dyad are dependent. These are descriptive counts, not{' '}
-            {number(crossplayRounds)} independent trials or evidence of a Nash equilibrium. Adaptive
-            opponents have no identified exact oracle here.
-          </p>
-        </section>
-
-        <section className="results-section" aria-labelledby="pairing-title">
-          <h2 id="pairing-title">Explore all ten pairings.</h2>
-          <p>
-            Each pairing contains 24 dyads and 206 observed rounds. These are descriptive
-            comparisons under the shared stopping schedule. Longer dyads contribute more to the
-            round-level cooperation rate.
-          </p>
-          <div
-            className="results-table-wrap"
-            role="region"
-            aria-label="Cooperation by pairing"
-            tabIndex={0}
-          >
-            <table className="results-table">
-              <caption>Mutual cooperation and joint return · Track B</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Pairing</th>
-                  <th scope="col">First-round CC</th>
-                  <th scope="col">CC / rounds</th>
-                  <th scope="col">CC rate</th>
-                  <th scope="col">Mean normalised joint return</th>
-                </tr>
-              </thead>
-              <tbody>
-                {study.crossplay.map((row) => (
-                  <tr key={row.cell}>
-                    <th scope="row">{row.cell.split('/').slice(1).map(playerLabel).join(' / ')}</th>
-                    <td>
-                      {row.firstCC.count} / {row.firstCC.opportunities}
-                    </td>
-                    <td>
-                      {row.mutualCooperation.count} / {row.mutualCooperation.opportunities}
-                    </td>
-                    <td>
-                      {(
-                        (100 * row.mutualCooperation.count) /
-                        row.mutualCooperation.opportunities
-                      ).toFixed(1)}
-                      %
-                    </td>
-                    <td>{row.meanNormalisedJointReturn.toFixed(3)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="results-note">
-            CC means both cooperated. Normalised joint return is 0.1 times the sum of both players’
-            points over a dyad, averaged across dyads. The realised stopping length varies, so this
-            is not simply the average payoff per observed round. No independent-round confidence
-            intervals or general model ranking are implied.
-          </p>
-        </section>
-
-        <section className="results-section" aria-labelledby="cost-title">
-          <h2 id="cost-title">What did drafting cost?</h2>
-          <p>
-            Drafting reduced mean benchmark loss while using more requests and tokens. These totals
-            include both Track A and Track B; they do not isolate the price of a benchmark
-            improvement.
-          </p>
-          <div
-            className="results-table-wrap"
-            role="region"
-            aria-label="Recorded inference costs"
-            tabIndex={0}
-          >
-            <table className="results-table">
-              <caption>Final-run usage estimates · both tracks</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Procedure</th>
-                  <th scope="col">Requests</th>
-                  <th scope="col">Input tokens</th>
-                  <th scope="col">Output tokens</th>
-                  <th scope="col">Estimated USD</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(costs.arms).map(([arm, usage]) => (
-                  <tr key={arm}>
-                    <th scope="row">{playerLabel(arm)}</th>
-                    <td>{number(usage.requests)}</td>
-                    <td>{number(usage.promptTokens)}</td>
-                    <td>{number(usage.completionTokens)}</td>
-                    <td>${Number(usage.costUsd).toFixed(6)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="results-note">
-            Usage aggregates come from the retained audit, priced at the recorded 20 October rates.
-            They are not provider invoices, and public action data cannot independently validate
-            token usage.{' '}
-            <a href={publicAsset(`${path}/execution-costs.json`)} download>
-              Download cost aggregates
-            </a>
-            .
-          </p>
-        </section>
-
-        <section className="results-section" aria-labelledby="methods-title">
-          <h2 id="methods-title">What was tested</h2>
+        <section className="results-section">
+          <h2>Two failure modes survive the average improvement.</h2>
           <div className="results-method-grid">
-            <div>
-              <h3>The procedures</h3>
+            <article>
+              <h3>Action labels matter for Nano at zero.</h3>
               <p>
-                Direct used one thinking-off action request capped at 128 tokens. Draft used a
-                thinking-on draft capped at 1,024 tokens, then a separate thinking-off action
-                request capped at 128 tokens. The selected study used temperature {temperature},
-                top-p 1 and full completed history for both procedures.
+                When X means cooperate, drafting reduces loss in both seats (−.4652 and −.2558).
+                When X means defect, it increases loss (+.1427 and +.1431). All Super strata favour
+                Draft. The strata use different stopping draws, so this is a mapping-associated
+                pattern to test with fully crossed seeds.
               </p>
+            </article>
+            <article>
+              <h3>Local endgames exceed sustained planning.</h3>
               <p>
-                The intervention includes extra compute, an extra request, and conditioning on draft
-                text. It was not an equal-cost comparison.
+                Only one of 768 ten-round TFT/Grim episodes follows the optimal nine-C-then-D path.
+                Super Draft at zero cooperates in TFT round nine in 43/48 episodes and defects in
+                round ten in all 48, while its earlier choices still lose payoff.
               </p>
-            </div>
-            <div>
-              <h3>The game</h3>
-              <p>
-                Each player maximised expected own cumulative points: CC = 3/3, CD = 0/5, DC = 5/0,
-                DD = 1/1. Track A tested Always Cooperate, Always Defect, Tit-for-Tat and Grim at δ
-                = .4, .6, .9, plus selected fixed horizons. Track B used δ = .9.
-              </p>
-              <p>
-                A geometric game's realised last round was hidden when choosing. It is different
-                from an announced final round.
-              </p>
-            </div>
+            </article>
           </div>
-          <p className="results-caveat">
-            The live educational app offers optional forecasts and requests reasoning off. Its
-            sessions are separate from these fixed scientific evaluations.
-          </p>
+          <details className="results-details">
+            <summary>Inspect all presentation and finite-horizon diagnostics</summary>
+            <div className="results-table-wrap">
+              <table className="results-table">
+                <caption>
+                  Presentation effects · temperature {temperature} · 12 blocks per stratum · X=C in
+                  strata 0/2; X=D in 1/3
+                </caption>
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th>Stratum</th>
+                    <th>Direct</th>
+                    <th>Draft</th>
+                    <th>Draft − Direct</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diagnostics.strata
+                    .filter((r) => r.temperature === temperature)
+                    .map((r) => (
+                      <tr key={`${r.model}-${r.stratum}`}>
+                        <th>{r.model}</th>
+                        <td>{r.stratum}</td>
+                        <td>{loss(r.direct)}</td>
+                        <td>{loss(r.draft)}</td>
+                        <td>{diff(r.effect)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="results-table-wrap">
+              <table className="results-table">
+                <caption>
+                  Announced ten-round games · temperature {temperature} · 48 episodes per row ·
+                  optimal own payoff 32
+                </caption>
+                <thead>
+                  <tr>
+                    <th>Arm / opponent</th>
+                    <th>Optimal paths</th>
+                    <th>C in round 9</th>
+                    <th>C in round 10</th>
+                    <th>Mean own payoff</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {diagnostics.finiteHorizon
+                    .filter((r) => r.temperature === temperature)
+                    .map((r) => (
+                      <tr key={`${r.arm}-${r.policy}`}>
+                        <th>
+                          {playerLabel(r.arm)} / {policies[r.policy]}
+                        </th>
+                        <td>{r.optimalPaths}/48</td>
+                        <td>{r.roundCooperations[8]}/48</td>
+                        <td>{r.roundCooperations[9]}/48</td>
+                        <td>{loss(r.meanOwnPayoff)}</td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </details>
         </section>
-
-        <section className="results-section" aria-labelledby="limits-title">
-          <h2 id="limits-title">Scope, history and evidence</h2>
-          <ul className="results-limitations">
-            <li>
-              The temperature-1 successor followed an interrupted eight-block run (HTTP 502). The
-              temperature-0 recovery followed a 62-episode interruption (HTTP 529). Earlier outcomes
-              had been inspected; interrupted and engineering observations are excluded from both
-              completed studies. These are descriptive amendments.
-            </li>
-            <li>
-              One environment schedule, four committed policies, fixed payoffs, and one provider
-              execution window per temperature limit generalisation. Provider sampling randomness
-              was not matched by seed.
-            </li>
-            <li>
-              The recorded model IDs do not prove an immutable provider weights version. Draft text
-              does not verify internal beliefs or explain the mechanism of any improvement.
-            </li>
-          </ul>
+        <section className="results-section">
+          <h2>What the infrastructure reveals.</h2>
           <p>
-            Offline checks reproduced episode scores and bootstrap estimates, and locally verified
-            raw responses, request accounting and the original event chain. The public package
-            supports score and estimate reproduction from revealed actions. Raw provider responses,
-            private drafts, receipts and operational records are retained privately.
+            Inspect AI recorded native samples, model events and scored outcomes. The audited
+            gateway retained sealed actions, request attempts and accounting. MLflow Skinny tracked
+            the actual engineering and final runs in local SQLite, including parameters, metrics,
+            sessions and head-bound exports. Both integrations were used during execution.
           </p>
-          <p className="results-note">
-            The public package cannot independently authenticate provider identity, raw transport
-            history or billing. All {number(study.requestCount)} final-run requests were locally
-            recorded as successful; the inference cost is an estimate.
+          <div className="results-table-wrap">
+            <table className="results-table">
+              <caption>
+                Recorded resources · temperature {temperature} · both tracks · 5,236 decisions per
+                arm
+              </caption>
+              <thead>
+                <tr>
+                  <th>Arm</th>
+                  <th>Requests sent</th>
+                  <th>Input / output tokens</th>
+                  <th>Capped / successful drafts</th>
+                  <th>Request median / p95 (s)</th>
+                  <th>Usage estimate (USD)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {armRows.map((a) => {
+                  const d = diagnostics.requestDiagnostics.find(
+                    (r) => r.temperature === temperature && r.arm === a.arm,
+                  )!;
+                  return (
+                    <tr key={a.arm}>
+                      <th>{playerLabel(a.arm)}</th>
+                      <td>{n(a.requests)}</td>
+                      <td>
+                        {n(a.promptTokens)} / {n(a.completionTokens)}
+                      </td>
+                      <td>
+                        {d.successfulDrafts
+                          ? `${n(d.cappedDrafts)}/${n(d.successfulDrafts)} (${pct(d.cappedDrafts / d.successfulDrafts)})`
+                          : '—'}
+                      </td>
+                      <td>
+                        {a.requestMedianSeconds.toFixed(2)} / {a.requestP95Seconds.toFixed(2)}
+                      </td>
+                      <td>${Number(a.estimatedUsd).toFixed(4)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Draft costs roughly 10–12 times Direct within the same model across both tracks. Between
+            25% and 56% of successful drafts hit their cap. Request latency mixes the draft and
+            action phases; it does not measure full decision or wall-clock delay. Cap hits are an
+            observed feature of this bounded procedure, and their association with performance is
+            confounded by request difficulty.
+          </p>
+          <p className="results-caveat">
+            Final inference usage estimate: ${Number(accounting.finalUsageEstimate).toFixed(4)};
+            engineering: ${Number(accounting.engineeringUsageEstimate).toFixed(4)}. An additional $
+            {accounting.unresolvedMaximumExposure} remains uncertain maximum billing exposure for 20
+            transmitted attempts. It is neither confirmed paid nor confirmed free. Publication with
+            this disclosure was explicitly approved on 25 October; the ledger reservations remain
+            intact under the $40 cap.
+          </p>
+          <details className="results-details">
+            <summary>Transport recovery and provenance</summary>
+            <p>
+              Provider overload stopped the original session at 3,406 episodes. An approved
+              amendment preserved them and allowed six total attempts, one durable 30-minute
+              decision window, a shared five-minute cooldown and reduced concurrency. The original
+              deadline and budget stayed fixed. There were 62,832 successful requests plus 17 HTTP
+              529, one HTTP 502 and two attempts without a durable HTTP response.
+            </p>
+            <p>
+              All successful responses reported the requested model ID and one consistent
+              fingerprint per model in this campaign. Those identifiers do not pin weights or hidden
+              serving state. Nano and Super also differ in listed region and quantisation.
+            </p>
+            <p>
+              Specification: <code>{summary.specSha256}</code>
+              <br />
+              Final evidence head: <code>{summary.evidenceHead}</code>
+            </p>
+          </details>
+        </section>
+        <section className="results-section">
+          <h2>Hypotheses for a next study.</h2>
+          <p>These explanations are motivated by the observed patterns and remain untested.</p>
+          <div className="results-method-grid">
+            <article>
+              <h3>Local optimisation outruns contingent planning.</h3>
+              <p>
+                Simple exploitation gains coexist with TFT reversals and rare optimal finite paths.
+                Vary explicit state-transition planning depth at a fixed compute budget.
+              </p>
+            </article>
+            <article>
+              <h3>Defensive play blocks reciprocal repair.</h3>
+              <p>
+                Super Draft self-play at zero never returns to CC in 325 opportunities. Test
+                controlled forgiving partners that create specific repair opportunities.
+              </p>
+            </article>
+            <article>
+              <h3>Drafting changes presentation habits.</h3>
+              <p>
+                Nano’s zero-temperature mapping reversal motivates crossing every stopping seed with
+                both mappings and seats.
+              </p>
+            </article>
+            <article>
+              <h3>Truncation interacts with sampling.</h3>
+              <p>
+                More cap hits at temperature one accompany different model-specific effects.
+                Randomise draft caps and add an equal-compute Direct control.
+              </p>
+            </article>
+          </div>
+        </section>
+        <section className="results-section">
+          <h2>Reproduce the final evaluation.</h2>
+          <p>
+            The public package contains revealed actions, exact decision gaps, request telemetry,
+            the frozen schedule and source indices. The offline verifier reconstructs scores, all
+            planned intervals and exploratory diagnostics without model calls. Private logs support
+            execution review; public checksums establish file integrity.
           </p>
           <div className="results-downloads">
-            <a href={publicAsset(`${path}/episodes.json`)} download>
-              Episode actions (JSON) ↓
-            </a>
-            <a href={publicAsset(`${path}/summary.json`)} download>
-              Results summary (JSON) ↓
-            </a>
-            <a href={publicAsset(`${path}/condition-losses.csv`)} download>
-              Condition results (CSV) ↓
-            </a>
-            <a href={publicAsset(`${path}/crossplay.csv`)} download>
-              Pairing results (CSV) ↓
-            </a>
+            <Download file="temperature-zero/episodes.json">Temperature 0 actions</Download>
+            <Download file="temperature-one/episodes.json">Temperature 1 actions</Download>
+            <Download file="contrasts.csv">Planned contrasts (CSV)</Download>
+            <Download file="diagnostics.json">Exploratory diagnostics (JSON)</Download>
+            <Download file="decisions.csv.gz">Decisions (CSV.gz)</Download>
+            <Download file="requests.csv.gz">Requests (CSV.gz)</Download>
+            <Download file="decisions.parquet">Decisions (Parquet)</Download>
+            <Download file="requests.parquet">Requests (Parquet)</Download>
+            <Download file="manifest.json">Checksums</Download>
+            <Download file="publication-review.json">Release & accounting review</Download>
+            <Download file="paper/main.tex">LaTeX source</Download>
           </div>
-          <details className="results-details">
-            <summary>Model IDs and study provenance</summary>
-            <p>
-              Nano: <code>nvidia/NVIDIA-Nemotron-3-Nano-30B-A3B</code>
-              <br />
-              Super: <code>nvidia/nemotron-3-super-120b-a12b</code>
-            </p>
-            <p>
-              Plan SHA-256: <code>{study.planSha256}</code>
-            </p>
-            <p>
-              Archived executed source index: <code>{study.sourceSha256}</code>
-            </p>
-            <p>
-              These identify the preserved study; the public application can evolve independently.
-            </p>
-            <a href={publicAsset('/research/manifest.json')}>Public file checksums</a>
-          </details>
-          <p className="results-reference">
-            Theory reference: Eric Rasmusen, <cite>Games and Information</cite>, supplied
-            fourth-edition draft, sections 1.2, 4.1, 5.1–5.2, 6.4–6.5. The textbook is cited in the
-            write-up and is not redistributed.
+          <p className="results-note">
+            Earlier outcomes informed this prospective replication and are not pooled. Findings
+            concern these prompts, bounded procedures and hosted service window. Approximate block
+            intervals do not guarantee coverage; secondary and post-viewing diagnostics have no
+            family correction. The report retains related literature and Rasmusen’s repeated-game
+            foundations.
           </p>
+          <GameTypes />
         </section>
-        <p className="results-note">
-          This page displays saved findings. Viewing or filtering it sends no inference requests.
-        </p>
-        <GameTypes />
       </main>
     </div>
   );
