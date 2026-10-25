@@ -18,8 +18,9 @@ export function AppAccessNote() {
     <aside className="app-access-note" aria-label="Website and terminal versions">
       <p>
         <strong>Play online or run locally.</strong> Free browser games and saved Nemotron
-        recordings work here. Launch the same app from your terminal for live Nemotron play through
-        Nebius.
+        recordings work here. Nebius Token Factory hosted NVIDIA Nemotron Nano and Super for the
+        7,104-episode evaluation. Launch the same app from your terminal to explicitly start live
+        play through Token Factory.
       </p>
       <details>
         <summary>Run locally for live API play</summary>
