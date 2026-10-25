@@ -1,25 +1,21 @@
 # Dilemma Dynamics
 
-_Exploring AI strategies, incentives and cooperation._
+_Exploring AI strategies, incentives and cooperation. An interactive game laboratory studying NVIDIA Nemotron's choices._
 
-An interactive game laboratory by **Alisa Sheinkman**. An AI agent's choices
-can influence whether a partner cooperates, retaliates or rebuilds a productive
-relationship. Dilemma Dynamics lets researchers and agent developers examine
-how individual decision quality relates to cooperation over time. Students can
-explore the same incentives by playing repeated Prisoner's Dilemma and inspecting
-the consequences of each choice.
+An AI agent's choices can influence whether a partner cooperates, retaliates or rebuilds a productive
+relationship. Dilemma Dynamics allows to examine how individual decision quality relates to cooperation over time. Students can
+explore the same incentives by playing repeated Prisoner's Dilemma and inspecting the consequences of each choice.
 
 **[Try the browser demo](https://sheinkmana.github.io/dilemma-dynamics/#play)** ·
 [Explore Results](https://sheinkmana.github.io/dilemma-dynamics/#results) ·
-[Read the seven-page PDF notes](public/research/paper/report.pdf)
+[Read the detailed PDF notes](public/research/paper/report.pdf)
 
-The browser demo offers free play, analysis and labelled saved Nemotron recordings
-without a key or model requests. For live model play, [run the app locally](#run-locally).
+The browser demo offers free play, analysis and labelled saved Nemotron recordings without an API key or model requests.
+For live model play, [run the app locally](#run-locally).
 
 **NVIDIA Nemotron Nano and Super, served through Nebius Token Factory**, made the
 choices in the 7,104-episode evaluation. Token Factory supplied hosted inference
-while the game engine, exact scoring and evidence pipeline ran locally. The same
-integration powers explicitly started live Nemotron play in the local app.
+while the game engine, exact scoring and evaluation ran locally.
 
 ## Two-minute walkthrough
 
@@ -41,9 +37,15 @@ integration powers explicitly started live Nemotron play in the local app.
 
 ## What the study shows
 
-The evaluation contains **7,104 episodes**, **two models** and **two temperatures**.
-**Direct** requests an action; **Draft** first requests a bounded private draft,
+In the repeated Prisoner’s Dilemma, both players choose privately and reveal together. Mutual cooperation earns three points each; mutual defection earns one each. Defecting against a cooperator earns five, leaving the cooperator zero. Defection pays more immediately, but a responsive partner can make cooperation valuable over time. Each player seeks their own cumulative points.
+
+
+The evaluation contains **7,104 episodes** (6,144 benchmark episodes and 960 autonomous-interaction episodes), **two models** and **two temperatures**.
+
+**Direct** requests one thinking-off action; **Draft** first requests a bounded thinking-on private draft,
 then an action in a separate request. The study compares these complete procedures.
+
+The 6,144 benchmark episodes use four disclosed opponent rules: Always Cooperate, Always Defect, Tit-for-Tat and Grim. Exact dynamic programming finds the best achievable expected own payoff for each choice. Decision loss is the normalised payoff forgone by an action, allowing optimal play afterward. The 960 autonomous-interaction episodes consider two model agents play each other.
 
 Drafting reduced average exact benchmark decision loss by **16.8–37.5%** across
 the four planned comparisons. **Decision loss measures payoff forgone relative
@@ -69,14 +71,13 @@ and optional Study replay.
 **[Recreational games](https://sheinkmana.github.io/dilemma-dynamics/#recreational)**
 is a separate secondary area. Tic-tac-toe and Dots & Boxes are mathematical games
 played on discrete grids or lattices, with perfect information and visible
-sequential moves. Try their tactics and search there; their scores are separate
-from the dilemma evaluation.
+sequential moves. Try their tactics, play with bot, and search there.
 
 Both website and local builds share this interface. The website supports free
 play, analysis, saved recordings and replay exports without a key. The local
-build additionally supports model play through a localhost server. Browser games
-save locally when storage is available; reload pauses unfinished games until
-Resume. Download a replay to keep a separate copy.
+build additionally supports Nemotron model play through a localhost server. 
+Browser games save locally when storage is available; reload pauses unfinished games until
+Resume. One can download a replay to keep a separate copy.
 
 ## Run locally
 
@@ -109,7 +110,7 @@ SQLite stores local sessions and request records. The public build uses a
 separate browser runtime for free policies and static evidence. Analysis runs
 outside the player decision loop.
 
-The scientific pipeline uses **Python 3.12**, **Inspect AI**, **HTTPX**, **NumPy**,
+The evaluation pipeline uses **Python 3.12**, **Inspect AI**, **HTTPX**, **NumPy**,
 **PyArrow**, **Matplotlib** and local **MLflow Skinny/SQLite** tracking. Hosted
 Nemotron models choose actions; deterministic code runs the game and calculates
 exact payoff references. Roles, locked versions and mathematical definitions
