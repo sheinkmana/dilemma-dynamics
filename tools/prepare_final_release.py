@@ -25,6 +25,18 @@ def write(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
+def manifest_files(target):
+    files = sorted(p for p in target.rglob("*") if p.is_file() and p.name != "manifest.json")
+    latex_intermediates = (".aux", ".log", ".fls", ".fdb_latexmk", ".synctex.gz", ".out", ".toc")
+    unwanted = [p.relative_to(target).as_posix() for p in files if p.name.endswith(latex_intermediates)]
+    if unwanted:
+        raise ValueError(
+            "Archive LaTeX build intermediates outside the public export before generating "
+            "its manifest: " + ", ".join(unwanted)
+        )
+    return {p.relative_to(target).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
+
+
 def prepare(campaign, recovery, target, private_records=None):
     private_records = private_records or ROOT / "output/release-polish/private"
     if private_records.resolve().is_relative_to(target.resolve()) or private_records.resolve().is_relative_to(ROOT / "public"):
@@ -209,11 +221,7 @@ if __name__ == "__main__":
             {
                 "schemaVersion": 2,
                 "scope": "Completed joint-temperature evaluation: saved actions, scientific source, exact scoring and numerical telemetry. Private provider evidence and release authority are retained locally and checked separately.",
-                "files": {
-                    p.relative_to(target).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
-                    for p in sorted(target.rglob("*"))
-                    if p.is_file() and p.name != "manifest.json"
-                },
+                "files": manifest_files(target),
             },
         )
         print("Updated complete final-publication manifest.")

@@ -15,6 +15,16 @@ const episodes = [...zero, ...one];
 
 test('the sole final public package matches its complete checksum manifest', () => {
   const manifest = read('manifest.json');
+  // Ignored local build files must never mask missing files in a fresh checkout.
+  const published = execFileSync('git', ['ls-files', '-z', 'public/research/'], {
+    cwd: fileURLToPath(new URL('../', import.meta.url)),
+    encoding: 'utf8',
+  })
+    .split('\0')
+    .filter(Boolean)
+    .map((name) => name.slice('public/research/'.length))
+    .sort();
+  assert.deepEqual([...Object.keys(manifest.files), 'manifest.json'].sort(), published);
   assert.deepEqual(
     readdirSync(root, { recursive: true, withFileTypes: true })
       .filter((e) => e.isFile())
