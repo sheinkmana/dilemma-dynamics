@@ -6,53 +6,62 @@
 \usepackage[hidelinks]{hyperref}
 \hypersetup{pdftitle={Dilemma Dynamics: cooperation, deliberation and repeated-game incentives},pdfauthor={Alisa Sheinkman}}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt}
+\setlength{\parskip}{4pt}
 \setlength{\emergencystretch}{3em}
 \raggedbottom
 \newcommand{\C}{\mathrm C}
 \newcommand{\D}{\mathrm D}
 \newcommand{\E}{\mathbb E}
 \newcommand{\Prb}{\mathbb P}
-\title{Dilemma Dynamics\\\large Cooperation, deliberation and repeated-game incentives}
-\author{Alisa Sheinkman}
-\date{Evaluation and mathematical notes}
 \begin{document}
-\maketitle
+\begin{center}
+{\LARGE\bfseries Dilemma Dynamics}\par
+{\large Cooperation, deliberation and repeated-game incentives}\par
+\vspace{5pt}
+Alisa Sheinkman\par
+{\small Evaluation and mathematical notes}
+\end{center}
 \begin{abstract}
 Does drafting before acting help an AI recognise when cooperation pays?
-Dilemma Dynamics studies repeated Prisoner's Dilemma games, where the immediate
-gain from defection competes with the future value of reciprocity. We compare
-immediate action with a bounded private draft in NVIDIA's Nemotron Nano and
-Super at two sampling temperatures. Against disclosed opponent policies, exact
-dynamic programming measures the payoff given up at each choice. Autonomous
-pairings reveal how cooperation begins, breaks down and returns. Drafting lowers
-average benchmark loss for both models at both temperatures, yet increases loss
-against Tit-for-Tat. Autonomous self-play also becomes less cooperative with
-drafting. Recognising exploitation opportunities and sustaining reciprocity
-therefore emerge as distinct capabilities. These notes connect the results to
-repeated-game theory and develop future work on planning, relationship repair
-and richer interactions.
+We compare Direct and bounded Draft procedures in Nemotron Nano and Super
+across 7,104 repeated Prisoner's Dilemma episodes at temperatures 0 and 1.
+Exact payoff references against disclosed policies separate decision quality
+from cooperation between autonomous agents. Draft reduces average benchmark
+loss by 16.8--37.5\% across four planned comparisons, yet increases loss against
+Tit-for-Tat and reduces self-play cooperation. These results connect individual
+payoff decisions to the dynamics of reciprocity, and motivate experiments on
+contingent planning, relationship repair and richer interactions.
 \end{abstract}
 
-\section{The question and the intervention}
-The experiment asks whether a short deliberation procedure helps a model respond
-to an opponent's incentives. Its two hosted models are Nemotron Nano and Super
-\cite{nano,super}. The exact provider IDs, under the \texttt{nvidia/} namespace, are
-\texttt{NVIDIA-Nemotron-3-Nano-30B-A3B} and
-\texttt{nemotron-3-super-120b-a12b}.
+\section{Motivation and overview}
+AI agents may interact repeatedly with people or other agents while pursuing
+their own objectives. Their choices can influence whether others cooperate,
+retaliate or rebuild a productive relationship. Understanding how individual
+decision quality relates to cooperation is therefore useful when evaluating
+agents that interact over time.
 
-\emph{Direct} makes one thinking-off action request, capped at 128 completion
-tokens. \emph{Draft} makes a thinking-on request capped at 1,024 tokens, then a
-separate thinking-off action request capped at 128 tokens \cite{cards}.
-Both receive completed game history. Only the current decision's draft is added
-to its action request. Each episode is assigned a sampling temperature
-\(\tau\in\{0,1\}\); all its request phases use that value. The nucleus-sampling
-setting is fixed at top-\(p=1\).
-Each model--procedure combination is an experimental \emph{arm}.
+Repeated Prisoner's Dilemma makes this question concrete: immediate rewards
+compete with future consequences. Dilemma Dynamics combines exact payoff
+comparisons against disclosed opponent policies with autonomous pairings that
+reveal how cooperation develops, breaks down and recovers. Researchers and
+agent developers can inspect responses to incentives; students can explore the
+same ideas through play, saved recordings and mathematical explanations.
 
-Players maximise expected own cumulative points. Choices remain sealed until
-joint reveal. Neutral X/Y labels use both mappings and display seats. In canonical
-action labels, C means cooperate and D means defect:
+\textbf{Intellectual setting.} Rasmusen's account of repeated games, commitments
+and best responses supplies the theoretical foundation \cite{rasmusen}.
+Akata et al. study social chain-of-thought in repeated games \cite{akata};
+Fontana et al. show model-specific responses to opponent hostility \cite{fontana};
+Pal et al. examine strategies across histories and game settings \cite{pal}.
+Taylor and Bergen connect reasoning and action--message incongruence in
+communication games \cite{taylor}. Together, these works motivate separating
+payoff competence, cooperation and communication. Here the scientific protocol
+uses sealed actions and asks how a bounded draft changes decisions and interaction.
+
+\section{Game, procedures and evaluation}
+\subsection{Incentives and the two procedures}
+Players maximise expected own cumulative points. Both choose privately from
+cooperate (C) and defect (D), then reveal together. The matrix lists
+(own points, other points):
 \begin{center}
 \begin{tabular}{lcc}
 \toprule
@@ -63,267 +72,83 @@ Defect & $(5,0)$ & $(1,1)$\\
 \bottomrule
 \end{tabular}
 \end{center}
-Each pair lists (own points, other points). Write \(R=3\) for the mutual-cooperation
-reward, \(S=0\) for cooperating against defection, \(T=5\) for defecting against
-cooperation and \(P=1\) for mutual defection. These satisfy \(T>R>P>S\).
+Thus temptation $T=5$, reward $R=3$, punishment $P=1$ and sucker's payoff
+$S=0$ satisfy $T>R>P>S$. Defection pays more in one round; a responsive
+partner can make cooperation valuable over repeated encounters.
 
-\clearpage
-\section{Related literature and theoretical foundations}
-Rasmusen's \emph{Games and Information} \cite{rasmusen} supplies the organising
-ideas: strategies specify responses to histories, best responses maximise payoff
-against a given opponent, and equilibrium requires compatible best responses.
-Its treatment of finite and infinite repetition explains how the prospect of
-another encounter changes present incentives. Its discussions of incomplete
-information and the Axelrod tournament also motivate studying simple commitments
-alongside adaptive players. Here those ideas lead to two complementary tracks:
-exact payoff comparisons against disclosed policies, and observed interaction
-between models whose policies emerge during play.
+An \emph{episode} is one complete interaction. A fixed horizon announces its
+length $H$; a geometric horizon continues independently after each round with
+probability $\delta$, giving $\E[N]=1/(1-\delta)$ rounds and no announced last
+round. For example, $\delta=.9$ gives ten expected rounds, a different
+information setting from ten announced rounds.
 
-Akata et al.\ \cite{akata} study finitely repeated games with language models,
-programmed strategies and human players. Their social chain-of-thought procedure
-encourages a model to anticipate the other player's behaviour and improves
-coordination in their experiments. This provides a close precedent for comparing
-decision procedures. Dilemma Dynamics uses a bounded draft with a separate final
-action request, making the procedure's token limits and request sequence explicit.
+The hosted models are NVIDIA Nemotron Nano and Super \cite{nano,super,cards}.
+\emph{Direct} makes one thinking-off action request, capped at 128 completion
+tokens. \emph{Draft} makes a thinking-on draft capped at 1,024 tokens, followed
+by a separate thinking-off action request capped at 128 tokens. Both receive
+completed history; only the current draft is added to its action request.
+An \emph{arm} is a model--procedure combination. Each episode uses temperature
+$\tau\in\{0,1\}$ throughout, with top-$p=1$. The comparison concerns the whole
+two-stage procedure, including its added computation and conditioning.
 
-Fontana, Pierri and Aiello \cite{fontana} examine Llama2, Llama3 and GPT3.5 in
-100-round Prisoner's Dilemma interactions against random opponents with different
-cooperation probabilities. They check understanding of the rules and history and
-find substantial variation in responses to opponent hostility. Their work
-motivates our engineering checks and opponent-specific reporting. The present
-benchmark adds an exact own-payoff reference for each disclosed commitment,
-allowing cooperation and decision quality to be examined separately.
+\subsection{Two complementary tracks}
+\textbf{Track A: disclosed opponents.} Always Cooperate (AllC), Always Defect
+(AllD), Tit-for-Tat (TFT: C first, then copy the subject's preceding action), and
+Grim (C until a subject defection, then D forever) each face all three continuation
+probabilities $.4,.6,.9$. One-round AllC/AllD and announced ten-round TFT/Grim
+complete 16 conditions. This benchmark measures decisions against known rules.
 
-Pal et al.\ \cite{pal} infer strategies from decisions across possible recent
-histories, vary continuation probabilities, payoffs, horizons and framing, and
-assess equilibrium properties. Their approach emphasises the value of observing
-responses to histories that ordinary play may rarely visit. Our autonomous track
-records realised trajectories; its cooperation, breakdown and recovery statistics
-describe the interaction paths actually sampled.
+\textbf{Track B: autonomous interaction.} All ten unordered pairings of the four
+arms, including self-play, interact at $\delta=.9$. Their response policies
+emerge during play. This track measures cooperation, joint return and
+breakdown/repair trajectories rather than applying the known-policy oracle.
 
-Taylor and Bergen \cite{taylor} study action--message incongruence in games with
-a communication phase. They vary the incentives and timing of messages and
-report associations between reasoning performance and misrepresentation.
-This places the present intervention in a wider behavioural context: payoff
-competence, cooperation and truthful communication are distinct properties of
-an agent. Our sealed-action design concentrates on the first two.
+The complete evaluation has \textbf{7,104 episodes}: 6,144 benchmark episodes
+and 960 autonomous dyads, with 3,552 episodes at each temperature.
+There are \textbf{48 paired blocks per temperature}, balanced across four
+neutral-action-label/display-seat strata with 12 blocks each. Every block has
+16 benchmark conditions for each arm and ten autonomous pairings. Consequently,
+each arm has 768 benchmark episodes per temperature and each autonomous
+pairing has 48 dyads. Shared environment draws pair arms and temperatures;
+adjacent temperature pairs use frozen random order. Block count was selected
+using engineering resource forecasts before scientific outcomes.
 
-Together, these studies motivate a question about \emph{when} deliberation helps:
-a change in average score may combine better exploitation of an unresponsive
-opponent, better preservation of reciprocity and different behaviour under
-uncertainty. The disclosed-policy track exposes those components, while matched
-temperature comparisons test their sensitivity to the sampling setting.
-
-\clearpage
-\section{Repetition and the value of a future encounter}
-An \emph{episode} is one complete interaction between two players. Round number
-is \(t=1,2,\ldots\), and \(N\) denotes the total number of rounds in that episode.
-In a fixed-horizon episode, \(N=H\), where the positive integer \(H\) is announced
-before play. In a geometric episode, continuation probability \(\delta\) satisfies
-\(0\leq\delta<1\). After each completed round, the game continues with probability
-\(\delta\) and ends with probability \(1-\delta\), independently of the actions.
-
-One equivalent construction draws an independent uniform variable
-\(U_t\sim\operatorname{Uniform}(0,1)\) after round \(t\), continuing precisely when
-\[
-U_t<\delta.
-\]
-The realised length then has distribution and mean
+\subsection{Exact payoff loss and uncertainty}
+For a disclosed opponent, let $s$ be its memory state, $r(s,a)$ the subject's
+payoff, and $f(s,a)$ the next state. Exact dynamic programming computes
 \begin{equation}
-\Prb(N=n)=(1-\delta)\delta^{n-1},\qquad
-\Prb(N\geq t)=\delta^{t-1},\qquad
-\E[N]=\frac{1}{1-\delta},\quad n,t\geq1.
-\label{eq:stopping}
+ Q^*(s,a)=r(s,a)+\delta V^*(f(s,a)),\qquad
+ V^*(s)=\max_{a\in\{\C,\D\}}Q^*(s,a).
+ \label{eq:bellman}
 \end{equation}
-For \(\delta=0\), the game lasts one round. The first survival probability is one.
-Thus \(\delta=.9\) produces ten expected rounds, with a hidden last round; an
-announced ten-round horizon gives players different information. The executable
-scheduler uses seeded, exact rational draws for the specified probabilities.
-Matched treatments reuse the same environment draws.
-
-\subsection{Committed responses}
-The disclosed opponents are AllC (always C), AllD (always D), Tit-for-Tat (C first,
-then the subject's preceding action) and Grim (C until a subject defection,
-then D forever). This makes the consequences of a current action computable.
-Rasmusen's distinction between a commitment and strategic equilibrium is useful
-here \cite[Sections 4.1 and 5.1--5.2]{rasmusen}.
-
-Against untriggered Grim, cooperation forever has value \(R/(1-\delta)\).
-Defecting now, followed by the best response to permanent punishment, has value
-\(T+\delta P/(1-\delta)\). Cooperation is weakly preferable exactly when
+Finite games use remaining-horizon values with $V^*_0=0$ and backward induction.
+At a revealed decision, the gap $g_t=V^*(s_t)-Q^*(s_t,a_t)\geq0$ measures the
+expected own payoff forgone by that action, allowing optimal play afterward.
+Episode loss is
 \begin{equation}
-\frac{R}{1-\delta}\geq T+\frac{\delta P}{1-\delta}
-\quad\Longleftrightarrow\quad
-\delta\geq\frac{T-R}{T-P}=\frac12.
-\label{eq:grim}
+ L_{\rm geometric}=(1-\delta)\sum_{t=1}^{N}g_t,\qquad
+ L_{\rm fixed}=\frac1H\sum_{t=1}^{H}g_t.
+ \label{eq:loss}
 \end{equation}
-All four payoff symbols were defined with the matrix; \(\delta\) is the chance
-of another round. Equality allows both initial choices to be optimal.
+Zero means no achievable expected payoff was given up. Survival to a recorded
+round already supplies the geometric survival factor; multiplying each saved
+gap by $\delta^{t-1}$ again would count stopping twice. Loss has normalised
+own-payoff units, and is separate from the amount of cooperation.
 
-Against initially cooperating Tit-for-Tat, three continuation patterns determine
-the optimal initial value: cooperate forever, defect forever, or alternate D,C.
-Their respective values are
-\[
-\frac{3}{1-\delta},\qquad 5+\frac{\delta}{1-\delta},\qquad
-\frac{5}{1-\delta^2}.
-\]
-The alternating pattern earns 5,0 repeatedly. Comparing all three shows that
-initial cooperation is optimal for \(\delta\geq2/3\). The tested probabilities
-.4, .6 and .9 therefore span different incentive regimes.
+Four primary Draft--Direct contrasts average the 16 conditions and four strata
+equally. Negative differences favour Draft. Uncertainty uses 50,000 deterministic
+stratified whole-block bootstrap draws. Approximate 98.75\% marginal intervals
+apply the planned Bonferroni allocation of a 5\% family across four contrasts.
+The independent resampling unit is the matched block, not a round. Six planned
+temperature contrasts use nominal 95\% intervals without multiplicity correction;
+opponent, presentation, planning and self-play diagnostics are exploratory.
 
-\clearpage
-\section{Exact payoff references and decision loss}
-Track A tests each disclosed policy at all three continuation probabilities.
-One-round AllC/AllD and announced ten-round Tit-for-Tat/Grim complete 16 conditions.
-For any condition, let \(s\) be the opponent's relevant memory state,
-\(a\in\{\C,\D\}\) the subject's action, \(r(s,a)\) the resulting own payoff and
-\(f(s,a)\) the next opponent state. Let \(V^*(s)\) be the maximum achievable
-expected total own payoff from state \(s\); \(Q^*(s,a)\) fixes the current action
-and allows optimal choices thereafter. In a geometric episode,
-\begin{equation}
-Q^*(s,a)=r(s,a)+\delta V^*(f(s,a)),\qquad
-V^*(s)=\max_{a\in\{\C,\D\}}Q^*(s,a).
-\label{eq:bellman}
-\end{equation}
-The implementation uses rational arithmetic. It certifies a candidate value
-function by checking \(V^*(s)\geq r(s,a)+\delta V^*(f(s,a))\) for every state and
-action, with equality for at least one action in each state.
-
-For a finite game, let \(h\) be rounds remaining, including the current one.
-Backward induction starts at \(V^*_0(s)=0\) and applies
-\[
-Q^*_h(s,a)=r(s,a)+V^*_{h-1}(f(s,a)),\qquad
-V^*_h(s)=\max_a Q^*_h(s,a).
-\]
-Against committed ten-round Tit-for-Tat or Grim, the optimal initial path is nine
-C moves followed by D, earning \(9R+T=32\) points. The standard finite-game
-backward-induction argument in which both players remain free to optimise uses
-a different opponent model \cite[Section 5.1]{rasmusen}.
-
-At a revealed decision, \(s_t\) is the pre-action opponent state and \(a_t\) the
-chosen action. Its nonnegative payoff gap is
-\[
-g_t=V^*(s_t)-Q^*(s_t,a_t),
-\]
-with the corresponding remaining-horizon values in a finite episode. Episode
-losses are
-\begin{equation}
-L_{\rm geometric}=(1-\delta)\sum_{t=1}^{N}g_t,\qquad
-L_{\rm fixed}=\frac{1}{H}\sum_{t=1}^{H}g_t.
-\label{eq:loss}
-\end{equation}
-Zero gap means that the current action preserves optimal achievable payoff.
-For example, C against AllC in a one-round game gives up \(T-R=2\) points;
-D has gap zero. Loss is expressed in normalised own-payoff points.
-
-Equation~\eqref{eq:stopping} explains the geometric weighting: survival to round
-\(t\) already occurs with probability \(\delta^{t-1}\). The expectation of the
-realised sum in \eqref{eq:loss} therefore includes that survival factor. Applying
-it again to each recorded gap would count stopping twice.
-
-Track B tests all ten unordered pairings of the four arms, including self-play,
-at \(\delta=.9\). Here outcomes of interest are cooperation and joint return.
-For player \(i\in\{1,2\}\), write \(r_{i,t}\) for points in round \(t\). A dyad's
-normalised joint return is \((1-\delta)\sum_{t=1}^{N}(r_{1,t}+r_{2,t})\).
-We report first-round mutual cooperation, cooperation per observed round and
-per episode, and breakdown/recovery counts with opportunity denominators.
-Long episodes receive more weight in a pooled round rate; rounds in one dyad
-share a history and are statistically dependent.
-
-\clearpage
-\section{Replication and statistical comparisons}
-A block groups the related experimental conditions and arms. Each block has
-64 Track A episodes (16 conditions for each of four arms) and ten Track B dyads
-per temperature. The pre-specified resource-based selection chose 48 blocks at each
-temperature: 6,144 benchmark episodes and 960 autonomous dyads, or 7,104 episodes
-in total. Four strata, defined by action-label mapping and display seat, each
-contain 12 blocks per temperature.
-
-A fresh master seed fixes game schedules and order. Arms within a block share
-environment draws, and corresponding temperature episodes are adjacent in a
-frozen randomised order. This pairing controls stopping and presentation
-variation while spreading both temperatures through the same service window.
-The 48-block design was selected before scientific inference using measured
-token use and latency. Scientific outcomes did not enter that selection.
-
-\subsection{Primary drafting effects}
-Write \(L_{m,k,\tau,b,c}\) for Track A loss in model \(m\in\{\mathrm{Nano},\mathrm{Super}\}\),
-procedure \(k\in\{\mathrm{Direct},\mathrm{Draft}\}\), temperature \(\tau\in\{0,1\}\),
-block \(b\) and condition \(c\in\{1,\ldots,16\}\). The block's condition mean is
-\[
-\bar L_{m,k,\tau,b}=\frac1{16}\sum_{c=1}^{16}L_{m,k,\tau,b,c}.
-\]
-For the contrast under consideration, let \(\mathcal B_j\) be the set of blocks
-in stratum \(j\in\{1,2,3,4\}\) with complete observations for both procedures;
-\(|\mathcal B_j|\) denotes its size. The drafting effect is
-\begin{equation}
-\Delta_{m,\tau}=\frac14\sum_{j=1}^{4}\frac1{|\mathcal B_j|}
-\sum_{b\in\mathcal B_j}\left(\bar L_{m,\mathrm{Draft},\tau,b}
--\bar L_{m,\mathrm{Direct},\tau,b}\right).
-\label{eq:primary}
-\end{equation}
-Negative values favour Draft. All conditions and strata have equal weight.
-The completed design has \(|\mathcal B_j|=12\) in every stratum.
-The point estimate requires at least one complete paired block in every stratum.
-
-There are four primary contrasts, one for each model and temperature. Use
-50,000 deterministic PCG64 bootstrap replicates, resampling whole blocks within
-strata. For family error level \(\alpha=.05\) and \(K=4\) contrasts, each marginal
-interval has nominal coverage \(1-\alpha/K=.9875\). Its bootstrap quantiles are
-\(\alpha/(2K)=.00625\) and \(1-\alpha/(2K)=.99375\). This Bonferroni allocation
-uses approximate bootstrap coverage. At least five complete paired blocks per
-stratum are required to construct an interval.
-
-\subsection{Temperature comparisons}
-Six secondary contrasts compare temperature 0 minus 1 for each of the four arms,
-and \(\Delta_{m,0}-\Delta_{m,1}\) for each model. A positive value of the latter
-means a smaller drafting advantage at zero. Resampling uses the same matched
-block indices jointly across temperatures; secondary 95\% intervals are nominal.
-All scheduled episodes completed, so every block contributes to the comparisons.
-
-\clearpage
-\section{Evidence, execution and interpretation}
-The local CPU coordinates remote Nebius Token Factory inference. Inspect AI
-provides native samples, model events and custom scored outcomes \cite{inspect}.
-Joint-reveal events carry hashes linking them to the canonical event chain.
-MLflow Skinny records run identities, parameters, metrics and artifacts in local
-SQLite \cite{mlflow}. NumPy supplies the bootstrap, PyArrow numeric Parquet
-exports and Matplotlib the comparison figures.
-
-All 7,104 episodes completed: 3,552 at each temperature. The scientific run took
-16.16 elapsed hours, from 24 October 2026, 14:10 UTC, to 25 October, 06:20 UTC,
-including a provider-overload interruption. Recovery preserved the first 3,406
-completed episodes and their ledger prefix; the original and recovery source
-records are frozen separately. Saved successful responses retained their original
-identity throughout recovery.
-
-Offline reconstruction produces episode histories, exact scores,
-decision/request tables, condition means, contrasts and checksums. Native Inspect
-coverage, canonical reconstruction and the final MLflow evidence heads were
-verified. Dependency locks, runtime records and source archives identify the
-executed implementation. Public action histories reproduce the scores and
-bootstrap comparisons without further model calls; private responses and draft
-text remain in the local evidence archive.
-
-The design compares complete Direct and Draft procedures in the stated models,
-prompts and environments. Earlier development informed this design; the four
-primary contrasts were fixed before this campaign's scientific outcomes.
-Opponent, self-play and presentation diagnostics are exploratory. Primary
-intervals use approximate block-bootstrap coverage; secondary and exploratory
-intervals use their stated nominal levels. This context accompanies the results
-so that payoff competence and cooperative behaviour can be interpreted separately.
-
-\clearpage
-
-\section{Results: better decisions against whom?}
-Each model--procedure arm has 768 benchmark episodes at each temperature.
-Table~\ref{tab:primary} gives the four planned primary comparisons; lower loss
-means less achievable expected own payoff forgone. The intervals use the
-pre-specified approximate four-comparison family treatment described above.
-Every interval lies below zero. Relative to each Direct mean, the reductions
-are 16.8\%, 19.4\%, 25.7\% and 37.5\%, respectively. These percentages describe
-loss reduction, not a percentage increase in earned reward.
-
+\section{Results and explanations}
+\subsection{Drafting lowers average loss, with an opponent reversal}
+All four primary intervals lie below zero (Table~\ref{tab:primary}). Relative
+loss reductions are 16.8\% and 19.4\% for Nano and Super at zero, and 25.7\%
+and 37.5\% at one. These are reductions in payoff forgone, not percentage
+increases in earned reward.
 \begin{table}[htbp]\centering\small
 \begin{tabular}{lrrrrl}
 \toprule
@@ -335,32 +160,20 @@ Nano & 1 & .6541 & .4861 & $-.1680$ & [$-.2172,-.1209$]\\
 Super & 1 & .5988 & .3741 & $-.2246$ & [$-.2795,-.1742$]\\
 \bottomrule
 \end{tabular}
-\caption{Planned benchmark comparisons in normalised payoff points. All 48
-matched blocks contribute, with 12 blocks in each presentation stratum.}
+\caption{Planned benchmark comparisons: horizon-normalised own-payoff loss,
+768 episodes per arm/temperature and all 48 paired blocks. Lower is better.}
 \label{tab:primary}
 \end{table}
 
-\begin{center}
-\includegraphics[width=.98\linewidth]{../figures/primary-results.png}
-\end{center}
-
-\subsection{The average hides a Tit-for-Tat reversal}
-Against Always Cooperate, drafting reduces loss by .5865 and .6042 for Nano
-at temperatures zero and one, and by .2094 and .5167 for Super. Against this
-unresponsive opponent, D is optimal at every round: an improvement therefore
-means more effective exploitation, rather than more cooperation. Super Draft
-also nearly eliminates loss against Always Defect. Nano Draft at temperature
-zero has a small opposite aggregate change against Always Defect ($+.0068$).
-
-Against Tit-for-Tat the sign reverses for every model and temperature
-(Table~\ref{tab:policy}). The reversal is concentrated in continuation .6, .9
-and the announced ten-round game; at .4 drafting improves all four means.
-The .6 case rewards alternation, whereas .9 rewards sustained cooperation.
-Worse loss in both regimes indicates that a uniform instruction to cooperate
-more, or to defect more, would not explain all the errors. The 16-condition
-breakdown in Figure~\ref{fig:conditions} shows how the drafting effect changes
-with the partner's response and the future value of interaction.
-
+Opponent-specific results explain the average (Table~\ref{tab:policy}).
+Draft improves all four means against AllC and Grim but worsens all four
+against TFT. Against unresponsive AllC, D maximises own payoff: improvement
+means more effective exploitation. TFT instead changes the value of a choice
+through its future response. At $\delta=.6$, optimal play alternates D,C;
+at $.9$, sustained cooperation is optimal. Draft's TFT reversal is concentrated
+in these regimes and the announced ten-round game; $.4$ improves in all four
+comparisons. The pattern cannot be explained by simply recommending more C or
+more D. Appendix~\ref{app:incentives} gives the incentive calculations.
 \begin{table}[htbp]\centering\small
 \begin{tabular}{lrrrr}
 \toprule
@@ -372,277 +185,191 @@ Grim & $-.0958$ & $-.1511$ & $-.1919$ & $-.2151$\\
 Tit-for-Tat & $+.2404$ & $+.2103$ & $+.3225$ & $+.1717$\\
 \bottomrule
 \end{tabular}
-\caption{Exploratory Draft--Direct mean losses by opponent, averaging its four
-conditions equally (192 episodes per arm/opponent/temperature).}
+\caption{Exploratory Draft--Direct loss differences by opponent. Each mean
+averages four conditions equally, with 192 episodes per arm/opponent/temperature.}
 \label{tab:policy}
 \end{table}
 
-\begin{figure}[p]\centering
-\includegraphics[width=\linewidth]{../figures/condition-effects.png}
-\caption{All condition effects, chosen for disclosure rather than significance.
-Blue favours Draft; red favours Direct. Each cell compares 48 episodes per arm.
-Condition codes g denote geometric continuation; h denotes announced length.
-These are exploratory point estimates; uncertainty is reported for the planned
-contrasts in Table~\ref{tab:primary}.}
-\label{fig:conditions}
+\subsection{Temperature, presentation and planning}
+Temperature has no uniform preferred setting. Super Direct improves at zero
+(0 minus 1: $-.1372$, nominal 95\% interval [$-.1814,-.0942$]); Super Draft
+changes little ($-.0022$, [$-.0193,+.0147$]). Nano Direct also changes little
+($-.0080$, [$-.0480,+.0316$]), whereas Nano Draft worsens ($+.0513$,
+[$+.0199,+.0815$]). The drafting advantage narrows at zero by $+.0592$
+[$+.0099,+.1084$] for Nano and $+.1350$ [$+.0876,+.1849$] for Super.
+
+At zero, Nano's exploratory drafting effect reverses with the neutral action
+mapping in both seats: $-.4652,-.2558$ when X means C, versus $+.1427,+.1431$
+when X means D. The strata also use different stopping draws, motivating a
+fully crossed presentation experiment. Equal weighting retains both patterns
+in the primary estimate.
+
+Against committed TFT/Grim with ten announced rounds, nine C moves followed
+by D earns the optimal 32 points. Only one of 768 episodes follows that path.
+Super Draft often makes the useful local TFT endgame choices (43/48 C moves
+at round nine and 48/48 D moves at round ten, at zero) while losing payoff
+earlier. This distinguishes a useful short plan from planning through the
+whole relationship.
+
+\subsection{Self-play separates cooperation from benchmark competence}
+Changing both self-play agents from Direct to Draft lowers episode-weighted
+mutual cooperation for each model at each temperature (Figure~\ref{fig:self}).
+Nano changes from 15.6\% to 10.2\% at zero and 24.6\% to 5.1\% at one;
+Super changes from 26.8\% to 0.7\% and from 13.9\% to 2.3\%, respectively.
+Each episode contributes its own CC fraction with equal weight. A pooled
+round rate weights longer episodes more; rounds within one trajectory share
+a history and are dependent.
+\begin{figure}[htbp]\centering
+\includegraphics[width=.94\linewidth]{../figures/autonomous-self-play.png}
+\caption{Mean within-episode mutual cooperation in autonomous self-play.
+Each comparison changes both agents; there are 48 dyads per pairing/temperature.
+These comparisons are exploratory.}
+\label{fig:self}
 \end{figure}
 
-\subsection{Temperature changes the drafting advantage}
-The six planned secondary contrasts use nominal approximate 95\% intervals.
-For Super Direct, temperature zero minus one is $-.1372$
-[$-.1814,-.0942$], while Super Draft changes by $-.0022$
-[$-.0193,+.0147$]. Nano Direct changes by $-.0080$
-[$-.0480,+.0316$], and Nano Draft by $+.0513$ [$+.0199,+.0815$].
-Thus zero temperature improves one Direct procedure markedly, worsens one Draft
-procedure, and leaves two contrasts near zero relative to their uncertainty.
-The Draft--Direct advantage narrows at zero for Nano by $+.0592$
-[$+.0099,+.1084$] and for Super by $+.1350$ [$+.0876,+.1849$].
-These six intervals were not multiplicity adjusted. Temperature has no uniform
-preferred setting across the four arms.
+Normalised joint return is $J=(1-\delta)\sum_t(r_{1,t}+r_{2,t})$, with
+$\delta=.9$. Its mean also falls under Draft in all four self-play comparisons:
+Nano $2.7500\to2.5083$ at zero and $3.3729\to2.3854$ at one; Super
+$3.2063\to1.8667$ and $3.1500\to2.0792$. This is a geometric-normalised
+episode total, rather than a realised per-round average. Each pairing's
+schedule contains 376 rounds over 48 dyads (7.833 rounds per dyad).
+For Super at zero, the joint-return difference is $-1.3396$, with exploratory
+nominal 95\% paired-block interval [$-1.8375,-.9042$].
 
-\subsection{Presentation sensitivity and finite planning}
-An exploratory presentation slice reveals a large Nano effect at temperature
-zero. When X means C, Draft--Direct loss is $-.4652$ in the first display seat
-and $-.2558$ in the second; when X means D, it is $+.1427$ and $+.1431$.
-Each stratum has 12 blocks. Seats show the same mapping-associated reversal,
-while Nano's temperature-one effects and all Super effects favour Draft in
-every stratum. Strata also have different stopping draws, so these estimates
-motivate a fully crossed label experiment rather than isolating a causal label
-effect. Equal weighting of all four strata is essential to the reported average.
+Repair makes the contrast concrete. Super Direct at zero starts with no
+mutually cooperative first rounds, then returns to CC in 82/218 eligible
+transitions. Super Draft returns in 0/325 opportunities. The corresponding
+\emph{round counts} are 124/376 and 3/376, with different denominators from
+the episode-weighted chart. Initial cooperation and the capacity to recover
+it are distinct behaviours.
 
-In the ten-round committed-policy games, the optimal own action path is nine C
-moves followed by D, with total payoff 32. Across all 768 such episodes,
-only one follows that path (Super Draft against Grim at temperature zero).
-Against TFT, Super Draft cooperates in round nine in 43/48 temperature-zero
-episodes and defects in round ten in all 48, yet never follows the complete
-optimal path. Its actions match a useful local endgame in many histories while
-losing payoff earlier. Against Grim at continuation .9, even Super Draft starts
-with the optimal C in only 26/48 episodes at zero and 17/48 at one. Together these patterns distinguish a useful local endgame choice from planning
-through the whole relationship.
+\section{Conclusions and future directions}
+A bounded draft improves average exact own-payoff decisions over the balanced
+benchmark, while responsive opponents and autonomous play reveal a different
+story for reciprocity. Local exploitation, contingent planning and cooperative
+repair emerge as separate evaluation targets. The interactive app connects
+these aggregate findings to individual decisions and histories, giving
+researchers, agent developers and students complementary ways to inspect them.
 
-\clearpage
-\section{Autonomous interaction: cooperation is a separate outcome}
-Every unordered pairing has 48 dyads and 376 realised rounds per temperature.
-Across all ten pairings, mutual cooperation occurs in 330/3,760 rounds (8.8\%)
-at zero and 353/3,760 (9.4\%) at one. The corresponding means of within-episode
-CC fractions are 8.9\% and 9.8\%. These two weighting schemes answer different
-questions; rounds in a trajectory are dependent.
+\paragraph{Planning through responses.}
+Compare explicit state-transition plans at different depths, and vary draft
+length independently while matching compute. Score first actions and later
+continuation choices separately. Crossing every stopping seed with every
+label/seat setting would test whether the resulting plans remain stable under
+equivalent presentations.
 
-\begin{table}[htbp]\centering\small
-\begin{tabular}{lrrrr}
-\toprule
-Self-play arm & CC rounds, $\tau=0$ & $J$, $\tau=0$ & CC rounds, $\tau=1$ & $J$, $\tau=1$\\
-\midrule
-Nano Direct & 61/376 & 2.7500 & 87/376 & 3.3729\\
-Nano Draft & 29/376 & 2.5083 & 15/376 & 2.3854\\
-Super Direct & 124/376 & 3.2063 & 58/376 & 3.1500\\
-Super Draft & 3/376 & 1.8667 & 9/376 & 2.0792\\
-\bottomrule
-\end{tabular}
-\caption{Self-play cooperation and mean normalised joint return $J$.
-Draft lowers both point estimates for each model at each temperature.}
-\label{tab:self}
-\end{table}
+\paragraph{Relationship formation and repair.}
+Use controlled forgiving partners to vary when a cooperative probe or return
+to cooperation is possible. This would reveal how reciprocal exploration
+moves a pair into, maintains, or restores a productive interaction, and when
+individually defensive choices sustain low-cooperation patterns.
 
-\begin{center}
-\includegraphics[width=\linewidth]{../figures/autonomous-self-play.png}
-\end{center}
+\paragraph{Communication and noise.}
+Add messages alongside controlled action or observation errors. Compare
+commitments with subsequent choices and test whether explanations help agents
+distinguish mistakes from changed strategies. This links payoff reasoning,
+cooperation and commitment reliability in one protocol.
 
-For Super at zero, changing both self-play agents from Direct to Draft lowers
-mean normalised joint return by 1.3396 (exploratory nominal 95\% paired-block
-interval [$-1.8375,-.9042$]). Super Draft self-play has 329/376 DD rounds,
-three first-round CC outcomes, and no return to CC in 325 opportunities.
-Super Direct self-play starts with zero first-round CC outcomes but later
-recovers CC in 82/218 eligible transitions. Its 124 CC rounds show that low
-initial cooperation can coexist with subsequent coordination.
+\paragraph{Longer and changing interactions.}
+Separate available history from expected remaining interaction, and change a
+partner's rule during play. These interventions would distinguish memory and
+context use from incentives to preserve a relationship. Repeated encounters
+across episodes would make reputation and learning accessible to study.
 
-The other self-play joint-return differences (Draft minus Direct) are
-$-.2417$ [$-.5458,+.0271$] for Nano at zero,
-$-.9875$ [$-1.3063,-.6958$] for Nano at one, and
-$-1.0708$ [$-1.4208,-.7521$] for Super at one.
-These post-viewing comparisons change both players together and have no
-multiplicity correction. All ten pairings, including cross-model interactions,
-are released with CC/CD/DC/DD counts and breakdown/recovery opportunities.
+\paragraph{Diverse incentives and populations.}
+Vary temptation, shared surplus and punishment; compare asymmetric roles,
+larger groups and mixtures of simple policies, adaptive agents and humans.
+Partner selection would then connect the quality of individual decisions to
+which relationships and strategies persist across a population.
 
-The shared realised .9-continuation schedule averages 7.833 rounds, below its
-population expectation of ten. On this particular schedule, constant CC would
-yield mean $J=4.7000$, and constant DD $J=1.5667$. This helps interpret the
-normalised returns without mistaking a realised average for a population limit.
+\subsection*{Evidence and reproducibility}
+Nebius Token Factory supplied hosted inference. Native Inspect AI samples,
+model events and custom scores \cite{inspect}, an append-only local event
+ledger, and MLflow Skinny/SQLite tracking \cite{mlflow} connect execution to
+analysis. All episodes completed; bounded recovery preserved the first 3,406
+completed episodes and the original evidence prefix. Original and recovery
+source records remain separately frozen.
 
-\section{Resource observations}
-At each temperature every arm contributes 5,236 decisions across both tracks.
-Direct uses one successful request per decision and Draft two. Measured token
-use and request durations describe the resources used; usage-based cost estimates
-apply the rates recorded during the run. Within a model, Draft's estimated usage
-cost is about 10.0--11.9 times Direct's across the two tracks.
-
-The thinking draft reaches its 1,024-token limit in 25.2\% of Nano-zero requests,
-41.0\% of Nano-one, 37.1\% of Super-zero and 56.1\% of Super-one. Median request
-latencies range from .36--.69 seconds for Direct and .96--1.98 seconds across
-Draft's two phases. These are per-request observations; total decision delay also
-includes both phases, queueing and recovery. The resource profile makes the
-procedure concrete and motivates controlled comparisons of how computation is
-allocated between planning and action.
-
-\section{Future work}
-The study connects exact decision quality to the dynamics of a relationship.
-Its strongest contrast is that a procedure can improve average payoff choices
-while becoming less effective at sustaining reciprocity. The following directions
-extend that distinction into questions about how adaptive agents plan and interact.
-
-\subsection{From local choices to contingent plans}
-Tit-for-Tat changes the payoff-maximising pattern as continuation increases,
-while announced horizons create a specific endgame. These settings offer a way
-to study how agents represent a partner's state and carry a plan through time.
-A useful next experiment would compare explicit state-transition plans at several
-depths, with first actions and continuation choices scored separately. Matching
-compute across procedures and varying draft length independently would reveal
-which allocation of reasoning helps preserve valuable future responses.
-Fully crossing stopping seeds, action mappings and display seats would also show
-how robust those plans are to an equivalent presentation of the game.
-
-\subsection{Relationship formation, forgiveness and repair}
-Super Direct's return to mutual cooperation after uncooperative starts suggests
-that repair deserves its own target of study. Controlled partners could introduce
-known opportunities to forgive, test a cooperative move or restore trust after a
-fixed number of defections. Varying the frequency and timing of those opportunities
-would reveal when reciprocal exploration leads to a stable productive pattern.
-This would connect an agent's isolated choices to the path by which a pair enters,
-maintains or leaves cooperation.
-
-\subsection{Communication and noisy observations}
-Messages add another channel through which players can make commitments,
-coordinate expectations and explain apparent mistakes. Combining a communication
-phase with controlled action or observation noise would test how agents distinguish
-an accidental defection from a changed policy, and whether an explanation makes
-repair more likely. Comparing message content with subsequent actions would link
-payoff reasoning, cooperation and commitment reliability in a common protocol.
-The sealed-action game provides a clear baseline for that extension.
-
-\subsection{Longer interactions and changing environments}
-Longer horizons would allow repeated cycles of cooperation, breakdown and repair.
-Changing a partner's response rule during an interaction would test whether an
-agent updates its plan when familiar behaviour stops being informative. Separating
-history length from expected remaining interaction would help distinguish memory
-and context management from the incentive to preserve a valuable relationship.
-Repeated encounters across episodes could then study reputation and learning.
-
-\subsection{Diverse incentives and populations}
-Varying the payoff matrix would change the balance between temptation, joint
-surplus and punishment. Comparing symmetric and asymmetric roles, larger groups,
-and mixtures of simple policies, adaptive agents and human players would test how
-the observed capabilities transfer across social environments. Population-level
-interaction also raises questions about partner selection: an effective local
-policy may change which relationships persist and which strategies become common.
-These extensions would make it possible to connect exact small-game references
-to the broader coordination problems that motivate the study.
+Public action histories reproduce exact scores, planned bootstrap intervals
+and exploratory diagnostics offline. The
+\href{https://github.com/sheinkmana/dilemma-dynamics}{repository} retains the
+full 16-condition and ten-pairing tables, numeric telemetry, dependency locks,
+source indices and verification commands. Private responses and draft text
+remain local. Resource use is measured from recorded request telemetry;
+usage-based cost estimates use the rates recorded at execution. Earlier
+development observations are excluded. Findings concern
+the stated prompts, hosted models and complete procedures; secondary and
+exploratory intervals have no family correction. Successful drafts reach their
+1,024-token limit in 25--56\% of cases, making bounded computation part of the
+observed intervention.
 
 \clearpage
-
 \appendix
-\section{Probabilities and the app's forecast inequality}
-The optional app protocol asks for an opponent-action forecast and two conditional
-future-payoff forecasts. These are elicited separately from the evaluation's
-action-only scientific requests. Their algebra helps explain the difference
-between immediate temptation and future incentives.
-
-Let \(\mathcal H_t\) be the completed history available before round \(t\), and
-let \(p_t\in[0,1]\) be the reported probability that the opponent cooperates in
-that round. Thus \(p_t\) concerns the opponent's \emph{current action}; \(\delta\)
-concerns whether a \emph{later round exists}. The simultaneous protocol keeps
-the opponent's current choice sealed while the subject chooses.
-
-Let \(F_{a,t}\) be the reported expected own total from the next round onward,
-conditional on continuation and on choosing \(a\in\{\C,\D\}\) now. It includes
-future opponent responses and subsequent stopping. Whenever no further round
-is possible, define \(F_{a,t}=0\). The probability of reaching the next round is
+\section{Incentive calculations and app analysis}
+\label{app:incentives}
+\subsection{When future responses make cooperation pay}
+Against untriggered Grim, cooperation forever earns $R/(1-\delta)$; defecting
+now and best-responding to permanent D earns $T+\delta P/(1-\delta)$. Thus
 \[
-\rho_t=\begin{cases}
-\delta, & \text{geometric game},\\
-1, & \text{fixed game with }t<H,\\
-0, & \text{fixed game with }t=H.
-\end{cases}
+\frac{R}{1-\delta}\geq T+\frac{\delta P}{1-\delta}
+\quad\Longleftrightarrow\quad
+\delta\geq\frac{T-R}{T-P}=\frac12.
 \]
-The conditional future totals have bounds
+Against initially cooperating TFT, the three candidate continuation values are
 \[
-0\leq F_{a,t}\leq
-\begin{cases}
-5/(1-\delta),&\text{geometric game},\\
-5(H-t),&\text{fixed game},
-\end{cases}
+\underbrace{\frac3{1-\delta}}_{\text{always C}},\qquad
+\underbrace{5+\frac\delta{1-\delta}}_{\text{always D}},\qquad
+\underbrace{\frac5{1-\delta^2}}_{\text{alternate D,C}}.
 \]
-because five is the maximum own payoff per round. In the geometric case,
-conditioning on the next round means the remaining expected length is again
-\(1/(1-\delta)\).
+Comparison makes initial C optimal for $\delta\geq2/3$, explaining why $.6$
+and $.9$ reward different patterns. With ten announced rounds against committed
+TFT/Grim, backward induction yields nine C moves and a final D, worth
+$9R+T=32$. This uses a fixed response rule, rather than the different
+finite-game assumption in which both players remain free to optimise
+\cite[Sections 4.1 and 5.1--5.2]{rasmusen}.
 
-Write \(\widehat Q_t(a)\) for expected own payoff according to these submitted
-forecasts. With the payoff matrix in Section~1,
+\subsection{Reported forecasts in the educational app}
+Optional app forecasts are separate from the evaluation's action-only requests.
+Let $p_t$ be a player's reported probability of the opponent's current C, and
+$F_{a,t}$ its expected own total \emph{from the next round onward}, conditional
+on continuation and action $a$ now. Define $\rho_t=\delta$ in a geometric game,
+$1$ before an announced final round, and $0$ at that final round. Then
 \begin{align*}
-\widehat Q_t(\C)&=p_tR+(1-p_t)S+\rho_tF_{\C,t}
-=3p_t+\rho_tF_{\C,t},\\
-\widehat Q_t(\D)&=p_tT+(1-p_t)P+\rho_tF_{\D,t}
-=1+4p_t+\rho_tF_{\D,t}.
+\widehat Q_t(\C)&=3p_t+\rho_tF_{\C,t},\\
+\widehat Q_t(\D)&=1+4p_t+\rho_tF_{\D,t},
 \end{align*}
-Cooperation is weakly preferred according to the forecasts precisely when
-\begin{equation}
-\rho_t\bigl(F_{\C,t}-F_{\D,t}\bigr)\geq1+p_t.
-\label{eq:forecast}
-\end{equation}
-The right side is the immediate gain from defection, between one and two points;
-the left side is cooperation's forecast future advantage, weighted by the chance
-of reaching that future. Equality means a tie. At an announced final round,
-\(\rho_t=0\), so the immediate incentive favours D for every \(p_t\in[0,1]\).
-
-This check measures consistency between an action and submitted forecasts.
-Forecast accuracy can then be studied against outcomes that were actually
-observed. A one-step counterfactual holds the other player's sealed current
-action fixed; a longer alternative history requires specifying how that opponent
-would respond.
-
-\clearpage
-\section{Recreational games: tactics on grids and lattices}
-Tic-tac-toe and Dots \& Boxes are mathematical games played on discrete grids or
-lattices. Both have perfect information: the position is fully visible and moves
-are sequential. Their exact references illustrate tactical choice and search.
-
-\subsection{Tic-tac-toe}
-Let \(x\) denote a board state including the player to move, \(A(x)\) its legal
-moves and \(f(x,a)\) the state after move \(a\). Let \(G(x)\) be optimal game value
-from the current player's perspective. Terminal values are win \(+1\), draw 0
-and loss \(-1\), according to that same perspective. Because each move passes
-the turn, a nonterminal state satisfies
+so cooperation is weakly preferred according to those forecasts exactly when
 \[
-G(x)=\max_{a\in A(x)}[-G(f(x,a))].
+\rho_t(F_{\C,t}-F_{\D,t})\geq1+p_t.
 \]
-The game is small enough for exhaustive minimax. Legality, search value and the
-player's explanation can therefore be checked separately.
+The right side is the immediate temptation to defect; the left side is the
+forecast future advantage of C, weighted by continuation. Future totals lie
+between zero and $5/(1-\delta)$ in geometric games or $5(H-t)$ in fixed games.
+At a known final round, future advantage is zero and D pays more for every
+$p_t$. This checks consistency with submitted forecasts, not hidden beliefs;
+accuracy is assessed against outcomes actually observed. A one-step alternative
+holds the other player's sealed action fixed; longer alternatives need an
+explicit response model.
 
-\subsection{Dots \& Boxes}
-Here \(x\) includes drawn edges, box ownership and the player to move. Write
-\(g(x,a)\) for the number of boxes captured by drawing edge \(a\), and \(W(x)\)
-for optimal remaining-box difference from the current player's perspective.
-An edge that captures a box grants another turn. Thus
+\section{Recreational games}
+Tic-tac-toe and Dots \& Boxes are perfect-information mathematical games on
+grids or lattices, with visible sequential moves. They have their own scores
+and search references. For Tic-tac-toe, minimax from the current player's
+perspective has terminal values $+1,0,-1$ and recursion
+$G(x)=\max_{a\in A(x)}[-G(f(x,a))]$.
+
+Dots \& Boxes grants another turn after a capture. If $g(x,a)$ is boxes
+captured and $W(x)$ is optimal \emph{remaining}-box difference, then
 \[
-W(x)=\max_{a\in A(x)}\left[g(x,a)+\sigma(x,a)W(f(x,a))\right],\qquad
-\sigma(x,a)=\begin{cases}+1,&g(x,a)>0,\\-1,&g(x,a)=0.\end{cases}
+W(x)=\max_{a\in A(x)}[g(x,a)+\sigma(x,a)W(f(x,a))],\qquad
+\sigma=\begin{cases}+1,&g(x,a)>0,\\-1,&g(x,a)=0.\end{cases}
 \]
-At a terminal state, \(W(x)=0\), since no boxes remain. The difference in boxes
-already owned is added separately to obtain the final score difference.
-The positive sign preserves perspective after an extra turn; the negative sign
-switches it when the turn passes.
+At completion $W=0$; previously owned boxes are added separately. The sign
+preserves perspective on an extra turn and switches it when play passes.
+The app labels incomplete bounded searches unknown and presents chain/loop
+references only within their assumptions. These tactics complement the
+cooperation study in the separate Recreational games area.
 
-Exact edge search is used within explicit state and computation limits, with
-incomplete searches labelled unknown. Restricted long-chain/loop endgames also
-admit specialised references. A box sacrifice can preserve control and increase
-the eventual score; its value depends on the remaining position and the validity
-of that reference's assumptions.
-
-Tic-tac-toe rewards a line of three while perfect play produces a draw. Dots \&
-Boxes divides a fixed set of boxes, so a temporary sacrifice can be valuable
-when it preserves control of later chains. The app presents these rules and
-tactical examples in its Recreational games area.
-
-\clearpage
 \begin{thebibliography}{10}
 \raggedright
 \bibitem{rasmusen}

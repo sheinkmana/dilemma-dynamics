@@ -2,38 +2,75 @@
 
 _Exploring AI strategies, incentives and cooperation._
 
-An interactive game laboratory by **Alisa Sheinkman**. Play the repeated
-Prisoner's Dilemma, inspect choices and their consequences, and explore how
-NVIDIA Nemotron Nano and Super respond to changing incentives.
+An interactive game laboratory by **Alisa Sheinkman**. An AI agent's choices
+can influence whether a partner cooperates, retaliates or rebuilds a productive
+relationship. Dilemma Dynamics lets researchers and agent developers examine
+how individual decision quality relates to cooperation over time. Students can
+explore the same incentives by playing repeated Prisoner's Dilemma and inspecting
+the consequences of each choice.
 
-![Evaluation: average drafting effects](public/research/figures/primary-results.png)
+**[Try the browser demo](https://sheinkmana.github.io/dilemma-dynamics/#play)** ·
+[Explore Results](https://sheinkmana.github.io/dilemma-dynamics/#results) ·
+[Read the seven-page PDF notes](public/research/paper/report.pdf)
+
+The browser demo offers free play, analysis and labelled saved Nemotron recordings
+without a key or model requests. For live model play, [run the app locally](#run-locally).
+
+**NVIDIA Nemotron Nano and Super, served through Nebius Token Factory**, made the
+choices in the 7,104-episode evaluation. Token Factory supplied hosted inference
+while the game engine, exact scoring and evidence pipeline ran locally. The same
+integration powers explicitly started live Nemotron play in the local app.
+
+## Two-minute walkthrough
+
+1. Open **[Play & understand](https://sheinkmana.github.io/dilemma-dynamics/#play)**,
+   choose **Play yourself**, keep **Reciprocal bot · free**, and select
+   **Start playing →**. Choose **Cooperate (C)** or **Defect (D)**; both players'
+   private choices are revealed together. Use **Next round** to continue and see
+   how the bot responds.
+2. Read **Understand this decision** beside or below a completed round. Compare
+   the payoffs and alternative actions, and use **Round history** to revisit a
+   choice.
+3. Select **Stop interaction**, then **New interaction**, then
+   **Watch Nemotron · recording**. Use **Reveal next round** to inspect the saved
+   Nano Direct example; switch to **Nemotron Nano · Draft** to compare the matched
+   procedure. These are recorded actions, with no new inference requests.
+4. Open **[Results](https://sheinkmana.github.io/dilemma-dynamics/#results)** for
+   the three chart-led findings. Select **Explore a study replay ↓** to connect
+   those aggregates to individual decisions and their exact payoff references.
+
+## What the study shows
 
 The evaluation contains **7,104 episodes**, **two models** and **two temperatures**.
+**Direct** requests an action; **Draft** first requests a bounded private draft,
+then an action in a separate request. The study compares these complete procedures.
+
 Drafting reduced average exact benchmark decision loss by **16.8–37.5%** across
-the four planned comparisons. The opponent matters: drafting increased loss
-against Tit-for-Tat and reduced cooperation in autonomous self-play. Recognising
-an exploitation opportunity and sustaining a reciprocal relationship are
-distinct capabilities.
+the four planned comparisons. **Decision loss measures payoff forgone relative
+to exact best-response references against disclosed opponent rules.** The
+reduction means less payoff forgone, rather than the same percentage increase in
+earned points. The opponent matters: drafting increased loss against Tit-for-Tat
+and reduced cooperation in autonomous self-play. Recognising an exploitation
+opportunity and sustaining a reciprocal relationship are distinct capabilities.
+
+![Evaluation: average drafting effects](public/research/figures/primary-results.png)
 
 Read the [evaluation guide](FINAL_EVALUATION.md) for findings and reproducibility,
 or the [PDF notes](public/research/paper/report.pdf) for the study, mathematical
 definitions and future work. The [TeX source](public/research/paper/main.tex) is
 retained in the repository.
 
-## Explore the app
+## More to explore
 
-- **Play & understand** introduces simultaneous private choices, the payoff
-  matrix and the value of another encounter. Play yourself, watch free bots, or
-  watch labelled saved Nemotron recordings. Inspect a completed round's payoffs
-  and alternative actions beside the game. Expand lessons and advanced setup
-  when useful. The local app also offers explicitly started live Nemotron play.
-- **Results** presents the question, Direct/Draft procedures, key numbers and
-  charts. Expand **Study replay** below the findings to follow a saved episode,
-  then explore detailed tables and methods. Saved recordings make no model calls.
-- **Recreational games** is a separate secondary link. Tic-tac-toe and Dots & Boxes
-  are mathematical games played on discrete grids or lattices, with perfect
-  information and visible sequential moves. Try their tactics and search in the
-  game area. Their scores are separate from the dilemma evaluation.
+**Play & understand** also offers **Watch bots · free**, expandable lessons and
+advanced setup. **Results** places detailed tables and methods below its charts
+and optional Study replay.
+
+**[Recreational games](https://sheinkmana.github.io/dilemma-dynamics/#recreational)**
+is a separate secondary area. Tic-tac-toe and Dots & Boxes are mathematical games
+played on discrete grids or lattices, with perfect information and visible
+sequential moves. Try their tactics and search there; their scores are separate
+from the dilemma evaluation.
 
 Both website and local builds share this interface. The website supports free
 play, analysis, saved recordings and replay exports without a key. The local
@@ -64,35 +101,6 @@ Pause waits for a joint-round boundary. Stop awards no partial-round points.
 Restart never automatically resumes model requests. Accepted sealed responses
 are retained for supported recovery. After a browser disconnect, check the
 connection and session status before restarting.
-
-## Build the website app
-
-```sh
-npm run build:public
-npm run preview:public
-```
-
-Open **http://127.0.0.1:4173/dilemma-dynamics/**. The default is **Play & understand**
-(`#play`); **Results** is `#results`, with Study replay at `#replay`.
-`#recreational` opens Recreational games. Existing `#dilemma` and `#analysis`
-links still open the corresponding Play section. Changing tabs keeps game state.
-
-Free play runs in the browser. The public build excludes model configuration,
-server shutdown and inference transport; its build check rejects API endpoints
-or event streams in compiled scripts.
-
-Publish the contents of `dist/web/` under the website's `dilemma-dynamics/`
-directory, with `LICENSE` copied as `LICENSE.txt`. The build uses an explicit
-website asset allowlist: app assets, PDF notes, required figures and viewer data,
-saved action recordings, and a checksum manifest. The repository retains the
-full scientific export and TeX source. Research links on the website lead to
-the PDF and this repository. Each build replaces `dist/web/`; export immediately
-after `build:public`. Rebuilding this repository does not publish the website.
-
-For Jekyll, exclude `dilemma-dynamics/**` from `jekyll-minifier`; Vite already
-minifies the assets. Preserve the selected research assets and checksum manifest
-byte for byte. Check free play, pause/resume, browser saves, replay, Results and
-research links after copying the build.
 
 ## How it works
 
@@ -148,6 +156,35 @@ uv run python tools/verify_public_results.py
 Preserve executed source, prompts, scoring and evidence. The completed campaign
 can be reconstructed offline; the [evaluation guide](FINAL_EVALUATION.md)
 explains the evidence and verification paths.
+
+## Build the website app
+
+```sh
+npm run build:public
+npm run preview:public
+```
+
+Open **http://127.0.0.1:4173/dilemma-dynamics/**. The default is **Play & understand**
+(`#play`); **Results** is `#results`, with Study replay at `#replay`.
+`#recreational` opens Recreational games. Existing `#dilemma` and `#analysis`
+links still open the corresponding Play section. Changing tabs keeps game state.
+
+Free play runs in the browser. The public build excludes model configuration,
+server shutdown and inference transport; its build check rejects API endpoints
+or event streams in compiled scripts.
+
+Publish the contents of `dist/web/` under the website's `dilemma-dynamics/`
+directory, with `LICENSE` copied as `LICENSE.txt`. The build uses an explicit
+website asset allowlist: app assets, PDF notes, required figures and viewer data,
+saved action recordings, and a checksum manifest. The repository retains the
+full scientific export and TeX source. Research links on the website lead to
+the PDF and this repository. Each build replaces `dist/web/`; export immediately
+after `build:public`. Rebuilding this repository does not publish the website.
+
+For Jekyll, exclude `dilemma-dynamics/**` from `jekyll-minifier`; Vite already
+minifies the assets. Preserve the selected research assets and checksum manifest
+byte for byte. Check free play, pause/resume, browser saves, replay, Results and
+research links after copying the build.
 
 ## Storage, access and license
 

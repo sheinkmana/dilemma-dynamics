@@ -521,16 +521,19 @@ export function DilemmaPage({
         {!session && (
           <section className="pd-welcome" aria-label="Start exploring">
             <p>
-              Your choice today can change how a partner responds tomorrow. Explore what happens
-              when private, simultaneous decisions are repeated.
+              An AI agent’s choice can change how a partner responds in the next encounter.
+              Students, researchers and agent developers can explore how individual rewards and
+              cooperation interact through play, saved Nemotron recordings and exact payoff
+              comparisons against known opponent rules.
             </p>
             <div className="pd-payoffs pd-intro-payoffs">
               <PayoffTable />
               <small>A points · B points</small>
             </div>
             <p>
-              Each player seeks their own total points. Both can gain through cooperation, while
-              defection offers an immediate temptation. Repetition makes future responses matter.
+              Repeated Prisoner’s Dilemma makes the tradeoff visible: each player seeks their own
+              total points, while both can gain through cooperation. Defection offers an immediate
+              temptation, and future responses can change what pays.
             </p>
             <div className="pd-entry-actions">
               <button

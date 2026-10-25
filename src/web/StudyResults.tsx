@@ -84,6 +84,11 @@ export function StudyResults({
           <p className="results-eyebrow">Evaluation</p>
           <h1>Better individual decisions. A harder path to cooperation.</h1>
           <p className="results-lead">
+            An AI agent’s decisions can shape whether a partner cooperates, retaliates or helps
+            rebuild a productive interaction. This evaluation examines how individual payoff
+            decisions relate to cooperation over time.
+          </p>
+          <p>
             What changes when an AI drafts before choosing? In repeated Prisoner’s Dilemma, drafting
             reduced average payoff forgone by both Nemotron models. The opponent mattered: the
             advantage reversed against Tit-for-Tat, and autonomous self-play became less
